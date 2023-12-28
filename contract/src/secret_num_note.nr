@@ -13,16 +13,17 @@ use dep::aztec::{
     context::PrivateContext,
 };
 
-global SECRET_NUM_NOTE_LEN: Field = 4;
+// global SECRET_NUM_NOTE_LEN: Field = 4;
+global SECRET_NUM_NOTE_LEN: Field = 2;
 
 struct SecretNumberNote {
-    secret_num: [Field;3],
+    secret_num: Field,
     owner: Field, // We store the owner address only to get the secret key to compute the nullifier
     header: NoteHeader,
 }
 
 impl SecretNumberNote {
-    pub fn new(secret_num: [Field; 3], owner: Field) -> Self {
+    pub fn new(secret_num: Field, owner: Field) -> Self {
         SecretNumberNote {
             secret_num,
             owner,
@@ -31,22 +32,12 @@ impl SecretNumberNote {
     }
 
     pub fn serialize(self) -> [Field; SECRET_NUM_NOTE_LEN] {
-        let ones = self.secret_num[0];
-        let tens = self.secret_num[1];
-        let hunds = self.secret_num[2];
-        let res: [Field; SECRET_NUM_NOTE_LEN] = [ones, tens, hunds, self.owner];
+        let res: [Field; SECRET_NUM_NOTE_LEN] = [self.secret_num, self.owner];
         res
     }
 
     pub fn deserialize(serialized_note: [Field; SECRET_NUM_NOTE_LEN]) -> Self {
-        let mut secret_num: [Field; 3] = [0; 3];
-            
-        // let part_secret_num = serialized_note[0]; // needs to be bytes..
-            for i in 0..2 {
-                secret_num[i] = serialized_note[i]; // ?? why + 1
-            }
-                
-        SecretNumberNote { secret_num, owner: serialized_note[3], header: NoteHeader::empty() }
+        SecretNumberNote { secret_num: serialized_note[0], owner: serialized_note[1], header: NoteHeader::empty() }
     }
     
     pub fn compute_note_hash(self) -> Field {
@@ -54,7 +45,7 @@ impl SecretNumberNote {
     }
 
     pub fn compute_nullifier(self) -> Field {
-        let note_hash_for_nullify = compute_note_hash_for_read_or_nullify(SecretNumberNoteInterface, self);
+        let note_hash_for_nullify = compute_note_hash_for_read_or_nullify(SecretNumberNoteMethods, self);
         let secret = get_secret_key(self.owner);
         // TODO(#1205) Should use a non-zero generator index.
         pedersen_hash([
@@ -110,7 +101,7 @@ fn broadcast(context: &mut PrivateContext, slot: Field, note: SecretNumberNote) 
     note.broadcast(context, slot);
 }
 
-global SecretNumberNoteInterface = NoteInterface {
+global SecretNumberNoteMethods = NoteInterface {
     deserialize,
     serialize,
     compute_note_hash,
