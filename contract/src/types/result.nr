@@ -15,14 +15,12 @@ impl Result {
 }
 
 fn deserializeResult(fields: [Field; RESULT_SERIALIZED_LEN]) -> Result {
-    Result { call_num: fields[0], eat: fields[1], bite: fields[2]}
+    Result { call_num: fields[0], eat: fields[1], bite: fields[2] }
 }
 
 fn serializeResult(result: Result) -> [Field; RESULT_SERIALIZED_LEN] {
     [result.call_num, result.eat, result.bite]
 }
-
-
 
 global ResultSerializationMethods = TypeSerializationInterface {
     deserialize: deserializeResult,
