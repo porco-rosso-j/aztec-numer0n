@@ -144,19 +144,20 @@ contract Numer0n {
     }
 
     #[aztec(private)]
-    fn call_num(player: AztecAddress, call_num:Field) {
+    fn call_num(target: AztecAddress, call_num:Field) {
 
-        let player_address = player.address;
+        let target_address = target.address;
 
         context.call_public_function(
             context.this_address(), 
             compute_selector("_assert_invalid_caller(Field)"),
-            [player_address]
+            [context.msg_sender()]
         ); 
 
         num_lib::is_valid_nums(call_num);
 
-        let secret_num_note: SecretNumberNote = storage.secret_num.at(player_address).get_note(true);
+        // should validate the target is the opponent player..?
+        let secret_num_note: SecretNumberNote = storage.secret_num.at(target_address).get_note(true);
         let secret_num: Field = secret_num_note.secret_num;
         assert(secret_num != 0, "secret_num hasn't been set");
 
@@ -166,42 +167,46 @@ contract Numer0n {
         context.call_public_function(
             context.this_address(), 
             compute_selector("_record_result(Field,Field,Field,Field)"), 
-            [player_address, call_num, ret[0], ret[1]]
+            [context.msg_sender(), call_num, ret[0], ret[1]]
         ); 
 
         // put here as this fails somehow if placed at the top.
-        if (player_address != context.msg_sender()) {
-            assert_current_call_valid_authwit(&mut context, player);
+        if (target_address != context.msg_sender()) {
+            assert_current_call_valid_authwit(&mut context, target);
+        } else {
+            assert(false, "player_address shouldn't be msg.sender");
         }
 
     }
 
     #[aztec(public)]
-    internal fn _record_result(_player: Field, call_num:Field, eat:Field, bite:Field) {
+    internal fn _record_result(caller: Field, call_num:Field, eat:Field, bite:Field) {
       let current_epoch: Field = storage.epoch.read();
-      let player = storage.player.at(_player).read();
+      let caller = storage.player.at(caller).read();
       let result = Result::new(call_num, eat, bite);
 
-      if (player.player_id == 2) {
+      if (caller.player_id == 1) {
         storage.results_one.at(current_epoch).write(result);
         storage.is_first.write(false);
-      } else if (player.player_id == 1) {
+
+      } else if (caller.player_id == 2) {
         storage.results_two.at(current_epoch).write(result);
         storage.is_first.write(true);
+
         storage.epoch.write(current_epoch + 1);
       }
     }
 
     #[aztec(public)]
-    internal fn _assert_invalid_caller(_player: Field) {
-        let player = storage.player.at(_player).read();
+    internal fn _assert_invalid_caller(_caller: Field) {
+        let player = storage.player.at(_caller).read();
         
         if ((player.is_player) & (player.player_id == 1)) {
-            assert(!storage.is_first.read(), "invalid turn: player 1");
+            assert(storage.is_first.read(), "invalid turn for player 1");
         } else if ((player.is_player) & (player.player_id == 2)) {
-            assert(storage.is_first.read(), "invalid turn: player 2");
+            assert(!storage.is_first.read(), "invalid turn for player 2");
         } else {
-            assert(false, "invalid caller");
+            assert(false, "invalid player");
         }
     }
 
@@ -267,8 +272,8 @@ contract Numer0n {
         num_lib::_check_result(call_num, secret_num)
     }
 
-    unconstrained fn is_valid_nums(_num: Field) {
-        num_lib::_is_valid_nums(_num);
+    unconstrained fn is_valid_nums(_num: Field) -> [u16;3] {
+        num_lib::_is_valid_nums(_num)
     }
 
     unconstrained fn compute_note_hash_and_nullifier(contract_address: Field, nonce: Field, storage_slot: Field, serialized_note: [Field; SECRET_NUM_NOTE_LEN]) -> [Field; 4] {

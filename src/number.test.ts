@@ -66,25 +66,41 @@ describe("E2E Numer0n", () => {
 				.check_result(call_num, secret_num)
 				.view();
 			console.log("ret: ", ret);
-		});
 
-		it("check result 2", async () => {
-			const call_num = 125n;
-			const secret_num = 486n;
-			const ret = await numer0n.methods
-				.check_result(call_num, secret_num)
+			const call_num2 = 125n;
+			const secret_num2 = 486n;
+			const ret2 = await numer0n.methods
+				.check_result(call_num2, secret_num2)
 				.view();
-			console.log("ret: ", ret);
+			console.log("ret2: ", ret2);
+
+			const call_num3 = 25n;
+			const secret_num3 = 406n;
+			const ret3 = await numer0n.methods
+				.check_result(call_num3, secret_num3)
+				.view();
+			console.log("ret3: ", ret3);
+
+			const call_num4 = 984n;
+			const secret_num4 = 460n;
+			const ret4 = await numer0n.methods
+				.check_result(call_num4, secret_num4)
+				.view();
+			console.log("ret4: ", ret4);
 		});
 
 		it.skip("is_valid_nums", async () => {
-			const num = 932n;
+			const num = 51n;
 			const ret = await numer0n.methods.is_valid_nums(num).view();
 			console.log("ret: ", ret);
 
-			const num2 = 293n;
+			const num2 = 609n;
 			const ret2 = await numer0n.methods.is_valid_nums(num2).view();
 			console.log("ret2: ", ret2);
+
+			const num3 = 250n;
+			const ret3 = await numer0n.methods.is_valid_nums(num3).view();
+			console.log("ret3: ", ret3);
 		});
 	});
 });

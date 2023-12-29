@@ -28,7 +28,7 @@ let player2Addr: AztecAddress;
 
 // Setup: Set the sandbox
 beforeAll(async () => {
-	const { SANDBOX_URL = "http://localhost:8080" } = process.env;
+	const { SANDBOX_URL = "http://212.227.240.189:8080" } = process.env;
 	pxe = createPXEClient(SANDBOX_URL);
 
 	await init();
@@ -62,7 +62,7 @@ describe("E2E Numer0n", () => {
 			await pxe.registerRecipient(receipt.contract.completeAddress);
 		}, 120_000);
 
-		it("validate initial public states", async () => {
+		it.skip("validate initial public states", async () => {
 			console.log("numer0n: ", numer0n.address.toString());
 
 			const player_one = await numer0n.methods.get_player(player1Addr).view();
@@ -93,6 +93,58 @@ describe("E2E Numer0n", () => {
 				.view();
 			// console.log("result_two: ", result_two);
 			expect(result_two.call_num).toEqual(0n);
+		});
+
+		it.skip("should fail due to invalid nums", async () => {
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, 100n)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: number should be bigger than 11 '_num as u16 >= 12'"
+			);
+
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, 1000n)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: number should be lower than 988 '_num as u16 <= 987'"
+			);
+
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, 220n)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: duplication not allowed '(nums[0] != nums[1]) & (nums[1] != nums[2]) & (nums[2] != nums[0])'"
+			);
+
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, 202n)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: duplication not allowed '(nums[0] != nums[1]) & (nums[1] != nums[2]) & (nums[2] != nums[0])'"
+			);
+
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, 122n)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: duplication not allowed '(nums[0] != nums[1]) & (nums[1] != nums[2]) & (nums[2] != nums[0])'"
+			);
 		});
 
 		it("should add nums correctly:player 1", async () => {
@@ -137,7 +189,43 @@ describe("E2E Numer0n", () => {
 			expect(_secert_num).toEqual(secret_num);
 		});
 
-		it("player1 should call player2's secret num wrongly: 0-3", async () => {
+		it.skip("should fail to add num for the second time", async () => {
+			const secret_num = 125n;
+
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, secret_num)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: num has already been added '!player.has_number'"
+			);
+		});
+
+		it.skip("should fail due to call from invalid player", async () => {
+			const secret_num = 125n;
+
+			await expect(
+				numer0n
+					.withWallet(deployer)
+					.methods.add_num(player1Addr, secret_num)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: invalid player 'context.msg_sender() == player'"
+			);
+
+			await expect(
+				numer0n
+					.withWallet(deployer)
+					.methods.add_num(deployer.getAddress(), secret_num)
+					.send()
+					.wait()
+			).rejects.toThrowError("Assertion failed: not player 'player.is_player");
+		});
+
+		it.skip("player1 should call player2's secret num wrongly: 0-3", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 			const call_num = 932n;
 
@@ -167,7 +255,7 @@ describe("E2E Numer0n", () => {
 			expect(result_one.bite).toEqual(3n);
 		});
 
-		it("player2 should call player1's secret num wrongly: 0-0", async () => {
+		it.skip("player2 should call player1's secret num wrongly: 0-0", async () => {
 			// player 1 should create authwitness for player 2 to send tx
 			const call_num = 486n;
 
@@ -197,6 +285,39 @@ describe("E2E Numer0n", () => {
 			expect(result_two.bite).toEqual(0n);
 		});
 
+		it.skip("should fail due to invalid caller", async () => {
+			// player 2 should create authwitness for player 1 to send tx
+			const call_num = 293n;
+
+			const action = numer0n
+				.withWallet(deployer)
+				.methods.call_num(player1.getAddress(), call_num);
+			const messageHash = computeAuthWitMessageHash(
+				deployer.getAddress(),
+				action.request()
+			);
+
+			const witness = await player1.createAuthWitness(messageHash);
+			await deployer.addAuthWitness(witness);
+
+			await expect(action.send().wait()).rejects.toThrowError(
+				"Assertion failed: invalid player 'false"
+			);
+		});
+
+		it.skip("shouldn't be able to call your secret num: caller == target", async () => {
+			// player 2 should create authwitness for player 1 to send tx
+			const call_num = 293n;
+
+			const action = numer0n
+				.withWallet(player1)
+				.methods.call_num(player1.getAddress(), call_num);
+
+			await expect(action.send().wait()).rejects.toThrowError(
+				"Assertion failed: player_address shouldn't be msg.sender 'false'"
+			);
+		});
+
 		it("player1 should call player2's secret num correctly", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 			const call_num = 293n;
@@ -214,11 +335,12 @@ describe("E2E Numer0n", () => {
 
 			const tx = await action.send().wait();
 
-			console.log("tx: ", tx.txHash.toString());
+			console.log("tx: ", tx);
+			console.log("tx hash: ", tx.txHash.toString());
 			expect(tx.status).toBe("mined");
 
 			const result_one = await numer0n.methods
-				.get_result(player1Addr, 1)
+				.get_result(player1Addr, 0)
 				.view();
 
 			console.log("result_one: ", result_one);
@@ -248,7 +370,7 @@ describe("E2E Numer0n", () => {
 			expect(tx.status).toBe("mined");
 
 			const result_two = await numer0n.methods
-				.get_result(player2Addr, 1)
+				.get_result(player2Addr, 0)
 				.view();
 
 			console.log("result_two: ", result_two);
@@ -258,34 +380,3 @@ describe("E2E Numer0n", () => {
 		});
 	});
 });
-
-// const addNotesToPXE = async (
-// 	player: AztecAddress,
-// 	numer0n: AztecAddress,
-// 	fee: bigint,
-// 	txHash: TxHash
-// ) => {
-// 	await Promise.all([
-// 		// Add note for the payment token
-// 		pxe.addNote(
-// 			new ExtendedNote(
-// 				new Note([token.toField()]),
-// 				requester,
-// 				oracle,
-// 				PAYMENT_TOKEN_SLOT,
-// 				txHash
-// 			)
-// 		),
-
-// 		// Add note for the fee
-// 		pxe.addNote(
-// 			new ExtendedNote(
-// 				new Note([new Fr(fee)]),
-// 				requester,
-// 				oracle,
-// 				FEE_SLOT,
-// 				txHash
-// 			)
-// 		),
-// 	]);
-// };

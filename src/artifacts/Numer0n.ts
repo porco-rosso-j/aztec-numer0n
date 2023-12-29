@@ -79,8 +79,8 @@ export class Numer0nContract extends ContractBase {
   /** Type-safe wrappers for the public methods exposed by the contract. */
   public methods!: {
     
-    /** _assert_invalid_caller(_player: field) */
-    _assert_invalid_caller: ((_player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** _assert_invalid_caller(_caller: field) */
+    _assert_invalid_caller: ((_caller: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** _assert_is_player(_player: field) */
     _assert_is_player: ((_player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
@@ -88,14 +88,14 @@ export class Numer0nContract extends ContractBase {
     /** _initialize(player_one: field, player_two: field) */
     _initialize: ((player_one: FieldLike, player_two: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
-    /** _record_result(_player: field, call_num: field, eat: field, bite: field) */
-    _record_result: ((_player: FieldLike, call_num: FieldLike, eat: FieldLike, bite: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** _record_result(caller: field, call_num: field, eat: field, bite: field) */
+    _record_result: ((caller: FieldLike, call_num: FieldLike, eat: FieldLike, bite: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** add_num(player: field, secret_num: field) */
     add_num: ((player: FieldLike, secret_num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
-    /** call_num(player: struct, call_num: field) */
-    call_num: ((player: AztecAddressLike, call_num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** call_num(target: struct, call_num: field) */
+    call_num: ((target: AztecAddressLike, call_num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** check_result(call_num: field, secret_num: field) */
     check_result: ((call_num: FieldLike, secret_num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
