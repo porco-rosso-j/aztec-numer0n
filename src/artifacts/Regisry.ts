@@ -88,7 +88,10 @@ export class RegisryContract extends ContractBase {
     /** get_current_count() */
     get_current_count: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
-    /** get_game_address() */
-    get_game_address: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** get_game_address(count: field) */
+    get_game_address: ((count: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
+    /** get_latest_game_address() */
+    get_latest_game_address: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
   };
 }

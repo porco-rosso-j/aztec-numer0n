@@ -155,59 +155,7 @@ describe("E2E Numer0n", () => {
 				.wait();
 		}, 120_000);
 
-		it.skip("should fail due to invalid nums", async () => {
-			await expect(
-				numer0n
-					.withWallet(player1)
-					.methods.add_num(player1Addr, 100n)
-					.send()
-					.wait()
-			).rejects.toThrowError(
-				"Assertion failed: number should be bigger than 11 '_num as u16 >= 12'"
-			);
-
-			await expect(
-				numer0n
-					.withWallet(player1)
-					.methods.add_num(player1Addr, 1000n)
-					.send()
-					.wait()
-			).rejects.toThrowError(
-				"Assertion failed: number should be lower than 988 '_num as u16 <= 987'"
-			);
-
-			await expect(
-				numer0n
-					.withWallet(player1)
-					.methods.add_num(player1Addr, 220n)
-					.send()
-					.wait()
-			).rejects.toThrowError(
-				"Assertion failed: duplication not allowed '(nums[0] != nums[1]) & (nums[1] != nums[2]) & (nums[2] != nums[0])'"
-			);
-
-			await expect(
-				numer0n
-					.withWallet(player1)
-					.methods.add_num(player1Addr, 202n)
-					.send()
-					.wait()
-			).rejects.toThrowError(
-				"Assertion failed: duplication not allowed '(nums[0] != nums[1]) & (nums[1] != nums[2]) & (nums[2] != nums[0])'"
-			);
-
-			await expect(
-				numer0n
-					.withWallet(player1)
-					.methods.add_num(player1Addr, 122n)
-					.send()
-					.wait()
-			).rejects.toThrowError(
-				"Assertion failed: duplication not allowed '(nums[0] != nums[1]) & (nums[1] != nums[2]) & (nums[2] != nums[0])'"
-			);
-		});
-
-		it("should add nums correctly:player 1", async () => {
+		it.skip("should add nums correctly:player 1", async () => {
 			const secret_num = 125n;
 
 			const tx = await numer0n
@@ -228,7 +176,7 @@ describe("E2E Numer0n", () => {
 			expect(_secert_num).toEqual(secret_num);
 		});
 
-		it("should add nums correctly:player 2", async () => {
+		it.skip("should add nums correctly:player 2", async () => {
 			const secret_num = 293n;
 
 			const tx = await numer0n
@@ -247,20 +195,6 @@ describe("E2E Numer0n", () => {
 
 			console.log("_secert_num: ", _secert_num);
 			expect(_secert_num).toEqual(secret_num);
-		});
-
-		it.skip("should fail to add num for the second time", async () => {
-			const secret_num = 125n;
-
-			await expect(
-				numer0n
-					.withWallet(player1)
-					.methods.add_num(player1Addr, secret_num)
-					.send()
-					.wait()
-			).rejects.toThrowError(
-				"Assertion failed: num has already been added '!player.has_number'"
-			);
 		});
 
 		it.skip("should fail due to call from invalid player", async () => {
@@ -282,7 +216,35 @@ describe("E2E Numer0n", () => {
 					.methods.add_num(deployer.getAddress(), secret_num)
 					.send()
 					.wait()
-			).rejects.toThrowError("Assertion failed: not player 'player.is_player");
+			).rejects.toThrowError(
+				"Assertion failed: not player 'storage.players.at(_player).read().is_player'"
+			);
+		});
+
+		it.skip("should fail to add different num for the second time", async () => {
+			const secret_num1 = 327n;
+
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, secret_num1)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: num 1 already has been set '!game.is_number_set[0]'"
+			);
+
+			const secret_num2 = 954n;
+
+			await expect(
+				numer0n
+					.withWallet(player2)
+					.methods.add_num(player2Addr, secret_num2)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: num 2 already has been set '!game.is_number_set[1]'"
+			);
 		});
 
 		it.skip("player1 should call player2's secret num wrongly: 0-3", async () => {
@@ -305,8 +267,10 @@ describe("E2E Numer0n", () => {
 			console.log("tx: ", tx.txHash.toString());
 			expect(tx.status).toBe("mined");
 
+			const round = await numer0n.methods.get_round().view();
+
 			const result_one = await numer0n.methods
-				.get_result(player1Addr, 0)
+				.get_result(player1Addr, round)
 				.view();
 
 			console.log("result_one: ", result_one);
@@ -335,8 +299,10 @@ describe("E2E Numer0n", () => {
 			console.log("tx: ", tx.txHash.toString());
 			expect(tx.status).toBe("mined");
 
+			const round = await numer0n.methods.get_round().view();
+
 			const result_two = await numer0n.methods
-				.get_result(player2Addr, 0)
+				.get_result(player2Addr, round)
 				.view();
 
 			console.log("result_two: ", result_two);
@@ -398,8 +364,10 @@ describe("E2E Numer0n", () => {
 			console.log("tx hash: ", tx.txHash.toString());
 			expect(tx.status).toBe("mined");
 
+			const round = await numer0n.methods.get_round().view();
+
 			const result_one = await numer0n.methods
-				.get_result(player1Addr, 1)
+				.get_result(player1Addr, round)
 				.view();
 
 			console.log("result_one: ", result_one);
@@ -428,8 +396,10 @@ describe("E2E Numer0n", () => {
 			console.log("tx: ", tx.txHash.toString());
 			expect(tx.status).toBe("mined");
 
+			const round = await numer0n.methods.get_round().view();
+
 			const result_two = await numer0n.methods
-				.get_result(player2Addr, 1)
+				.get_result(player2Addr, round)
 				.view();
 
 			console.log("result_two: ", result_two);

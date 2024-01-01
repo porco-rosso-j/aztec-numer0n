@@ -54,9 +54,14 @@ contract Regisry {
         storage.count.read()
     }
 
-    unconstrained fn get_game_address() -> Field {
+    unconstrained fn get_game_address(count: Field) -> Field {
         let current_count: Field = get_current_count();
         storage.games.at(current_count).read()
+    }
+
+    unconstrained fn get_latest_game_address() -> Field {
+        let current_count: Field = get_current_count();
+        get_game_address(current_count)
     }
 
     unconstrained fn compute_note_hash_and_nullifier(contract_address: Field, nonce: Field, storage_slot: Field, serialized_note: [Field; 0]) -> [Field; 4] {

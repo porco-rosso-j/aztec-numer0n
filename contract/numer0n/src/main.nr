@@ -120,6 +120,7 @@ contract Numer0n {
     // docs:start:constructor
     #[aztec(private)]
     fn constructor(game_id: Field, player: Field) {
+        assert(game_id != 0, "invalid game_id:zero");
         let mut game_id_note = FieldNote::new(game_id);
         storage.game_id.initialize(&mut game_id_note, Option::none(), false);
 
@@ -129,6 +130,7 @@ contract Numer0n {
 
     #[aztec(private)]
     fn join_game(game_id: Field, player:Field) {
+         assert(game_id != 0, "invalid game_id:zero");
         let game_id_note = storage.game_id.get_note();
         assert(game_id == game_id_note.value, "invalid game_id");
 
@@ -233,6 +235,8 @@ contract Numer0n {
 
     #[aztec(public)]
     internal fn _assert_invalid_caller(_caller: Field) {
+         assert(storage.game.read().started, "game hasn't been started yet");
+
         let player = storage.players.at(_caller).read();
         
         if ((player.is_player) & (player.player_id == 1)) {
@@ -246,19 +250,16 @@ contract Numer0n {
 
     #[aztec(public)]
     internal fn _assert_is_player(_player: Field) {
-        // let mut player = storage.players.at(_player).read();
-        // assert(player.is_player, "not player");
         assert(storage.players.at(_player).read().is_player, "not player");
     }
 
     #[aztec(public)] 
     internal fn _add_player(_player:Field, _player_id: Field) {
-        assert(!storage.game.read().started, "game has alread been started");
+        assert(!storage.game.read().started, "game has already been started");
         assert(_player != 0, "invalid player address");
-        assert((_player_id == 1) | (_player_id == 2), "invalid player_id");
 
         let mut player = storage.players.at(_player).read();
-        assert((!player.is_player) | (player.player_id == 0), "player already exits");
+        assert(!player.is_player, "player already exists");
 
         player.player_id = _player_id;
         player.is_player = true;
@@ -268,14 +269,16 @@ contract Numer0n {
 
     #[aztec(public)] 
     internal fn _add_num(_player:Field) {
+        assert(!storage.game.read().started, "game has already started");
+        
         let player = storage.players.at(_player).read();
         let mut game = storage.game.read();
 
         if (player.player_id == 1) {
-            assert(game.is_number_set[0] == false, "num already has been set");
+            assert(!game.is_number_set[0], "num 1 already has been set");
             game.is_number_set[0] = true;
         } else {
-            assert(game.is_number_set[1] == false, "num already has been set");
+            assert(!game.is_number_set[1], "num 2 already has been set");
             game.is_number_set[1] = true;
         }
 

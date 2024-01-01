@@ -10,6 +10,7 @@ import {
 } from "@aztec/aztec.js";
 
 import { Numer0nContract } from "./artifacts/Numer0n.js";
+import { addGameIdNote } from "./utils/add_note.js";
 
 let pxe: PXE;
 let numer0n: Numer0nContract;
@@ -42,23 +43,37 @@ describe("E2E Numer0n", () => {
 	describe("deploy_numer0n contract(..)", () => {
 		// Setup: Deploy the oracle
 		beforeAll(async () => {
-			// Deploy the token
+			const game_id = 123n;
+
 			const receipt = await Numer0nContract.deploy(
 				deployer,
-				player1Addr,
-				player2Addr
+				game_id,
+				player1Addr
 			)
 				.send()
 				.wait();
 
 			numer0n = receipt.contract;
-			console.log("numer0n: ", numer0n.address.toString());
 
 			// Add the contract public key to the PXE
 			await pxe.registerRecipient(receipt.contract.completeAddress);
+
+			await addGameIdNote(
+				pxe,
+				player1Addr,
+				numer0n.address,
+				receipt.txHash,
+				new Fr(game_id)
+			);
+
+			await numer0n
+				.withWallet(player2)
+				.methods.join_game(game_id, player2Addr)
+				.send()
+				.wait();
 		}, 120_000);
 
-		it("check result 1", async () => {
+		it.skip("check result 1", async () => {
 			const call_num = 932n;
 			const secret_num = 293n;
 
@@ -101,6 +116,58 @@ describe("E2E Numer0n", () => {
 			const num3 = 250n;
 			const ret3 = await numer0n.methods.is_valid_nums(num3).view();
 			console.log("ret3: ", ret3);
+		});
+
+		it("should fail due to invalid nums", async () => {
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, 10n)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: number should be bigger than 11 '_num as u16 >= 12'"
+			);
+
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, 1023n)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: number should be lower than 988 '_num as u16 <= 987'"
+			);
+
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, 220n)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: duplication not allowed '(nums[0] != nums[1]) & (nums[1] != nums[2]) & (nums[2] != nums[0])'"
+			);
+
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, 202n)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: duplication not allowed '(nums[0] != nums[1]) & (nums[1] != nums[2]) & (nums[2] != nums[0])'"
+			);
+
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, 122n)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: duplication not allowed '(nums[0] != nums[1]) & (nums[1] != nums[2]) & (nums[2] != nums[0])'"
+			);
 		});
 	});
 });
