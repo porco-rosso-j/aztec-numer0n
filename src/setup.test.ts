@@ -11,6 +11,7 @@ import {
 
 import { Numer0nContract } from "./artifacts/Numer0n.js";
 import { addGameIdNote } from "./utils/add_note.js";
+import { setup } from "./utils/deploy.js";
 
 const ADDRESS_ZERO = AztecAddress.fromBigInt(0n);
 
@@ -169,5 +170,15 @@ describe("E2E Numer0n setup, deploy, join game", () => {
 		).rejects.toThrowError(
 			"Assertion failed: player already exists '!player.is_player'"
 		);
+	});
+
+	it("should fail to add or call num after game started", async () => {
+		numer0n = await setup(pxe, deployer, player1, player2);
+
+		// add num => error
+
+		// await addNums();
+
+		// call => error
 	});
 });

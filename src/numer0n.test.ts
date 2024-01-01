@@ -12,6 +12,7 @@ import {
 
 import { Numer0nContract } from "./artifacts/Numer0n.js";
 import { addGameIdNote, addSecretNumNote } from "./utils/add_note.js";
+import { setup } from "./utils/deploy.js";
 
 const ADDRESS_ZERO = AztecAddress.fromBigInt(0n);
 const ZERO_FIELD = new Fr(0n);
@@ -45,42 +46,9 @@ beforeAll(async () => {
 
 describe("E2E Numer0n", () => {
 	describe.skip("deploy and setup", () => {
-		const game_id = 123n;
+		it("setup and validate initial public states", async () => {
+			numer0n = await setup(pxe, deployer, player1, player2);
 
-		it("player 1 deploys contract and set game id", async () => {
-			const receipt = await Numer0nContract.deploy(
-				deployer,
-				game_id,
-				player1Addr
-			)
-				.send()
-				.wait();
-
-			numer0n = receipt.contract;
-
-			// Add the contract public key to the PXE
-			await pxe.registerRecipient(receipt.contract.completeAddress);
-
-			await addGameIdNote(
-				pxe,
-				player1Addr,
-				numer0n.address,
-				receipt.txHash,
-				new Fr(game_id)
-			);
-		});
-
-		it("player 2 joins the game", async () => {
-			const tx = await numer0n
-				.withWallet(player2)
-				.methods.join_game(game_id, player2Addr)
-				.send()
-				.wait();
-
-			expect(tx.status).toBe("mined");
-		});
-
-		it("validate initial public states", async () => {
 			console.log("numer0n: ", numer0n.address.toString());
 
 			const player_one = await numer0n.methods.get_player(player1Addr).view();
