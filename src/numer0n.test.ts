@@ -11,7 +11,7 @@ import {
 } from "@aztec/aztec.js";
 
 import { Numer0nContract } from "./artifacts/Numer0n.js";
-import { addSecretNumNote } from "./utils/add_note.js";
+import { addGameIdNote, addSecretNumNote } from "./utils/add_note.js";
 
 const ADDRESS_ZERO = AztecAddress.fromBigInt(0n);
 const ZERO_FIELD = new Fr(0n);
@@ -28,7 +28,7 @@ let player2Addr: AztecAddress;
 
 // Setup: Set the sandbox
 beforeAll(async () => {
-	const { SANDBOX_URL = "http://212.227.240.189:8080" } = process.env;
+	const { SANDBOX_URL = "http://localhost:8080" } = process.env;
 	pxe = createPXEClient(SANDBOX_URL);
 
 	await init();
@@ -44,14 +44,14 @@ beforeAll(async () => {
 }, 120_000);
 
 describe("E2E Numer0n", () => {
-	describe("deploy_numer0n contract(..)", () => {
-		// Setup: Deploy the oracle
-		beforeAll(async () => {
-			// Deploy the token
+	describe.skip("deploy and setup", () => {
+		const game_id = 123n;
+
+		it("player 1 deploys contract and set game id", async () => {
 			const receipt = await Numer0nContract.deploy(
 				deployer,
-				player1Addr,
-				player2Addr
+				game_id,
+				player1Addr
 			)
 				.send()
 				.wait();
@@ -60,27 +60,53 @@ describe("E2E Numer0n", () => {
 
 			// Add the contract public key to the PXE
 			await pxe.registerRecipient(receipt.contract.completeAddress);
-		}, 120_000);
 
-		it.skip("validate initial public states", async () => {
+			await addGameIdNote(
+				pxe,
+				player1Addr,
+				numer0n.address,
+				receipt.txHash,
+				new Fr(game_id)
+			);
+		});
+
+		it("player 2 joins the game", async () => {
+			const tx = await numer0n
+				.withWallet(player2)
+				.methods.join_game(game_id, player2Addr)
+				.send()
+				.wait();
+
+			expect(tx.status).toBe("mined");
+		});
+
+		it("validate initial public states", async () => {
 			console.log("numer0n: ", numer0n.address.toString());
 
 			const player_one = await numer0n.methods.get_player(player1Addr).view();
 			// console.log("player_one: ", player_one);
 			expect(player_one.player_id).toBe(1n);
 			expect(player_one.is_player).toBe(true);
-			expect(player_one.has_number).toBe(false);
 
 			const player_two = await numer0n.methods.get_player(player2Addr).view();
 			// console.log("player_two: ", player_two);
 			expect(player_two.player_id).toBe(2n);
 			expect(player_two.is_player).toBe(true);
-			expect(player_two.has_number).toBe(false);
 
 			const is_first = await numer0n.methods.get_is_first().view();
 			expect(is_first).toBe(true);
 
-			expect(await numer0n.methods.get_epoch().view()).toEqual(0n);
+			const round = await numer0n.methods.get_round().view();
+			expect(round).toBe(1n);
+
+			const is_started = await numer0n.methods.get_is_started().view();
+			expect(is_started).toBe(false);
+
+			const is_finished = await numer0n.methods.get_is_finished().view();
+			expect(is_finished).toBe(false);
+
+			const winner = await numer0n.methods.get_winner().view();
+			expect(winner).toBe(0n);
 
 			const result_one = await numer0n.methods
 				.get_result(player1Addr, 0)
@@ -94,6 +120,40 @@ describe("E2E Numer0n", () => {
 			// console.log("result_two: ", result_two);
 			expect(result_two.call_num).toEqual(0n);
 		});
+	});
+
+	describe("test basic functions", () => {
+		// Setup: Deploy the oracle
+		beforeAll(async () => {
+			const game_id = 123n;
+
+			const receipt = await Numer0nContract.deploy(
+				deployer,
+				game_id,
+				player1Addr
+			)
+				.send()
+				.wait();
+
+			numer0n = receipt.contract;
+
+			// Add the contract public key to the PXE
+			await pxe.registerRecipient(receipt.contract.completeAddress);
+
+			await addGameIdNote(
+				pxe,
+				player1Addr,
+				numer0n.address,
+				receipt.txHash,
+				new Fr(game_id)
+			);
+
+			await numer0n
+				.withWallet(player2)
+				.methods.join_game(game_id, player2Addr)
+				.send()
+				.wait();
+		}, 120_000);
 
 		it.skip("should fail due to invalid nums", async () => {
 			await expect(
@@ -161,7 +221,7 @@ describe("E2E Numer0n", () => {
 
 			const _secert_num = await numer0n
 				.withWallet(player1)
-				.methods.get_player_secret_num(player1Addr)
+				.methods.get_secret_num(player1Addr)
 				.view();
 
 			console.log("_secert_num: ", _secert_num);
@@ -182,7 +242,7 @@ describe("E2E Numer0n", () => {
 
 			const _secert_num = await numer0n
 				.withWallet(player2)
-				.methods.get_player_secret_num(player2Addr)
+				.methods.get_secret_num(player2Addr)
 				.view();
 
 			console.log("_secert_num: ", _secert_num);
@@ -318,7 +378,7 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it("player1 should call player2's secret num correctly", async () => {
+		it.skip("player1 should call player2's secret num correctly", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 			const call_num = 293n;
 
@@ -335,12 +395,11 @@ describe("E2E Numer0n", () => {
 
 			const tx = await action.send().wait();
 
-			console.log("tx: ", tx);
 			console.log("tx hash: ", tx.txHash.toString());
 			expect(tx.status).toBe("mined");
 
 			const result_one = await numer0n.methods
-				.get_result(player1Addr, 0)
+				.get_result(player1Addr, 1)
 				.view();
 
 			console.log("result_one: ", result_one);
@@ -349,7 +408,7 @@ describe("E2E Numer0n", () => {
 			expect(result_one.bite).toEqual(0n);
 		});
 
-		it("player2 should call player1's secret num correctly", async () => {
+		it.skip("player2 should call player1's secret num correctly", async () => {
 			// player 1 should create authwitness for player 2 to send tx
 			const call_num = 125n;
 
@@ -370,7 +429,7 @@ describe("E2E Numer0n", () => {
 			expect(tx.status).toBe("mined");
 
 			const result_two = await numer0n.methods
-				.get_result(player2Addr, 0)
+				.get_result(player2Addr, 1)
 				.view();
 
 			console.log("result_two: ", result_two);

@@ -20,7 +20,7 @@ import {
   PublicKey,
   Wallet,
 } from '@aztec/aztec.js';
-import Numer0nContractArtifactJson from '../../contract/target/Numer0n.json' assert { type: 'json' };
+import Numer0nContractArtifactJson from '../../contract/numer0n/target/Numer0n.json' assert { type: 'json' };
 export const Numer0nContractArtifact = Numer0nContractArtifactJson as ContractArtifact;
 
 /**
@@ -55,14 +55,14 @@ export class Numer0nContract extends ContractBase {
   /**
    * Creates a tx to deploy a new instance of this contract.
    */
-  public static deploy(wallet: Wallet, player_one: FieldLike, player_two: FieldLike) {
+  public static deploy(wallet: Wallet, game_id: FieldLike, player: FieldLike) {
     return new DeployMethod<Numer0nContract>(Point.ZERO, wallet, Numer0nContractArtifact, Array.from(arguments).slice(1));
   }
 
   /**
    * Creates a tx to deploy a new instance of this contract using the specified public key to derive the address.
    */
-  public static deployWithPublicKey(publicKey: PublicKey, wallet: Wallet, player_one: FieldLike, player_two: FieldLike) {
+  public static deployWithPublicKey(publicKey: PublicKey, wallet: Wallet, game_id: FieldLike, player: FieldLike) {
     return new DeployMethod<Numer0nContract>(publicKey, wallet, Numer0nContractArtifact, Array.from(arguments).slice(2));
   }
   
@@ -79,14 +79,17 @@ export class Numer0nContract extends ContractBase {
   /** Type-safe wrappers for the public methods exposed by the contract. */
   public methods!: {
     
+    /** _add_num(_player: field) */
+    _add_num: ((_player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
+    /** _add_player(_player: field, _player_id: field) */
+    _add_player: ((_player: FieldLike, _player_id: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
     /** _assert_invalid_caller(_caller: field) */
     _assert_invalid_caller: ((_caller: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** _assert_is_player(_player: field) */
     _assert_is_player: ((_player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
-
-    /** _initialize(player_one: field, player_two: field) */
-    _initialize: ((player_one: FieldLike, player_two: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** _record_result(caller: field, call_num: field, eat: field, bite: field) */
     _record_result: ((caller: FieldLike, call_num: FieldLike, eat: FieldLike, bite: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
@@ -103,22 +106,34 @@ export class Numer0nContract extends ContractBase {
     /** compute_note_hash_and_nullifier(contract_address: field, nonce: field, storage_slot: field, serialized_note: array) */
     compute_note_hash_and_nullifier: ((contract_address: FieldLike, nonce: FieldLike, storage_slot: FieldLike, serialized_note: FieldLike[]) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
-    /** get_epoch() */
-    get_epoch: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** get_is_finished() */
+    get_is_finished: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** get_is_first() */
     get_is_first: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
+    /** get_is_started() */
+    get_is_started: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
     /** get_player(player: field) */
     get_player: ((player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
-    /** get_player_secret_num(player: field) */
-    get_player_secret_num: ((player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** get_result(player: field, round: field) */
+    get_result: ((player: FieldLike, round: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
-    /** get_result(player: field, epoch: field) */
-    get_result: ((player: FieldLike, epoch: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** get_round() */
+    get_round: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
+    /** get_secret_num(player: field) */
+    get_secret_num: ((player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
+    /** get_winner() */
+    get_winner: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** is_valid_nums(_num: field) */
     is_valid_nums: ((_num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
+    /** join_game(game_id: field, player: field) */
+    join_game: ((game_id: FieldLike, player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
   };
 }

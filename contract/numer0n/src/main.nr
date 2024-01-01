@@ -7,7 +7,7 @@ contract Numer0n {
     use dep::aztec::{
         context::{PrivateContext, PublicContext, Context},
         state_vars::{
-            map::Map, public_state::PublicState, singleton::Singleton,
+            map::Map, public_state::PublicState, singleton::Singleton, immutable_singleton::ImmutableSingleton,
         },
         oracle::debug_log::{
             debug_log,
@@ -26,10 +26,6 @@ contract Numer0n {
         },   
     };
 
-    use dep::value_note::{
-        value_note::{ValueNoteMethods, VALUE_NOTE_LEN},
-    };
-
     use dep::authwit::{
         auth::{
             assert_current_call_valid_authwit, 
@@ -37,27 +33,33 @@ contract Numer0n {
         },
     };
 
+    use dep::field_note::field_note::{FieldNote, FieldNoteMethods, FIELD_NOTE_LEN};
+
     use crate::num_lib;
     use crate::types::{
         secret_num_note::{SecretNumberNote, SecretNumberNoteMethods, SECRET_NUM_NOTE_LEN},
         player::{PLAYER_SERIALIZED_LEN, Player, PlayerSerializationMethods},
         result::{RESULT_SERIALIZED_LEN, Result, ResultSerializationMethods},
+        game::{GAME_SERIALIZED_LEN, Game, GameSerializationMethods},
     };
+
+    global SECRET_NUM_SLOT = 2;
+    global GAME_ID_SLOT = 5;
 
     // storage
     struct Storage {
-        player: Map<PublicState<Player, PLAYER_SERIALIZED_LEN>>,
+        players: Map<PublicState<Player, PLAYER_SERIALIZED_LEN>>,
         secret_num: Map<Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>>, // player one's secret num
-        results_one: Map<PublicState<Result, RESULT_SERIALIZED_LEN>>, // epoch => Result: { eat, bite }
+        results_one: Map<PublicState<Result, RESULT_SERIALIZED_LEN>>, // round => Result: { eat, bite }
         results_two: Map<PublicState<Result, RESULT_SERIALIZED_LEN>>,
-        epoch: PublicState<Field, FIELD_SERIALIZED_LEN>,
-        is_first: PublicState<bool, BOOL_SERIALIZED_LEN>, // default false
+        game_id: ImmutableSingleton<FieldNote, FIELD_NOTE_LEN>,
+        game: PublicState<Game, GAME_SERIALIZED_LEN>,
     }
 
     impl Storage {
       fn init(context: Context) -> Self {
         Storage {
-            player: Map::new(
+            players: Map::new(
                 context,
                 1,
                 |context, slot| {
@@ -70,7 +72,7 @@ contract Numer0n {
             ),
             secret_num: Map::new(
                 context,
-                2,
+                SECRET_NUM_SLOT,
                 |context, slot| {
                     Singleton::new(
                         context, 
@@ -101,31 +103,45 @@ contract Numer0n {
                     )
                 },
             ),
-            epoch: PublicState::new(
+            game_id: ImmutableSingleton::new(
                 context,
-                5,
-                FieldSerializationMethods,
+                GAME_ID_SLOT,
+                FieldNoteMethods,
             ),
-            is_first: PublicState::new(
+            game: PublicState::new(
                 context,
                 6,
-                BoolSerializationMethods,
+                GameSerializationMethods,
             ),
         }
       }
     }
-
+    
     // docs:start:constructor
     #[aztec(private)]
-    fn constructor(player_one: Field, player_two: Field) {
-        let selector = compute_selector("_initialize(Field,Field)");
-        context.call_public_function(context.this_address(), selector, [player_one, player_two]);
+    fn constructor(game_id: Field, player: Field) {
+        let mut game_id_note = FieldNote::new(game_id);
+        storage.game_id.initialize(&mut game_id_note, Option::none(), false);
+
+        let selector = compute_selector("_add_player(Field,Field)");
+        context.call_public_function(context.this_address(), selector, [player, 1]);
+    }
+
+    #[aztec(private)]
+    fn join_game(game_id: Field, player:Field) {
+        let game_id_note = storage.game_id.get_note();
+        assert(game_id == game_id_note.value, "invalid game_id");
+
+        context.call_public_function(
+            context.this_address(), 
+            compute_selector("_add_player(Field,Field)"),
+            [player, 2]
+        ); 
     }
 
     #[aztec(private)]
     fn add_num(player: Field, secret_num:Field) {
         assert(context.msg_sender() == player, "invalid player");
-
         // check caller validitiy
         context.call_public_function(
             context.this_address(), 
@@ -141,6 +157,13 @@ contract Numer0n {
             Option::some(secret_num_note.owner),
             true
         );
+
+       context.call_public_function(
+            context.this_address(), 
+            compute_selector("_add_num(Field)"),
+            [player]
+        ); 
+
     }
 
     #[aztec(private)]
@@ -181,30 +204,41 @@ contract Numer0n {
 
     #[aztec(public)]
     internal fn _record_result(caller: Field, call_num:Field, eat:Field, bite:Field) {
-      let current_epoch: Field = storage.epoch.read();
-      let caller = storage.player.at(caller).read();
+      let current_round = storage.game.read().round;
+      let caller = storage.players.at(caller).read();
       let result = Result::new(call_num, eat, bite);
+      let mut game = storage.game.read();
 
       if (caller.player_id == 1) {
-        storage.results_one.at(current_epoch).write(result);
-        storage.is_first.write(false);
+        storage.results_one.at(current_round).write(result);
+
+        game.is_first = false;
+        storage.game.write(game);
 
       } else if (caller.player_id == 2) {
-        storage.results_two.at(current_epoch).write(result);
-        storage.is_first.write(true);
+        storage.results_two.at(current_round).write(result);
 
-        storage.epoch.write(current_epoch + 1);
-      }
+        // check if either of the players win
+        let result_one = storage.results_one.at(current_round).read();
+        if ((eat == 3) | (result_one.eat == 3)) {
+           game.finished = true;
+        } else {
+           game.is_first = true;
+           game.round = current_round + 1;
+        }
+        storage.game.write(game);
+      }      
+
     }
 
     #[aztec(public)]
     internal fn _assert_invalid_caller(_caller: Field) {
-        let player = storage.player.at(_caller).read();
+        let player = storage.players.at(_caller).read();
         
         if ((player.is_player) & (player.player_id == 1)) {
-            assert(storage.is_first.read(), "invalid turn for player 1");
+            assert(storage.game.read().is_first, "invalid turn for player 1");
         } else if ((player.is_player) & (player.player_id == 2)) {
-            assert(!storage.is_first.read(), "invalid turn for player 2");
+            assert(!storage.game.read().is_first, "invalid turn for player 2");
         } else {
             assert(false, "invalid player");
         }
@@ -212,57 +246,101 @@ contract Numer0n {
 
     #[aztec(public)]
     internal fn _assert_is_player(_player: Field) {
-        let mut player = storage.player.at(_player).read();
-        assert(player.is_player, "not player");
-        assert(!player.has_number, "num has already been added");
-
-        player.has_number = true;
-
-        storage.player.at(_player).write(player);
+        // let mut player = storage.players.at(_player).read();
+        // assert(player.is_player, "not player");
+        assert(storage.players.at(_player).read().is_player, "not player");
     }
 
-    #[aztec(public)]
-    internal fn _initialize(player_one: Field, player_two: Field) {
-        assert((player_one != player_two) & (player_one != 0) & (player_two != 0), "invalid player addresses");
+    #[aztec(public)] 
+    internal fn _add_player(_player:Field, _player_id: Field) {
+        assert(!storage.game.read().started, "game has alread been started");
+        assert(_player != 0, "invalid player address");
+        assert((_player_id == 1) | (_player_id == 2), "invalid player_id");
 
-        let _player_one = Player::new(1, true, false);
-        let _player_two = Player::new(2, true, false);
+        let mut player = storage.players.at(_player).read();
+        assert((!player.is_player) | (player.player_id == 0), "player already exits");
 
-        storage.player.at(player_one).write(_player_one);
-        storage.player.at(player_two).write(_player_two);
+        player.player_id = _player_id;
+        player.is_player = true;
 
-        storage.epoch.write(0);
-        storage.is_first.write(true);
+        storage.players.at(_player).write(player);
+    }
+
+    #[aztec(public)] 
+    internal fn _add_num(_player:Field) {
+        let player = storage.players.at(_player).read();
+        let mut game = storage.game.read();
+
+        if (player.player_id == 1) {
+            assert(game.is_number_set[0] == false, "num already has been set");
+            game.is_number_set[0] = true;
+        } else {
+            assert(game.is_number_set[1] == false, "num already has been set");
+            game.is_number_set[1] = true;
+        }
+
+        if ((game.is_number_set[0]) & (game.is_number_set[1])) {
+            game.round = 1;
+            game.is_first = true;
+            game.started = true;
+        }
+
+        storage.game.write(game);
     }
 
     unconstrained fn get_player(player: Field) -> Player {
-        storage.player.at(player).read()
+        storage.players.at(player).read()
     }
 
-    unconstrained fn get_player_secret_num(player: Field) -> Field {
+    unconstrained fn get_winner() -> Field {
+        assert(!storage.game.read().finished, "the game hasn't finished");
+        
+        let current_round = storage.game.read().round;
+        let latest_result_one = storage.results_one.at(current_round).read();
+        let latest_result_two = storage.results_two.at(current_round).read();
+
+        if ((latest_result_one.eat == 3) & (latest_result_two.eat != 3)) {
+            1
+        } else if ((latest_result_one.eat != 3) & (latest_result_two.eat == 3)) {
+            2
+        } else {
+            3 // draw
+        }
+
+    }
+
+    unconstrained fn get_secret_num(player: Field) -> Field {
         let note = storage.secret_num.at(player).view_note();
         note.secret_num
     }
 
-    unconstrained fn get_result(player: Field, epoch: Field) -> Result {
-       let player = storage.player.at(player).read();
+    unconstrained fn get_result(player: Field, round: Field) -> Result {
+       let player = storage.players.at(player).read();
        let mut result = Result::new(0, 0, 0);
 
        if (player.player_id == 1) {
-           result = storage.results_one.at(epoch).read();
+           result = storage.results_one.at(round).read();
        } else {
-           result = storage.results_two.at(epoch).read();
+           result = storage.results_two.at(round).read();
        }
 
        result
     }
 
-    unconstrained fn get_epoch() -> Field {
-        storage.epoch.read()
+    unconstrained fn get_round() -> Field {
+        storage.game.read().round
     }
 
     unconstrained fn get_is_first() -> bool {
-        storage.is_first.read()
+        storage.game.read().is_first
+    }
+
+    unconstrained fn get_is_started() -> bool {
+        storage.game.read().started
+    }
+
+    unconstrained fn get_is_finished() -> bool {
+       storage.game.read().finished
     }
 
     unconstrained fn check_result(
@@ -278,6 +356,12 @@ contract Numer0n {
 
     unconstrained fn compute_note_hash_and_nullifier(contract_address: Field, nonce: Field, storage_slot: Field, serialized_note: [Field; SECRET_NUM_NOTE_LEN]) -> [Field; 4] {
         let note_header = NoteHeader::new(contract_address, nonce, storage_slot);
-        note_utils::compute_note_hash_and_nullifier(SecretNumberNoteMethods, note_header, serialized_note)
+        if (storage_slot == GAME_ID_SLOT) {
+            note_utils::compute_note_hash_and_nullifier(FieldNoteMethods, note_header, serialized_note)
+        } else {
+            // should derive storage slot for mapped values correctly
+            // https://github.com/AztecProtocol/aztec-packages/blob/2db2e2a3091e2552f8e8055d1bc07bd5016455ff/yarn-project/aztec-nr/aztec/src/state_vars/map.nr#L32C1-L32C1
+            note_utils::compute_note_hash_and_nullifier(SecretNumberNoteMethods, note_header, serialized_note)
+        }
     }
 }
