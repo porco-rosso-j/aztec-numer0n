@@ -171,7 +171,11 @@ contract Numer0n {
     #[aztec(private)]
     fn call_num(target: AztecAddress, call_num:Field) {
 
-        let target_address = target.address;
+        let target_address: Field = target.address;
+
+        // replaced if-else with assert as it leads to an errror at get_note()
+        assert(target_address != context.msg_sender(), "caller shouldn't be target");
+        assert_current_call_valid_authwit(&mut context, target);
 
         context.call_public_function(
             context.this_address(), 
@@ -179,37 +183,27 @@ contract Numer0n {
             [context.msg_sender()]
         ); 
 
-        num_lib::is_valid_nums(call_num);
-
-        // should validate the target is the opponent player..?
         let secret_num_note: SecretNumberNote = storage.secret_num.at(target_address).get_note(true);
         let secret_num: Field = secret_num_note.secret_num;
-        assert(secret_num != 0, "secret_num hasn't been set");
 
-        let ret = num_lib::check_result(call_num, secret_num);
+        num_lib::is_valid_nums(call_num);
+        let result = num_lib::check_result(call_num, secret_num);
 
         // records results
         context.call_public_function(
             context.this_address(), 
             compute_selector("_record_result(Field,Field,Field,Field)"), 
-            [context.msg_sender(), call_num, ret[0], ret[1]]
+            [context.msg_sender(), call_num, result[0], result[1]]
         ); 
-
-        // put here as this fails somehow if placed at the top.
-        if (target_address != context.msg_sender()) {
-            assert_current_call_valid_authwit(&mut context, target);
-        } else {
-            assert(false, "player_address shouldn't be msg.sender");
-        }
 
     }
 
     #[aztec(public)]
     internal fn _record_result(caller: Field, call_num:Field, eat:Field, bite:Field) {
-      let current_round = storage.game.read().round;
       let caller = storage.players.at(caller).read();
       let result = Result::new(call_num, eat, bite);
       let mut game = storage.game.read();
+      let current_round = game.round;
 
       if (caller.player_id == 1) {
         storage.results_one.at(current_round).write(result);
@@ -270,7 +264,7 @@ contract Numer0n {
     #[aztec(public)] 
     internal fn _add_num(_player:Field) {
         assert(!storage.game.read().started, "game has already started");
-        
+
         let player = storage.players.at(_player).read();
         let mut game = storage.game.read();
 
