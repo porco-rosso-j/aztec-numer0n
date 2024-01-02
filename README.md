@@ -6,13 +6,17 @@ Numer0n is a number-guessing game in which two persons are against each other. I
 
 #### compile
 
+compile numer0n contract:
+
 ```shell
-cd contract/numer0n
+cd aztec-contracts/contract/numer0n
 aztec-cli compile ./ --typescript ../../src/artifacts
 ```
 
+compile registry contract:
+
 ```shell
 cd ..
-cd contract/registry
+cd registry
 aztec-cli compile ./ --typescript ../../src/artifacts
 ```
