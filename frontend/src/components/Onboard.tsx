@@ -1,31 +1,27 @@
 import { useEffect, useState } from "react";
-import {
-	MantineProvider,
-	Box,
-	Button,
-	PinInput,
-	Card as MantineCard,
-	Grid,
-	AspectRatio,
-	Center,
-	Container,
-	AppShell,
-	SimpleGrid,
-	TextInput,
-	Group,
-	Badge,
-	Text,
-} from "@mantine/core";
+import { Button, Box, Container, Text } from "@mantine/core";
+import React from "react";
+import { useGameContext } from "../contexts/useGameContext";
+import Game from "./Game";
 
 export default function Onboard() {
-	async function handleCreateNewGame() {}
+	// const { player1Address, savePlayer1Address } = useGameContext();
+	const { playersReady, savePlayersReady } = useGameContext();
+
+	async function handleCreateNewGame() {
+		savePlayersReady(true);
+	}
 
 	return (
 		<>
-			<Container style={{ outline: "1px solid pink" }}>
-				<Text>Welcome To Numer0n!</Text>
-				<Button onClick={handleCreateNewGame}>Create New Game</Button>
-			</Container>
+			{!playersReady ? (
+				<Container>
+					<Text>Welcome To Numer0n!</Text>
+					<Button onClick={handleCreateNewGame}>Create New Game</Button>
+				</Container>
+			) : (
+				<Game />
+			)}
 		</>
 	);
 }
