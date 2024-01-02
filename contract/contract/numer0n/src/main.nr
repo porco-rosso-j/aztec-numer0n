@@ -49,7 +49,7 @@ contract Numer0n {
     // storage
     struct Storage {
         players: Map<PublicState<Player, PLAYER_SERIALIZED_LEN>>,
-        secret_num: Map<Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>>, // player one's secret num
+        secret_num: Map<Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>>, 
         results_one: Map<PublicState<Result, RESULT_SERIALIZED_LEN>>, // round => Result: { eat, bite }
         results_two: Map<PublicState<Result, RESULT_SERIALIZED_LEN>>,
         game_id: ImmutableSingleton<FieldNote, FIELD_NOTE_LEN>,
@@ -289,14 +289,14 @@ contract Numer0n {
         storage.players.at(player).read()
     }
 
-    unconstrained fn get_winner() -> Field {
-        assert(!storage.game.read().finished, "the game hasn't finished");
-        
+    unconstrained fn get_winner() -> Field {        
         let current_round = storage.game.read().round;
         let latest_result_one = storage.results_one.at(current_round).read();
         let latest_result_two = storage.results_two.at(current_round).read();
 
-        if ((latest_result_one.eat == 3) & (latest_result_two.eat != 3)) {
+        if (!storage.game.read().finished) {
+            0
+        } else if ((latest_result_one.eat == 3) & (latest_result_two.eat != 3)) {
             1
         } else if ((latest_result_one.eat != 3) & (latest_result_two.eat == 3)) {
             2
@@ -306,6 +306,8 @@ contract Numer0n {
 
     }
 
+    // for testing purpose
+    // q: how to only allow note an owner to view her own secret num
     unconstrained fn get_secret_num(player: Field) -> Field {
         let note = storage.secret_num.at(player).view_note();
         note.secret_num

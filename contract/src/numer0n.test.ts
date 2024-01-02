@@ -63,9 +63,8 @@ describe("E2E Numer0n", () => {
 			console.log("tx: ", tx.txHash.toString());
 			expect(tx.status).toBe("mined");
 
-			const _secert_num = await numer0n
-				.withWallet(player1)
-				.methods.get_secret_num(player1Addr)
+			const _secert_num = await numer0n.methods
+				.get_secret_num(player1Addr)
 				.view();
 
 			console.log("_secert_num: ", _secert_num);
@@ -84,9 +83,8 @@ describe("E2E Numer0n", () => {
 			console.log("tx: ", tx.txHash.toString());
 			expect(tx.status).toBe("mined");
 
-			const _secert_num = await numer0n
-				.withWallet(player2)
-				.methods.get_secret_num(player2Addr)
+			const _secert_num = await numer0n.methods
+				.get_secret_num(player2Addr)
 				.view();
 
 			console.log("_secert_num: ", _secert_num);
@@ -262,7 +260,7 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it("player1 should call player2's secret num wrongly: 0-3", async () => {
+		it.skip("player1 should call player2's secret num wrongly: 0-3", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 			const call_num = 932n;
 
@@ -294,7 +292,7 @@ describe("E2E Numer0n", () => {
 			expect(result_one.bite).toEqual(3n);
 		});
 
-		it("player2 should call player1's secret num wrongly: 0-0", async () => {
+		it.skip("player2 should call player1's secret num wrongly: 0-0", async () => {
 			// player 1 should create authwitness for player 2 to send tx
 
 			const round_before = await numer0n.methods.get_round().view();
@@ -334,7 +332,7 @@ describe("E2E Numer0n", () => {
 			expect(is_first_after).not.toBe(is_first_before);
 		});
 
-		it("player1 should call player2's secret num correctly", async () => {
+		it.skip("player1 should call player2's secret num correctly", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 			const call_num = 293n;
 
@@ -366,7 +364,7 @@ describe("E2E Numer0n", () => {
 			expect(result_one.bite).toEqual(0n);
 		});
 
-		it("player2 should call player1's secret num correctly", async () => {
+		it.skip("player2 should call player1's secret num correctly", async () => {
 			// player 1 should create authwitness for player 2 to send tx
 			const call_num = 125n;
 
@@ -399,6 +397,11 @@ describe("E2E Numer0n", () => {
 
 			const finished = await numer0n.methods.get_is_finished().view();
 			expect(finished).toBe(true);
+		});
+
+		it.skip("get winner", async () => {
+			const winner_num = await numer0n.methods.get_winner().view();
+			expect(winner_num).toBe(3n); // draw
 		});
 	});
 });

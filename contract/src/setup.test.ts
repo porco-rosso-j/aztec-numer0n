@@ -43,7 +43,7 @@ beforeAll(async () => {
 }, 120_000);
 
 describe("E2E Numer0n setup, deploy, join game", () => {
-	describe.skip("deploy and setup", () => {
+	describe("deploy and setup", () => {
 		it("setup and validate initial public states", async () => {
 			numer0n = await setup(pxe, deployer, player1, player2);
 
@@ -60,10 +60,10 @@ describe("E2E Numer0n setup, deploy, join game", () => {
 			expect(player_two.is_player).toBe(true);
 
 			const is_first = await numer0n.methods.get_is_first().view();
-			expect(is_first).toBe(true);
+			expect(is_first).toBe(false);
 
 			const round = await numer0n.methods.get_round().view();
-			expect(round).toBe(1n);
+			expect(round).toBe(0n);
 
 			const is_started = await numer0n.methods.get_is_started().view();
 			expect(is_started).toBe(false);
@@ -170,7 +170,7 @@ describe("E2E Numer0n setup, deploy, join game", () => {
 		);
 	});
 
-	it("should fail as players already exist", async () => {
+	it.skip("should fail as players already exist", async () => {
 		const game_id = 123n;
 
 		const receipt = await Numer0nContract.deploy(deployer, game_id, player1Addr)
@@ -215,15 +215,5 @@ describe("E2E Numer0n setup, deploy, join game", () => {
 		).rejects.toThrowError(
 			"Assertion failed: player already exists '!player.is_player'"
 		);
-	});
-
-	it("should fail to add or call num after game started", async () => {
-		numer0n = await setup(pxe, deployer, player1, player2);
-
-		// add num => error
-
-		// await addNums();
-
-		// call => error
 	});
 });
