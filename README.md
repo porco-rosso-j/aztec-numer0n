@@ -1,6 +1,11 @@
-# aztec-numer0n
+# Numer0n
 
-### compile contract
+Numer0n is a number-guessing game in which two persons are against each other. It's built on Aztec, as both players' secret numbers should be stored privately.
+
+## Develoyments
+
+#### compile
+
 ```bash
     # with aztec-cli
     make gen-artifacts

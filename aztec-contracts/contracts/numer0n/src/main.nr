@@ -149,7 +149,7 @@ contract Numer0n {
             context.this_address(), 
             compute_selector("_assert_is_player(Field)"),
             [player]
-        ); 
+        );
 
         num_lib::is_valid_nums(secret_num);
 

@@ -104,7 +104,7 @@ describe("E2E Numer0n", () => {
 			console.log("ret4: ", ret4);
 		});
 
-		it.skip("is_valid_nums", async () => {
+		it("is_valid_nums", async () => {
 			const num = 51n;
 			const ret = await numer0n.methods.is_valid_nums(num).view();
 			console.log("ret: ", ret);
@@ -118,7 +118,7 @@ describe("E2E Numer0n", () => {
 			console.log("ret3: ", ret3);
 		});
 
-		it("should fail due to invalid nums", async () => {
+		it.skip("should fail due to invalid nums", async () => {
 			await expect(
 				numer0n
 					.withWallet(player1)

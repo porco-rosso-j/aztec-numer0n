@@ -10,11 +10,11 @@ gen-artifacts:
 	$(AZTEC_CLI) \
 	compile --typescript ../../src/artifacts \
 			-o ../../../artifacts \
-			./contract/contract/numer0n
+			./aztec-contracts/contracts/numer0n
 
 	$(AZTEC_CLI) \
 	compile --typescript ../../src/artifacts \
 			-o ../../../artifacts \
-			./contract/contract/registry
+			./aztec-contracts/contracts/registry
 
-	cp -r ./contract/src/artifacts/* ./frontend/src/artifacts/
+	cp -r ./aztec-contracts/src/artifacts/* ./frontend/src/artifacts/
