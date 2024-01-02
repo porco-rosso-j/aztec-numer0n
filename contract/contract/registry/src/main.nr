@@ -44,19 +44,17 @@ contract Regisry {
     fn constructor() {}
 
     #[aztec(public)]
-    fn add_game(game_contract: Field) -> Field { 
-        let new_game_count: Field = storage.count.read() + 1;  
-        storage.games.at(new_game_count).write(game_contract);
-        new_game_count
+    fn add_game(game_address: Field) -> Field { 
+        let new_game_count = storage.count.read() + 1;  
+        storage.games.at(new_game_count).write(game_address);
+        storage.count.write(new_game_count);
     }
-
     unconstrained fn get_current_count() -> Field {
         storage.count.read()
     }
 
     unconstrained fn get_game_address(count: Field) -> Field {
-        let current_count: Field = get_current_count();
-        storage.games.at(current_count).read()
+        storage.games.at(count).read()
     }
 
     unconstrained fn get_latest_game_address() -> Field {

@@ -79,8 +79,8 @@ export class RegisryContract extends ContractBase {
   /** Type-safe wrappers for the public methods exposed by the contract. */
   public methods!: {
     
-    /** add_game(game_contract: field) */
-    add_game: ((game_contract: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** add_game(game_address: field) */
+    add_game: ((game_address: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** compute_note_hash_and_nullifier(contract_address: field, nonce: field, storage_slot: field, serialized_note: array) */
     compute_note_hash_and_nullifier: ((contract_address: FieldLike, nonce: FieldLike, storage_slot: FieldLike, serialized_note: FieldLike[]) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
