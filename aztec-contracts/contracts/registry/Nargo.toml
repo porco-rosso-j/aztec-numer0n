@@ -1,0 +1,8 @@
+[package]
+name = "registry_contract"
+type = "contract"
+authors = ["abstract-crypto"]
+compiler_version = ">=0.18.0"
+
+[dependencies]
+aztec = { git = 'https://github.com/AztecProtocol/aztec-packages/', tag = 'aztec-packages-v0.16.7', directory = 'yarn-project/aztec-nr/aztec' }

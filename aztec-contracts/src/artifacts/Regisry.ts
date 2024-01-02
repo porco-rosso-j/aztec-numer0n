@@ -19,7 +19,7 @@ import {
 	PublicKey,
 	Wallet,
 } from "@aztec/aztec.js";
-import RegisryContractArtifactJson from "./Regisry.json" assert { type: "json" };
+import RegisryContractArtifactJson from "../../contracts/registry/target/Regisry.json" assert { type: "json" };
 export const RegisryContractArtifact =
 	RegisryContractArtifactJson as ContractArtifact;
 
