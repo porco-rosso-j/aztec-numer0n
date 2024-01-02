@@ -20,7 +20,7 @@ import {
   PublicKey,
   Wallet,
 } from '@aztec/aztec.js';
-import RegisryContractArtifactJson from './Regisry.json' assert { type: 'json' };
+import RegisryContractArtifactJson from '../../../artifacts/Regisry.json' assert { type: 'json' };
 export const RegisryContractArtifact = RegisryContractArtifactJson as ContractArtifact;
 
 /**
@@ -79,8 +79,8 @@ export class RegisryContract extends ContractBase {
   /** Type-safe wrappers for the public methods exposed by the contract. */
   public methods!: {
     
-    /** add_game(game_contract: field) */
-    add_game: ((game_contract: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** add_game(game_address: field) */
+    add_game: ((game_address: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** compute_note_hash_and_nullifier(contract_address: field, nonce: field, storage_slot: field, serialized_note: array) */
     compute_note_hash_and_nullifier: ((contract_address: FieldLike, nonce: FieldLike, storage_slot: FieldLike, serialized_note: FieldLike[]) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
@@ -88,7 +88,10 @@ export class RegisryContract extends ContractBase {
     /** get_current_count() */
     get_current_count: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
-    /** get_game_address() */
-    get_game_address: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** get_game_address(count: field) */
+    get_game_address: ((count: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
+    /** get_latest_game_address() */
+    get_latest_game_address: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
   };
 }
