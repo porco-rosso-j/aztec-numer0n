@@ -30,6 +30,7 @@ export default function Onboard() {
 		saveContractAddress,
 		savePlayer1Address,
 		savePlayer2Address,
+		savePlayerId,
 	} = useGameContext();
 
 	// gameID = game count + game password
@@ -64,30 +65,35 @@ export default function Onboard() {
 	// Player 1 starts the game
 	useEffect(() => {
 		(async () => {
-			if (contractAddress != "") {
+			if (isGameCreated && contractAddress != "") {
 				const is_ready = await getIfPlayersAdded(contractAddress);
 				console.log("is_ready: ", is_ready);
 				if (is_ready) {
 					const player2 = await getPlayerAddr(2, contractAddress);
 					savePlayer2Address(player2);
 					savePlayersReady(true);
+					savePlayerId(1);
 				}
 			}
 		})();
-	}, [contractAddress, savePlayer2Address, savePlayersReady]);
+	}, [
+		contractAddress,
+		isGameCreated,
+		savePlayer2Address,
+		savePlayersReady,
+		savePlayerId,
+	]);
 
 	// Player 2 joins the game
 	useEffect(() => {
 		(async () => {
 			if (!isGameJoined && !isGameCreated && gameID != "") {
+				setLoading(true);
 				const _gameContractId = gameID.slice(5);
 				const _gamePassword = gameID.slice(0, 5);
 				const gameContractAddress = await getGameContractByGameId(
 					BigInt(_gameContractId)
 				);
-
-				console.log("gameContractAddress: ", gameContractAddress);
-				console.log("gameContractAddress str: ", gameContractAddress);
 
 				const player2 = (await getSandboxAccountsWallets(pxe()))[1];
 
@@ -96,10 +102,7 @@ export default function Onboard() {
 					await joinGame(player2, gameContractAddress, BigInt(_gamePassword));
 				}
 
-				console.log("here: ");
-
 				const is_ready = await getIfPlayersAdded(gameContractAddress);
-				console.log("is_ready: ", is_ready);
 				const player1 = await getPlayerAddr(1, gameContractAddress);
 
 				if (is_ready) {
@@ -107,9 +110,12 @@ export default function Onboard() {
 					savePlayer1Address(player1);
 					savePlayer2Address(player2.getAddress().toString());
 					savePlayersReady(true);
+					savePlayerId(2);
 
 					setIsGameJoined(true);
 				}
+
+				setLoading(false);
 			}
 		})();
 	}, [
@@ -121,6 +127,7 @@ export default function Onboard() {
 		savePlayer2Address,
 		savePlayersReady,
 		setIsGameJoined,
+		savePlayerId,
 	]);
 
 	return (

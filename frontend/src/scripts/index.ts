@@ -6,11 +6,17 @@ import {
 	computeAuthWitMessageHash,
 	createPXEClient,
 	SignerlessWallet,
+	getSandboxAccountsWallets,
 } from "@aztec/aztec.js";
 
 import { Numer0nContract } from "../artifacts/Numer0n.js";
 import { RegistryContract } from "../artifacts/Registry.js";
-import { registryAddress, SANDBOX_URL } from "./constants.js";
+import {
+	registryAddress,
+	SANDBOX_ADDRESS_1,
+	SANDBOX_ADDRESS_2,
+	SANDBOX_URL,
+} from "./constants.js";
 import { addGameIdNote } from "./add_note.js";
 
 type GameCreated = {
@@ -22,6 +28,17 @@ export const pxe = (): PXE => {
 	return createPXEClient(SANDBOX_URL);
 };
 
+export const getAccountByAddress = async (
+	player: string
+): Promise<AccountWalletWithPrivateKey> => {
+	if (player == SANDBOX_ADDRESS_1) {
+		return (await getSandboxAccountsWallets(pxe()))[0];
+	} else if (player == SANDBOX_ADDRESS_2) {
+		return (await getSandboxAccountsWallets(pxe()))[1];
+	} else {
+		return (await getSandboxAccountsWallets(pxe()))[2];
+	}
+};
 export async function createGame(
 	player: AccountWalletWithPrivateKey,
 	password: bigint
@@ -40,7 +57,6 @@ export async function createGame(
 			.wait();
 
 		contractAddress = receipt.contractAddress!;
-		console.log("contractAddress: ", contractAddress.toString());
 
 		await pxe().registerRecipient(receipt.contract.completeAddress);
 
@@ -62,7 +78,6 @@ export async function createGame(
 			.wait();
 
 		gameCount = await registry.methods.get_current_count().view();
-		console.log("gameCount: ", gameCount);
 	} catch (e) {
 		console.log("e: ", e);
 	}
@@ -78,13 +93,11 @@ export async function joinGame(
 	contractAddress: string,
 	password: bigint
 ) {
-	console.log("join game contractAddress: ", contractAddress);
 	try {
 		const numer0n = await Numer0nContract.at(
 			AztecAddress.fromString(contractAddress),
 			player
 		);
-		console.log("password: ", password);
 		await numer0n.methods
 			.join_game(password, player.getAddress())
 			.send()
@@ -219,7 +232,6 @@ export async function getIfPlayersAdded(
 	contractAddress: string
 ): Promise<boolean> {
 	const game = await getGame(contractAddress);
-	console.log("game: ", game);
 	if (game.players[0] != 0n && game.players[1] != 0n) {
 		return true;
 	} else {
@@ -232,15 +244,15 @@ export async function getPlayerAddr(
 	contractAddress: string
 ): Promise<string> {
 	const game = await getGame(contractAddress);
-	return game.players[player_id - 1].toString();
+	console.log("game: ", game);
+	const addr = fromBigIntToHexStrAddress(game.players[player_id - 1]);
+	console.log("addr getPlayerAddr: ", addr);
+	return addr;
 }
 
 async function getGame(contractAddress: string) {
-	const addr = AztecAddress.fromString(contractAddress);
-	console.log("addr: ", addr);
 	const numer0n = await Numer0nContract.at(
-		// AztecAddress.fromString(contractAddress),
-		addr,
+		AztecAddress.fromString(contractAddress),
 		new SignerlessWallet(pxe())
 	);
 
@@ -258,7 +270,6 @@ export async function getGameContractByGameId(
 	);
 
 	const addr = await numer0n.methods.get_game_address(game_id).view();
-	console.log("addr: ", addr);
 	return fromBigIntToHexStrAddress(addr.toString());
 }
 

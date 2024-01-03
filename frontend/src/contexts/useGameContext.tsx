@@ -8,10 +8,14 @@ interface GameContextState {
 	contractAddress: string;
 	player1Address: string;
 	player2Address: string;
+	playerId: number;
+	secretNumber: number;
 	playersReady: boolean;
+	saveContractAddress: (address: string) => void;
 	savePlayer1Address: (address: string) => void;
 	savePlayer2Address: (address: string) => void;
-	saveContractAddress: (address: string) => void;
+	savePlayerId: (id: number) => void;
+	saveSecretNumber: (num: number) => void;
 	savePlayersReady: (hasJoined: boolean) => void;
 	logout: () => void;
 }
@@ -34,6 +38,8 @@ export const GameContextProviderComponent: React.FC<GameContextProps> = ({
 	const [contractAddress, setContractAddress] = useState<string>("");
 	const [player1Address, setPlayer1Address] = useState<string>("");
 	const [player2Address, setPlayer2Address] = useState<string>("");
+	const [playerId, setPlayerId] = useState<number>(0);
+	const [secretNumber, setSecretNumber] = useState<number>(0);
 	const [playersReady, setPlayersReady] = useState<boolean>(false);
 
 	const savePlayer1Address = (_player1_address: string) => {
@@ -58,6 +64,16 @@ export const GameContextProviderComponent: React.FC<GameContextProps> = ({
 		localStorage.setItem(`contract_address`, JSON.stringify(_contractAddress));
 	};
 
+	const savePlayerId = (_id: number) => {
+		setPlayerId(_id);
+		localStorage.setItem(`player_id`, JSON.stringify(_id.toString()));
+	};
+
+	const saveSecretNumber = (_num: number) => {
+		setSecretNumber(_num);
+		localStorage.setItem(`secret_num`, JSON.stringify(_num.toString()));
+	};
+
 	const savePlayersReady = (_hasJoined: boolean) => {
 		setPlayersReady(_hasJoined);
 	};
@@ -66,16 +82,22 @@ export const GameContextProviderComponent: React.FC<GameContextProps> = ({
 		removePlayerAddresses();
 		setContractAddress("");
 		setPlayersReady(false);
+		setPlayerId(0);
+		setSecretNumber(0);
 	};
 
 	const contextValue: GameContextState = {
 		contractAddress,
 		player1Address,
 		player2Address,
+		playerId,
+		secretNumber,
 		playersReady,
 		savePlayer1Address,
 		savePlayer2Address,
 		saveContractAddress,
+		savePlayerId,
+		saveSecretNumber,
 		savePlayersReady,
 		logout,
 	};

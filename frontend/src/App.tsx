@@ -8,6 +8,7 @@ import {
 	GameContextProviderComponent,
 } from "./contexts/useGameContext";
 import Onboard from "./components/Onboard";
+import Header from "./components/Header";
 
 export default function App() {
 	return (
@@ -15,6 +16,7 @@ export default function App() {
 			<GameContextProviderComponent>
 				<AppShell withBorder>
 					<AppShell.Main>
+						<Header />
 						<Onboard />
 					</AppShell.Main>
 				</AppShell>
