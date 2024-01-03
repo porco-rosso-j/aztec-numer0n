@@ -225,7 +225,7 @@ export default function Onboard() {
 					)}
 				</Container>
 			) : (
-				<Game />
+				<Game gameId={gameID} />
 			)}
 		</>
 	);
