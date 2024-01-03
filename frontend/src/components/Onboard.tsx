@@ -10,7 +10,6 @@ import {
 	Box,
 	Loader,
 } from "@mantine/core";
-import React from "react";
 import { useGameContext } from "../contexts/useGameContext";
 import Game from "./Game";
 import {
@@ -36,9 +35,8 @@ export default function Onboard() {
 	// gameID = game count + game password
 	const [gameID, setGameID] = useState<string>("");
 	const [isGameCreated, setIsGameCreated] = useState<boolean>(false);
+	const [isGameJoined, setIsGameJoined] = useState<boolean>(false);
 	const [loading, setLoading] = useState(false);
-	// const [gameID, setGameID] = useState<number>(0);
-	// const [gamePassword, setGamePassword] = useState<string>("");
 
 	async function handleCreateNewGame() {
 		setLoading(true);
@@ -68,6 +66,7 @@ export default function Onboard() {
 		(async () => {
 			if (contractAddress != "") {
 				const is_ready = await getIfPlayersAdded(contractAddress);
+				console.log("is_ready: ", is_ready);
 				if (is_ready) {
 					const player2 = await getPlayerAddr(2, contractAddress);
 					savePlayer2Address(player2);
@@ -80,17 +79,27 @@ export default function Onboard() {
 	// Player 2 joins the game
 	useEffect(() => {
 		(async () => {
-			if (gameID != "" && !isGameCreated) {
+			if (!isGameJoined && !isGameCreated && gameID != "") {
 				const _gameContractId = gameID.slice(5);
 				const _gamePassword = gameID.slice(0, 5);
 				const gameContractAddress = await getGameContractByGameId(
-					Number(_gameContractId)
+					BigInt(_gameContractId)
 				);
 
+				console.log("gameContractAddress: ", gameContractAddress);
+				console.log("gameContractAddress str: ", gameContractAddress);
+
 				const player2 = (await getSandboxAccountsWallets(pxe()))[1];
-				await joinGame(player2, gameContractAddress, BigInt(_gamePassword));
+
+				const _is_ready = await getIfPlayersAdded(gameContractAddress);
+				if (!_is_ready) {
+					await joinGame(player2, gameContractAddress, BigInt(_gamePassword));
+				}
+
+				console.log("here: ");
 
 				const is_ready = await getIfPlayersAdded(gameContractAddress);
+				console.log("is_ready: ", is_ready);
 				const player1 = await getPlayerAddr(1, gameContractAddress);
 
 				if (is_ready) {
@@ -98,16 +107,20 @@ export default function Onboard() {
 					savePlayer1Address(player1);
 					savePlayer2Address(player2.getAddress().toString());
 					savePlayersReady(true);
+
+					setIsGameJoined(true);
 				}
 			}
 		})();
 	}, [
 		gameID,
 		isGameCreated,
+		isGameJoined,
 		saveContractAddress,
 		savePlayer1Address,
 		savePlayer2Address,
 		savePlayersReady,
+		setIsGameJoined,
 	]);
 
 	return (
@@ -151,7 +164,6 @@ export default function Onboard() {
 							{loading ? (
 								<Center style={{ marginTop: "20px", marginBottom: "10px" }}>
 									<Loader color="gray" size="sm" />{" "}
-									{/* 'size' and 'color' can be adjusted as needed */}
 								</Center>
 							) : (
 								<Box>
@@ -160,7 +172,6 @@ export default function Onboard() {
 											fontSize: "15px",
 											textAlign: "center",
 										}}
-										// my={15}
 										mt={45}
 										mb={15}
 									>

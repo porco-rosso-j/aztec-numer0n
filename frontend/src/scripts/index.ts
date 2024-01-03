@@ -30,6 +30,7 @@ export async function createGame(
 	let gameCount: bigint;
 
 	try {
+		console.log("password: ", password);
 		const receipt = await Numer0nContract.deploy(
 			player,
 			password,
@@ -39,6 +40,8 @@ export async function createGame(
 			.wait();
 
 		contractAddress = receipt.contractAddress!;
+		console.log("contractAddress: ", contractAddress.toString());
+
 		await pxe().registerRecipient(receipt.contract.completeAddress);
 
 		await addGameIdNote(
@@ -53,7 +56,10 @@ export async function createGame(
 			AztecAddress.fromString(registryAddress),
 			player
 		);
-		await registry.methods.add_game(receipt.contractAddress).send().wait();
+		await registry.methods
+			.add_game(receipt.contractAddress?.toField())
+			.send()
+			.wait();
 
 		gameCount = await registry.methods.get_current_count().view();
 		console.log("gameCount: ", gameCount);
@@ -72,11 +78,13 @@ export async function joinGame(
 	contractAddress: string,
 	password: bigint
 ) {
+	console.log("join game contractAddress: ", contractAddress);
 	try {
 		const numer0n = await Numer0nContract.at(
 			AztecAddress.fromString(contractAddress),
 			player
 		);
+		console.log("password: ", password);
 		await numer0n.methods
 			.join_game(password, player.getAddress())
 			.send()
@@ -207,21 +215,12 @@ export async function isValidNum(
 	return await numer0n.methods.is_valid_nums(num).view();
 }
 
-// export async function getIfPlayersAdded(
-// 	contractAddress: string
-// ): Promise<boolean> {
-// 	const numer0n = await Numer0nContract.at(
-// 		AztecAddress.fromString(contractAddress),
-// 		new SignerlessWallet(pxe())
-// 	);
-// 	return await numer0n.methods.get_if_players_added().view();
-// }
-
 export async function getIfPlayersAdded(
 	contractAddress: string
 ): Promise<boolean> {
 	const game = await getGame(contractAddress);
-	if (game.is_number_set[0] && game.is_number_set[1]) {
+	console.log("game: ", game);
+	if (game.players[0] != 0n && game.players[1] != 0n) {
 		return true;
 	} else {
 		return false;
@@ -237,8 +236,11 @@ export async function getPlayerAddr(
 }
 
 async function getGame(contractAddress: string) {
+	const addr = AztecAddress.fromString(contractAddress);
+	console.log("addr: ", addr);
 	const numer0n = await Numer0nContract.at(
-		AztecAddress.fromString(contractAddress),
+		// AztecAddress.fromString(contractAddress),
+		addr,
 		new SignerlessWallet(pxe())
 	);
 
@@ -248,11 +250,18 @@ async function getGame(contractAddress: string) {
 // registry
 
 export async function getGameContractByGameId(
-	game_id: number
+	game_id: bigint
 ): Promise<string> {
 	const numer0n = await RegistryContract.at(
 		AztecAddress.fromString(registryAddress),
 		new SignerlessWallet(pxe())
 	);
-	return await numer0n.methods.get_game_address(game_id).view();
+
+	const addr = await numer0n.methods.get_game_address(game_id).view();
+	console.log("addr: ", addr);
+	return fromBigIntToHexStrAddress(addr.toString());
 }
+
+const fromBigIntToHexStrAddress = (addr: string) => {
+	return "0x" + BigInt(addr).toString(16);
+};
