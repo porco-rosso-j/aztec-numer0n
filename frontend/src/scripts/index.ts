@@ -260,6 +260,15 @@ export async function getIsFinished(contractAddress: string): Promise<boolean> {
 	return game.finished;
 }
 
+export async function getWinner(contractAddress: string): Promise<bigint> {
+	const numer0n = await Numer0nContract.at(
+		AztecAddress.fromString(contractAddress),
+		new SignerlessWallet(pxe())
+	);
+
+	return numer0n.methods.get_winner().view();
+}
+
 async function getGame(contractAddress: string) {
 	const numer0n = await Numer0nContract.at(
 		AztecAddress.fromString(contractAddress),

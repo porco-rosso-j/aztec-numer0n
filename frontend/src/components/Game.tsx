@@ -5,14 +5,22 @@ import Call from "./Call";
 import AddNumMoodal from "./Modals/AddNumModal";
 import { useGameContext } from "../contexts/useGameContext";
 import CallHistory from "./CallHistory";
-import { getIsFirst, getRound, getIsFinished } from "../scripts";
+import { getIsFirst, getRound, getIsFinished, getWinner } from "../scripts";
+import { shortenAddress } from "../scripts/utils";
 
 export default function Game() {
-	const { secretNumber, playerId, contractAddress } = useGameContext();
+	const {
+		secretNumber,
+		playerId,
+		contractAddress,
+		player1Address,
+		player2Address,
+	} = useGameContext();
 	const [IsAddNumModalOpen, setOpenAddNumModal] = useState(false);
 	const [isFirst, setIsFirst] = useState(true);
 	const [round, setRount] = useState(0);
 	const [isFinished, setIsFinished] = useState(false);
+	const [winnerId, setWinnerId] = useState(0);
 
 	// set turn
 	useEffect(() => {
@@ -20,10 +28,15 @@ export default function Game() {
 			const _isFirst = await getIsFirst(contractAddress);
 			const _round = await getRound(contractAddress);
 			const _isFinished = await getIsFinished(contractAddress);
+			const _winner = await getWinner(contractAddress);
 			console.log("isFinished: ", _isFinished);
 			setIsFirst(_isFirst);
 			setRount(Number(_round));
 			setIsFinished(_isFinished);
+			if (_winner != 0n) {
+				console.log("_winner: ", _winner);
+				setWinnerId(Number(_winner));
+			}
 		};
 		const intervalId = setInterval(checkStates, 5000);
 		return () => {
@@ -49,14 +62,6 @@ export default function Game() {
 		setOpenAddNumModal(false);
 	};
 
-	// const incrementCallCount = async (isOpponent: boolean) => {
-	// 	if (isOpponent) {
-	// 		setOpponentCallCount(opponentCallCount + 1);
-	// 	} else {
-	// 		setPlayerCallCount(playerCallCount + 1);
-	// 	}
-	// };
-
 	const getWhosTurn = () => {
 		if (playerId == 1 && isFirst) {
 			return "You!";
@@ -80,6 +85,11 @@ export default function Game() {
 						Who's turn: {getWhosTurn()}{" "}
 					</Text>
 					<Text style={{ flex: 1, textAlign: "center" }}>Round: {round}</Text>
+					{winnerId != 0 ? (
+						<Text>
+							Result: {winnerId == playerId ? "You won!" : "You lost"}
+						</Text>
+					) : null}
 				</Group>
 				<SimpleGrid cols={2}>
 					<PlayerBoard playerId={playerId} isOpponent={false} />
