@@ -106,6 +106,9 @@ export class Numer0nContract extends ContractBase {
     /** compute_note_hash_and_nullifier(contract_address: field, nonce: field, storage_slot: field, serialized_note: array) */
     compute_note_hash_and_nullifier: ((contract_address: FieldLike, nonce: FieldLike, storage_slot: FieldLike, serialized_note: FieldLike[]) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
+    /** get_game() */
+    get_game: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
     /** get_is_finished() */
     get_is_finished: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 

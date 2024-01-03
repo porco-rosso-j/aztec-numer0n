@@ -259,6 +259,11 @@ contract Numer0n {
         player.is_player = true;
 
         storage.players.at(_player).write(player);
+
+        // add player addrs into game
+        let mut game = storage.game.read();
+        game.players[_player_id - 1] = _player;
+        storage.game.write(game);
     }
 
     #[aztec(public)] 
@@ -340,6 +345,19 @@ contract Numer0n {
 
     unconstrained fn get_is_finished() -> bool {
        storage.game.read().finished
+    }
+
+    // unconstrained fn get_if_players_added() -> bool {
+    //    let game = storage.game.read();
+    //    if {(game.is_number_set[0]) & (game.is_number_set[1])} {
+    //       true
+    //    } else {
+    //       false
+    //    }
+    // }
+
+    unconstrained fn get_game() -> Game {
+        storage.game.read()
     }
 
     unconstrained fn check_result(

@@ -1,5 +1,5 @@
 
-contract Regisry {
+contract Registry {
     use dep::std::option::Option;
     use dep::aztec::{
         context::{PrivateContext, PublicContext, Context},

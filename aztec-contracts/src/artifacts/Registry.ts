@@ -20,20 +20,20 @@ import {
   PublicKey,
   Wallet,
 } from '@aztec/aztec.js';
-import RegisryContractArtifactJson from '../../../artifacts/Regisry.json' assert { type: 'json' };
-export const RegisryContractArtifact = RegisryContractArtifactJson as ContractArtifact;
+import RegistryContractArtifactJson from '../../../artifacts/Registry.json' assert { type: 'json' };
+export const RegistryContractArtifact = RegistryContractArtifactJson as ContractArtifact;
 
 /**
- * Type-safe interface for contract Regisry;
+ * Type-safe interface for contract Registry;
  */
-export class RegisryContract extends ContractBase {
+export class RegistryContract extends ContractBase {
   
   private constructor(
     completeAddress: CompleteAddress,
     wallet: Wallet,
     portalContract = EthAddress.ZERO
   ) {
-    super(completeAddress, RegisryContractArtifact, wallet, portalContract);
+    super(completeAddress, RegistryContractArtifact, wallet, portalContract);
   }
   
 
@@ -48,7 +48,7 @@ export class RegisryContract extends ContractBase {
     address: AztecAddress,
     wallet: Wallet,
   ) {
-    return Contract.at(address, RegisryContract.artifact, wallet) as Promise<RegisryContract>;
+    return Contract.at(address, RegistryContract.artifact, wallet) as Promise<RegistryContract>;
   }
 
   
@@ -56,14 +56,14 @@ export class RegisryContract extends ContractBase {
    * Creates a tx to deploy a new instance of this contract.
    */
   public static deploy(wallet: Wallet, ) {
-    return new DeployMethod<RegisryContract>(Point.ZERO, wallet, RegisryContractArtifact, Array.from(arguments).slice(1));
+    return new DeployMethod<RegistryContract>(Point.ZERO, wallet, RegistryContractArtifact, Array.from(arguments).slice(1));
   }
 
   /**
    * Creates a tx to deploy a new instance of this contract using the specified public key to derive the address.
    */
   public static deployWithPublicKey(publicKey: PublicKey, wallet: Wallet, ) {
-    return new DeployMethod<RegisryContract>(publicKey, wallet, RegisryContractArtifact, Array.from(arguments).slice(2));
+    return new DeployMethod<RegistryContract>(publicKey, wallet, RegistryContractArtifact, Array.from(arguments).slice(2));
   }
   
 
@@ -72,7 +72,7 @@ export class RegisryContract extends ContractBase {
    * Returns this contract's artifact.
    */
   public static get artifact(): ContractArtifact {
-    return RegisryContractArtifact;
+    return RegistryContractArtifact;
   }
   
 
