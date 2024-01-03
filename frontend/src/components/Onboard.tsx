@@ -54,6 +54,16 @@ export default function Onboard() {
 		const gameID = gamePassword.concat(gameCreated.gameCount.toString());
 		console.log("gameID: ", gameID);
 
+		console.log(
+			" gameCreated.contractAddress.toString(): ",
+			gameCreated.contractAddress.toString()
+		);
+
+		console.log(
+			"player1.getAddress().toString(): ",
+			player1.getAddress().toString()
+		);
+
 		savePlayer1Address(player1.getAddress().toString());
 		saveContractAddress(gameCreated.contractAddress.toString());
 		setGameID(gameID);
@@ -64,10 +74,10 @@ export default function Onboard() {
 
 	// Player 1 starts the game
 	useEffect(() => {
-		(async () => {
+		const startGame = async () => {
 			if (isGameCreated && contractAddress != "") {
 				const is_ready = await getIfPlayersAdded(contractAddress);
-				console.log("is_ready: ", is_ready);
+				// console.log("is_ready: ", is_ready);
 				if (is_ready) {
 					const player2 = await getPlayerAddr(2, contractAddress);
 					savePlayer2Address(player2);
@@ -75,7 +85,17 @@ export default function Onboard() {
 					savePlayerId(1);
 				}
 			}
-		})();
+		};
+
+		// Call the function immediately if needed or just set the interval
+		if (isGameCreated && contractAddress !== "") {
+			startGame();
+		}
+
+		const intervalId = setInterval(startGame, 5000);
+		return () => {
+			clearInterval(intervalId);
+		};
 	}, [
 		contractAddress,
 		isGameCreated,
@@ -94,6 +114,8 @@ export default function Onboard() {
 				const gameContractAddress = await getGameContractByGameId(
 					BigInt(_gameContractId)
 				);
+
+				console.log("gameContractAddress: ", gameContractAddress);
 
 				const player2 = (await getSandboxAccountsWallets(pxe()))[1];
 

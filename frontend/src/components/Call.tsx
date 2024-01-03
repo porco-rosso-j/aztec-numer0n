@@ -1,8 +1,21 @@
 import { Button, Center, Stack, PinInput } from "@mantine/core";
 import { useState } from "react";
 import { numLen } from "../scripts/constants";
+import { useGameContext } from "../contexts/useGameContext";
+import {
+	callNumber,
+	getAccountByAddress,
+	getResult,
+	getRound,
+} from "../scripts";
 
-export default function Call() {
+type CallType = {
+	playerId: number;
+	// incrementCallCount: () => void;
+};
+
+export default function Call(props: CallType) {
+	const { player1Address, player2Address, contractAddress } = useGameContext();
 	const [input, setInput] = useState<string>();
 	const [callDisabled, setCallDisabled] = useState<boolean>(true);
 	const [nums, setNums] = useState<number[]>();
@@ -30,12 +43,35 @@ export default function Call() {
 	}
 
 	async function handleCall() {
-		console.log(nums);
+		if (nums) {
+			const num = Number(nums.join(""));
+			console.log(num);
+
+			const round = await getRound(contractAddress);
+
+			console.log("playerId :", props.playerId);
+			const playerAddr = props.playerId == 1 ? player1Address : player2Address;
+			const opponentAddr =
+				props.playerId == 1 ? player2Address : player1Address;
+			console.log("playerAddr: ", playerAddr);
+			console.log("opponentAddr: ", opponentAddr);
+			const player = await getAccountByAddress(playerAddr);
+			const opponent = await getAccountByAddress(opponentAddr);
+			console.log("player: ", player.getAddress().toString());
+			console.log("opponent: ", opponent.getAddress().toString());
+			console.log("contractAddress: ", contractAddress);
+			await callNumber(player, opponent, BigInt(num), contractAddress);
+
+			const result = await getResult(playerAddr, round, contractAddress);
+			console.log("result: ", result);
+
+			// props.incrementCallCount();
+		}
 	}
 
 	return (
 		<>
-			<Center mt={30}>
+			<Center mt={50}>
 				<Stack>
 					<PinInput
 						type={/^[0-9]*$/}
@@ -58,13 +94,5 @@ export default function Call() {
 				</Stack>
 			</Center>
 		</>
-		// <NumberInput
-		//   min={0}
-		//   max={9}
-		//   // disabled={isInit}
-		//   value={num}
-		//   onChange={onSetNum}
-		//   isAllowed={isValidNum}
-		// />
 	);
 }

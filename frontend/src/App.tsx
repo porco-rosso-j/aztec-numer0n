@@ -1,12 +1,7 @@
-import React from "react";
 import "@mantine/core/styles.css";
 import { MantineProvider, AppShell } from "@mantine/core";
 import { theme } from "./theme";
-import Game from "./components/Game";
-import {
-	useGameContext,
-	GameContextProviderComponent,
-} from "./contexts/useGameContext";
+import { GameContextProviderComponent } from "./contexts/useGameContext";
 import Onboard from "./components/Onboard";
 import Header from "./components/Header";
 

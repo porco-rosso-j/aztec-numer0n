@@ -200,6 +200,7 @@ contract Numer0n {
 
     #[aztec(public)]
     internal fn _record_result(caller: Field, call_num:Field, eat:Field, bite:Field) {
+      assert(!storage.game.read().finished, "game has already been finished");
       let caller = storage.players.at(caller).read();
       let result = Result::new(call_num, eat, bite);
       let mut game = storage.game.read();

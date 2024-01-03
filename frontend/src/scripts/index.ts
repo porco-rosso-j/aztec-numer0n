@@ -32,8 +32,10 @@ export const getAccountByAddress = async (
 	player: string
 ): Promise<AccountWalletWithPrivateKey> => {
 	if (player == SANDBOX_ADDRESS_1) {
+		console.log("aaa");
 		return (await getSandboxAccountsWallets(pxe()))[0];
 	} else if (player == SANDBOX_ADDRESS_2) {
+		console.log("bbb");
 		return (await getSandboxAccountsWallets(pxe()))[1];
 	} else {
 		return (await getSandboxAccountsWallets(pxe()))[2];
@@ -112,6 +114,8 @@ export async function addNumber(
 	secert_num: bigint,
 	contractAddress: string
 ) {
+	console.log("player: ", player.getAddress().toString());
+	console.log("secert_num: ", secert_num);
 	try {
 		const numer0n = await Numer0nContract.at(
 			AztecAddress.fromString(contractAddress),
@@ -128,7 +132,7 @@ export async function addNumber(
 
 export async function callNumber(
 	player: AccountWalletWithPrivateKey,
-	target: AccountWalletWithPrivateKey,
+	opponent: AccountWalletWithPrivateKey,
 	call_num: bigint,
 	contractAddress: string
 ) {
@@ -138,12 +142,12 @@ export async function callNumber(
 			player
 		);
 
-		const action = numer0n.methods.call_num(target.getAddress(), call_num);
+		const action = numer0n.methods.call_num(opponent.getAddress(), call_num);
 		const messageHash = computeAuthWitMessageHash(
 			player.getAddress(),
 			action.request()
 		);
-		const witness = await target.createAuthWitness(messageHash);
+		const witness = await opponent.createAuthWitness(messageHash);
 		await player.addAuthWitness(witness);
 
 		await action.send().wait();
@@ -244,10 +248,16 @@ export async function getPlayerAddr(
 	contractAddress: string
 ): Promise<string> {
 	const game = await getGame(contractAddress);
-	console.log("game: ", game);
+	// console.log("game: ", game);
+
 	const addr = fromBigIntToHexStrAddress(game.players[player_id - 1]);
-	console.log("addr getPlayerAddr: ", addr);
+	// console.log("addr getPlayerAddr: ", addr);
 	return addr;
+}
+
+export async function getIsFinished(contractAddress: string): Promise<boolean> {
+	const game = await getGame(contractAddress);
+	return game.finished;
 }
 
 async function getGame(contractAddress: string) {
@@ -270,9 +280,11 @@ export async function getGameContractByGameId(
 	);
 
 	const addr = await numer0n.methods.get_game_address(game_id).view();
-	return fromBigIntToHexStrAddress(addr.toString());
+	console.log("addr: ", addr);
+	return fromBigIntToHexStrAddress(addr);
 }
 
-const fromBigIntToHexStrAddress = (addr: string) => {
-	return "0x" + BigInt(addr).toString(16);
+const fromBigIntToHexStrAddress = (addr: bigint) => {
+	// return "0x" + BigInt(addr).toString(16);
+	return AztecAddress.fromBigInt(addr).toString();
 };

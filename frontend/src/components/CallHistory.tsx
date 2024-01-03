@@ -1,21 +1,82 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Center, Table } from "@mantine/core";
+import { Table } from "@mantine/core";
+import { useGameContext } from "../contexts/useGameContext";
+import { getResult, getRound } from "../scripts";
+import { useState, useEffect } from "react";
 
-type CallHistoryType = { isOpponent: boolean };
+type CallHistoryType = {
+	isOpponent: boolean;
+	isFirst: boolean;
+	// callCount: number;
+};
 
-const CallHistory = (props: CallHistoryType) => {
-	// Sample data, replace with your own
-	const rows1 = [
-		{ guess: "167", eat: "1", bite: "0" },
-		{ guess: "325", eat: "0", bite: "1" },
-		// Add more guess entries here...
-	];
+type ResultRow = {
+	guess: number;
+	eat: number;
+	bite: number;
+};
 
-	const rows2 = [
-		{ guess: "345", eat: "1", bite: "0" },
-		{ guess: "512", eat: "1", bite: "2" },
-		// Add more guess entries here...
-	];
+export default function CallHistory(props: CallHistoryType) {
+	const { player1Address, player2Address, playerId, contractAddress } =
+		useGameContext();
+	const [resultRows, setResultRows] = useState<ResultRow[]>([]);
+	const [currentTurn, setCurrentTurn] = useState<boolean>(true);
+	const [currentRound, setCurrentRound] = useState<bigint>(1n);
+
+	useEffect(() => {
+		const checkResults = async () => {
+			const round = await getRound(contractAddress);
+			console.log("round: ", round);
+
+			if (props.isFirst != currentTurn && round > 0n) {
+				console.log("props.isFirst: ", props.isFirst);
+				console.log("currentTurn: ", currentTurn);
+				const resultRow: ResultRow[] = [];
+				let result: number[] = [];
+
+				const _playerAddr = playerId == 1 ? player1Address : player2Address;
+				const _opponentAddr = playerId == 1 ? player2Address : player1Address;
+
+				const playerAddr = props.isOpponent ? _opponentAddr : _playerAddr;
+				console.log("playerAddr: ", playerAddr);
+
+				const _round = props.isFirst ? Number(round) - 1 : round;
+
+				for (let i = 1; i <= _round; i++) {
+					result = await getResult(playerAddr, BigInt(i), contractAddress);
+					console.log("result: ", result);
+					const newResult: ResultRow = {
+						guess: Number(result[0]),
+						eat: Number(result[1]),
+						bite: Number(result[2]),
+					};
+					resultRow.push(newResult);
+				}
+				console.log("resultRow: ", resultRow);
+
+				if (Number(round) - 1 >= 0) {
+					setResultRows(resultRow);
+				}
+
+				setCurrentTurn(!currentTurn);
+				setCurrentRound(round);
+			}
+		};
+		const intervalId = setInterval(checkResults, 5000);
+		return () => {
+			clearInterval(intervalId);
+		};
+	}, [
+		player1Address,
+		player2Address,
+		playerId,
+		contractAddress,
+		props.isFirst,
+		currentTurn,
+		currentRound,
+		resultRows,
+		props.isOpponent,
+	]);
 
 	const cellStyle: React.CSSProperties = {
 		border: "1px solid #ddd",
@@ -24,21 +85,13 @@ const CallHistory = (props: CallHistoryType) => {
 		textAlign: "center",
 	};
 
-	const tableRows = !props.isOpponent
-		? rows1.map((row, index) => (
-				<tr key={index}>
-					<td style={cellStyle}>{row.guess}</td>
-					<td style={cellStyle}>{row.eat}</td>
-					<td style={cellStyle}>{row.bite}</td>
-				</tr>
-		  ))
-		: rows2.map((row, index) => (
-				<tr key={index}>
-					<td style={cellStyle}>{row.guess}</td>
-					<td style={cellStyle}>{row.eat}</td>
-					<td style={cellStyle}>{row.bite}</td>
-				</tr>
-		  ));
+	const tableRows = resultRows.map((row, index) => (
+		<tr key={index}>
+			<td style={cellStyle}>{row.guess}</td>
+			<td style={cellStyle}>{row.eat}</td>
+			<td style={cellStyle}>{row.bite}</td>
+		</tr>
+	));
 
 	return !props.isOpponent ? (
 		<Table striped highlightOnHover>
@@ -75,6 +128,4 @@ const CallHistory = (props: CallHistoryType) => {
 			<tbody style={{ textAlign: "center" }}>{tableRows}</tbody>
 		</Table>
 	);
-};
-
-export default CallHistory;
+}
