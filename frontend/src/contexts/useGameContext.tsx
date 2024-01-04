@@ -52,11 +52,13 @@ export const GameContextProviderComponent: React.FC<GameContextProps> = ({
 		localStorage.setItem(`player2_address`, JSON.stringify(_player2_address));
 	};
 
-	const removePlayerAddresses = () => {
+	const removeAddresses = () => {
 		setPlayer1Address("");
 		setPlayer2Address("");
+		setContractAddress("");
 		localStorage.removeItem(`player1_address`);
 		localStorage.removeItem(`player2_address`);
+		localStorage.removeItem(`contract_address`);
 	};
 
 	const saveContractAddress = (_contractAddress: string) => {
@@ -69,9 +71,17 @@ export const GameContextProviderComponent: React.FC<GameContextProps> = ({
 		localStorage.setItem(`player_id`, JSON.stringify(_id.toString()));
 	};
 
+	const removePlayerId = () => {
+		localStorage.removeItem(`player_id`);
+	};
+
 	const saveSecretNumber = (_num: number) => {
 		setSecretNumber(_num);
 		localStorage.setItem(`secret_num`, JSON.stringify(_num.toString()));
+	};
+
+	const removeSecretNumber = () => {
+		localStorage.removeItem(`secret_num`);
 	};
 
 	const savePlayersReady = (_hasJoined: boolean) => {
@@ -79,11 +89,13 @@ export const GameContextProviderComponent: React.FC<GameContextProps> = ({
 	};
 
 	const logout = () => {
-		removePlayerAddresses();
+		removeAddresses();
 		setContractAddress("");
 		setPlayersReady(false);
 		setPlayerId(0);
+		removePlayerId();
 		setSecretNumber(0);
+		removeSecretNumber();
 	};
 
 	const contextValue: GameContextState = {

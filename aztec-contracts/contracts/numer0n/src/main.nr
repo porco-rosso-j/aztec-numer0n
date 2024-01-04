@@ -1,4 +1,6 @@
 mod types;
+// mod lib;
+mod item_lib;
 mod num_lib;
 
 contract Numer0n {
@@ -36,6 +38,8 @@ contract Numer0n {
     use dep::field_note::field_note::{FieldNote, FieldNoteMethods, FIELD_NOTE_LEN};
 
     use crate::num_lib;
+    use crate::item_lib;
+
     use crate::types::{
         secret_num_note::{SecretNumberNote, SecretNumberNoteMethods, SECRET_NUM_NOTE_LEN},
         player::{PLAYER_SERIALIZED_LEN, Player, PlayerSerializationMethods},
@@ -177,11 +181,11 @@ contract Numer0n {
         assert(target_address != context.msg_sender(), "caller shouldn't be target");
         assert_current_call_valid_authwit(&mut context, target);
 
-        context.call_public_function(
-            context.this_address(), 
-            compute_selector("_assert_invalid_caller(Field)"),
-            [context.msg_sender()]
-        ); 
+        // context.call_public_function(
+        //     context.this_address(), 
+        //     compute_selector("_assert_invalid_caller(Field)"),
+        //     [context.msg_sender()]
+        // ); 
 
         let secret_num_note: SecretNumberNote = storage.secret_num.at(target_address).get_note(true);
         let secret_num: Field = secret_num_note.secret_num;
@@ -195,53 +199,129 @@ contract Numer0n {
             compute_selector("_record_result(Field,Field,Field,Field)"), 
             [context.msg_sender(), call_num, result[0], result[1]]
         ); 
+    }
 
+   #[aztec(private)]
+    fn use_item(target: AztecAddress, item_type: Field) {
+        
+        let target_address: Field = target.address;
+        assert(target_address != context.msg_sender(), "caller shouldn't be target");
+        assert_current_call_valid_authwit(&mut context, target);
+
+        // context.call_public_function(
+        //     context.this_address(), 
+        //     compute_selector("_assert_invalid_caller(Field)"),
+        //     [context.msg_sender()]
+        // ); 
+
+        let mut result: Field = 0;
+        if (item_type == item_lib::ITEM_HIGH_LOW) {
+            result = item_lib::get_high_and_low(storage.secret_num.at(target_address));
+        // } else if (item_type == item_lib::ITEM_SLASH) {
+        // } else if (item_type == item_lib::ITEM_TARGET) {
+        // } else if (item_type == item_lib::ITEM_CHANGE) {
+        // } else if (item_type == item_lib::ITEM_SHUFFLE) {
+        } else {
+            assert(false, "inavlid item type");
+        }
+
+        // records results
+        context.call_public_function(
+            context.this_address(), 
+            compute_selector("_record_item_result(Field,Field,Field)"), 
+            [context.msg_sender(), item_type, result]
+        ); 
     }
 
     #[aztec(public)]
-    internal fn _record_result(caller: Field, call_num:Field, eat:Field, bite:Field) {
+    internal fn _record_item_result(_caller: Field, _item_type:Field, _item_result:Field) {
+         assert(!storage.game.read().finished, "game has already been finished");
+         let player_id = storage.players.at(_caller).read().player_id;
+         let mut game = storage.game.read(); 
+         let current_round = game.round;
+
+         if (player_id == 1) {
+            assert(game.is_first, "invalid turn for player 1");
+            let mut result_one = storage.results_one.at(current_round).read();
+            assert(result_one.call_num == 0, "item should be used before call");
+            assert(result_one.item == 0, "an item has already been used");
+            result_one.item = _item_type;
+            result_one.item_result = _item_result;
+            storage.results_one.at(current_round).write(result_one);
+
+         } else if (player_id == 2) {
+            assert(!game.is_first, "invalid turn for player 2");
+            let mut result_two = storage.results_two.at(current_round).read();
+            assert(result_two.call_num == 0, "item should be used before call");
+            assert(result_two.item == 0, "an item has already been used");
+            result_two.item = _item_type;
+            result_two.item_result = _item_result;
+            storage.results_two.at(current_round).write(result_two);
+         } else {
+            assert(false, "invalid player");
+         }
+    }
+
+    // public state read count: 18
+    #[aztec(public)]
+    internal fn _record_result(_caller: Field, _call_num:Field, _eat:Field, _bite:Field) {
       assert(!storage.game.read().finished, "game has already been finished");
-      let caller = storage.players.at(caller).read();
-      let result = Result::new(call_num, eat, bite);
-      let mut game = storage.game.read();
+      let player_id = storage.players.at(_caller).read().player_id; // 2 or 1
+      let mut result = Result::new(_call_num, _eat, _bite, 0, 0);
+
+      let mut game = storage.game.read(); // 8 or 2
       let current_round = game.round;
 
-      if (caller.player_id == 1) {
+      
+      if (player_id == 1) {
+         assert(game.is_first, "invalid turn for player 1");
+        let result_one = storage.results_one.at(current_round).read(); // 5 or 3 or 1
+        result.item = result_one.item;
+        result.item_result = result_one.item_result;
+
         storage.results_one.at(current_round).write(result);
 
         game.is_first = false;
         storage.game.write(game);
 
-      } else if (caller.player_id == 2) {
+      } else if (player_id == 2) {
+        assert(!game.is_first, "invalid turn for player 2");
+        let result_two = storage.results_two.at(current_round).read(); // 5 or 2
+        result.item = result_two.item;
+        result.item_result = result_two.item_result;
+
         storage.results_two.at(current_round).write(result);
 
         // check if either of the players win
-        let result_one = storage.results_one.at(current_round).read();
-        if ((eat == 3) | (result_one.eat == 3)) {
+        let one_eat = storage.results_one.at(current_round).read().eat; 
+        if ((_eat == 3) | (one_eat == 3)) {
            game.finished = true;
         } else {
            game.is_first = true;
            game.round = current_round + 1;
         }
         storage.game.write(game);
-      }      
-
+      } else {
+        assert(false, "invalid player");
+      }
     }
 
-    #[aztec(public)]
-    internal fn _assert_invalid_caller(_caller: Field) {
-         assert(storage.game.read().started, "game hasn't been started yet");
+    // // public state read count: 4
+    // #[aztec(public)]
+    // internal fn _assert_invalid_caller(_caller: Field) {
+    //     assert(storage.game.read().started, "game hasn't been started yet");
 
-        let player = storage.players.at(_caller).read();
+    //     let player = storage.players.at(_caller).read();
+    //     let is_first = storage.game.read().is_first;
         
-        if ((player.is_player) & (player.player_id == 1)) {
-            assert(storage.game.read().is_first, "invalid turn for player 1");
-        } else if ((player.is_player) & (player.player_id == 2)) {
-            assert(!storage.game.read().is_first, "invalid turn for player 2");
-        } else {
-            assert(false, "invalid player");
-        }
-    }
+    //     if ((player.is_player) & (player.player_id == 1)) {
+    //         assert(is_first, "invalid turn for player 1");
+    //     } else if ((player.is_player) & (player.player_id == 2)) {
+    //         assert(!is_first, "invalid turn for player 2");
+    //     } else {
+    //         assert(false, "invalid player");
+    //     }
+    // }
 
     #[aztec(public)]
     internal fn _assert_is_player(_player: Field) {
@@ -321,7 +401,7 @@ contract Numer0n {
 
     unconstrained fn get_result(player: Field, round: Field) -> Result {
        let player = storage.players.at(player).read();
-       let mut result = Result::new(0, 0, 0);
+       let mut result = Result::new(0, 0, 0, 0, 0);
 
        if (player.player_id == 1) {
            result = storage.results_one.at(round).read();
@@ -348,14 +428,10 @@ contract Numer0n {
        storage.game.read().finished
     }
 
-    // unconstrained fn get_if_players_added() -> bool {
-    //    let game = storage.game.read();
-    //    if {(game.is_number_set[0]) & (game.is_number_set[1])} {
-    //       true
-    //    } else {
-    //       false
-    //    }
-    // }
+    // for testing purpose
+    unconstrained fn get_high_and_low(num:Field) -> Field {
+        item_lib::_get_high_and_low(num)
+    }
 
     unconstrained fn get_game() -> Game {
         storage.game.read()

@@ -2,25 +2,24 @@ import { useEffect, useState } from "react";
 import { Container, Group, SimpleGrid, Text } from "@mantine/core";
 import PlayerBoard from "./PlayerBoard";
 import Call from "./Call";
+import Item from "./Item";
 import AddNumMoodal from "./Modals/AddNumModal";
 import { useGameContext } from "../contexts/useGameContext";
 import CallHistory from "./CallHistory";
 import { getIsFirst, getRound, getIsFinished, getWinner } from "../scripts";
-import { shortenAddress } from "../scripts/utils";
 
-export default function Game() {
-	const {
-		secretNumber,
-		playerId,
-		contractAddress,
-		player1Address,
-		player2Address,
-	} = useGameContext();
+type GameType = {
+	gameId: string;
+};
+
+export default function Game(props: GameType) {
+	const { secretNumber, playerId, contractAddress } = useGameContext();
 	const [IsAddNumModalOpen, setOpenAddNumModal] = useState(false);
 	const [isFirst, setIsFirst] = useState(true);
 	const [round, setRount] = useState(0);
 	const [isFinished, setIsFinished] = useState(false);
 	const [winnerId, setWinnerId] = useState(0);
+	const [itemUsed, setIsItemUsed] = useState(false);
 
 	// set turn
 	useEffect(() => {
@@ -62,6 +61,14 @@ export default function Game() {
 		setOpenAddNumModal(false);
 	};
 
+	const usedItem = () => {
+		setIsItemUsed(true);
+	};
+
+	const histryUpdated = () => {
+		setIsItemUsed(false);
+	};
+
 	const getWhosTurn = () => {
 		if (playerId == 1 && isFirst) {
 			return "You!";
@@ -79,13 +86,15 @@ export default function Game() {
 	return (
 		<>
 			<Container mt={20}>
-				<Group grow>
-					<Text style={{ flex: 1, textAlign: "center" }}>Game ID: 0x35511</Text>
+				<Group grow ml={10}>
+					<Text style={{ flex: 1, textAlign: "center" }}>
+						Game ID: {props.gameId}
+					</Text>
 					<Text style={{ flex: 1, textAlign: "center" }}>
 						Who's turn: {getWhosTurn()}{" "}
 					</Text>
 					<Text style={{ flex: 1, textAlign: "center" }}>Round: {round}</Text>
-					{winnerId != 0 ? (
+					{winnerId != 0 && isFinished ? (
 						<Text>
 							Result: {winnerId == playerId ? "You won!" : "You lost"}
 						</Text>
@@ -99,15 +108,21 @@ export default function Game() {
 					<CallHistory
 						isOpponent={false}
 						isFirst={isFirst}
-						// callCount={playerCallCount}
+						itemUsed={itemUsed}
+						histryUpdated={histryUpdated}
 					/>
 					<CallHistory
 						isOpponent={true}
 						isFirst={isFirst}
-						// callCount={opponentCallCount}
+						itemUsed={itemUsed}
+						histryUpdated={histryUpdated}
 					/>
 				</SimpleGrid>
-				<Call playerId={playerId} />
+				<Group grow mx={130} mt={100}>
+					<Item playerId={playerId} usedItem={usedItem} />
+					<Call playerId={playerId} />
+				</Group>
+
 				<AddNumMoodal isOpen={IsAddNumModalOpen} onClose={closeModal} />
 			</Container>
 		</>
