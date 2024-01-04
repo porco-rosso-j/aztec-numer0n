@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Container, Group, SimpleGrid, Text } from "@mantine/core";
+import { Center, Container, Group, SimpleGrid, Text } from "@mantine/core";
 import PlayerBoard from "./PlayerBoard";
 import Call from "./Call";
 import Item from "./Item";
@@ -20,6 +20,7 @@ export default function Game(props: GameType) {
 	const [isFinished, setIsFinished] = useState(false);
 	const [winnerId, setWinnerId] = useState(0);
 	const [itemUsed, setIsItemUsed] = useState(false);
+	const [opponentSecretNum, setOpponentSecretNum] = useState<string>("");
 
 	// set turn
 	useEffect(() => {
@@ -65,8 +66,14 @@ export default function Game(props: GameType) {
 		setIsItemUsed(true);
 	};
 
-	const histryUpdated = () => {
+	const historyUpdated = () => {
 		setIsItemUsed(false);
+	};
+
+	const getOpponentSecretNum = (num: string) => {
+		if (isFinished) {
+			setOpponentSecretNum(num);
+		}
 	};
 
 	const getWhosTurn = () => {
@@ -95,27 +102,50 @@ export default function Game(props: GameType) {
 					</Text>
 					<Text style={{ flex: 1, textAlign: "center" }}>Round: {round}</Text>
 					{winnerId != 0 && isFinished ? (
-						<Text>
-							Result: {winnerId == playerId ? "You won!" : "You lost"}
-						</Text>
+						<Center>
+							<Text style={{ textAlign: "center", fontSize: "16px" }}>
+								Result:{" "}
+								{winnerId == playerId ? (
+									<Text style={{ color: "#dd227f", fontSize: "16px" }}>
+										You won!
+									</Text>
+								) : (
+									<Text style={{ color: "#4169e1", fontSize: "16px" }}>
+										You lost
+									</Text>
+								)}
+							</Text>
+						</Center>
 					) : null}
 				</Group>
 				<SimpleGrid cols={2}>
-					<PlayerBoard playerId={playerId} isOpponent={false} />
-					<PlayerBoard playerId={playerId == 1 ? 2 : 1} isOpponent={true} />
+					<PlayerBoard
+						playerId={playerId}
+						isOpponent={false}
+						opponentSecretNum={opponentSecretNum}
+					/>
+					<PlayerBoard
+						playerId={playerId == 1 ? 2 : 1}
+						isOpponent={true}
+						opponentSecretNum={opponentSecretNum}
+					/>
 				</SimpleGrid>
 				<SimpleGrid cols={2}>
 					<CallHistory
 						isOpponent={false}
 						isFirst={isFirst}
 						itemUsed={itemUsed}
-						histryUpdated={histryUpdated}
+						historyUpdated={historyUpdated}
+						isFinished={isFinished}
+						getOpponentSecretNum={getOpponentSecretNum}
 					/>
 					<CallHistory
 						isOpponent={true}
 						isFirst={isFirst}
 						itemUsed={itemUsed}
-						histryUpdated={histryUpdated}
+						historyUpdated={historyUpdated}
+						isFinished={isFinished}
+						getOpponentSecretNum={getOpponentSecretNum}
 					/>
 				</SimpleGrid>
 				<Group grow mx={130} mt={100}>

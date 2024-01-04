@@ -11,7 +11,9 @@ type CallHistoryType = {
 	isOpponent: boolean;
 	isFirst: boolean;
 	itemUsed: boolean;
-	histryUpdated: () => void;
+	historyUpdated: () => void;
+	isFinished: boolean;
+	getOpponentSecretNum: (num: string) => void;
 };
 
 type ResultRow = {
@@ -38,6 +40,7 @@ export default function CallHistory(props: CallHistoryType) {
 	const [currentTurn, setCurrentTurn] = useState<boolean>(true);
 	const [currentRound, setCurrentRound] = useState<bigint>(1n);
 	const [refreshed, setRefreshed] = useState<boolean>(true);
+	const [_isFinished, _setIsFinished] = useState<boolean>(false);
 
 	const updateHistry = async () => {
 		const round = await getRound(contractAddress);
@@ -48,7 +51,23 @@ export default function CallHistory(props: CallHistoryType) {
 		const isTurnChanged = props.isFirst != currentTurn && round > 0n;
 		console.log("isTurnChanged: ", isTurnChanged);
 		console.log("refreshed: ", refreshed);
-		if (refreshed || isTurnChanged || props.itemUsed) {
+		console.log("props.isFinished: ", props.isFinished);
+		console.log("isFinished: ", _isFinished);
+		console.log("props.itemUsed: ", props.itemUsed);
+
+		const isFinished = !_isFinished ? _setIsFinished(props.isFinished) : false;
+
+		if (
+			(refreshed && round > 0) ||
+			isTurnChanged ||
+			props.itemUsed ||
+			isFinished
+		) {
+			setRefreshed(false);
+			setCurrentTurn(!currentTurn);
+			setCurrentRound(round);
+			_setIsFinished(false);
+			props.historyUpdated();
 			console.log("props.isFirst: ", props.isFirst);
 			console.log("currentTurn: ", currentTurn);
 			let resultRow: ResultRow[] = [];
@@ -89,16 +108,16 @@ export default function CallHistory(props: CallHistoryType) {
 				resultRow = resultRow.concat(fillingRows);
 			}
 
-			if (Number(round) - 1 >= 0) {
+			const currentRoundRow = Number(round) - 1;
+			if (currentRoundRow >= 0) {
 				setResultRows(resultRow);
 			}
 
-			console.log("resultRows: ", resultRows);
+			if (resultRows[currentRoundRow].eat == 3) {
+				props.getOpponentSecretNum(resultRows[currentRoundRow].guess);
+			}
 
-			setCurrentTurn(!currentTurn);
-			setCurrentRound(round);
-			setRefreshed(false);
-			props.histryUpdated();
+			console.log("resultRows: ", resultRows);
 		}
 	};
 

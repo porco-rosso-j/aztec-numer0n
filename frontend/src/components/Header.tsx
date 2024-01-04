@@ -15,7 +15,6 @@ export default function Header() {
 			<Button onClick={logout} mr={35}>
 				Leave
 			</Button>
-			{/* Add other elements here if needed, like buttons or icons */}
 		</Group>
 	);
 }
