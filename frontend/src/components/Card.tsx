@@ -1,10 +1,13 @@
 import { Grid, Card as MantineCard } from "@mantine/core";
 
-export default function Card({
-	num,
+type CardType = {
+	num: number;
+};
+export default function Card(
+	props: CardType
 	// onSetNum,
 	// isInit
-}) {
+) {
 	// function isValidNum(newNum: NumberFormatValues) {
 	//   return  Number(newNum.value) >= 0 && Number(newNum.value) <= 9
 	// }
@@ -22,7 +25,7 @@ export default function Card({
 				radius="lg"
 				withBorder
 			>
-				{num == null ? "?" : num}
+				{props.num == null ? "?" : props.num}
 			</MantineCard>
 			{/* </AspectRatio> */}
 		</Grid.Col>

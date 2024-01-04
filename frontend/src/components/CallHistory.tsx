@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Table, Button } from "@mantine/core";
+import { Table } from "@mantine/core";
 import { useGameContext } from "../contexts/useGameContext";
-import { checkResult, getResult, getRound } from "../scripts";
+import { getResult, getRound } from "../scripts";
 import { useState, useEffect } from "react";
 import { item, HighLow } from "../scripts/constants";
 
