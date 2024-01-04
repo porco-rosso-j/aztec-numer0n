@@ -4,6 +4,10 @@ else
     AZTEC_CLI = aztec-cli
 endif
 
+ifeq ($(PROD),true)
+	DEPLOY_FLAG = -u http://212.227.240.189:8080
+endif
+
 .PHONY: gen-artifacts
 
 gen-artifacts:
@@ -21,4 +25,5 @@ gen-artifacts:
 
 deploy-registry:
 	$(AZTEC_CLI) \
-	deploy ./aztec-contracts/contracts/numer0n
+	deploy $(DEPLOY_FLAG) \
+	./artifacts/Registry.json
