@@ -4,11 +4,14 @@ import Card from "./Card";
 import { useGameContext } from "../contexts/useGameContext";
 import { numLen } from "../scripts/constants";
 
-type PlayerType = { isOpponent: boolean };
+type PlayerType = { isOpponent: boolean; opponentSecretNum: string };
 
 export default function Player(props: PlayerType) {
 	const { secretNumber } = useGameContext();
 	const [nums, setNums] = useState<number[]>(Array(numLen).fill(null));
+	const [opponentNums, setOpponentNums] = useState<number[]>(
+		Array(numLen).fill(null)
+	);
 	// const [isInit, setIsInit] = useState(false);
 	// console.log(nums)
 
@@ -21,6 +24,19 @@ export default function Player(props: PlayerType) {
 	// 		setNums(nextNums);
 	// 	};
 	// }
+
+	// Add opponent secret num
+	useEffect(() => {
+		(async () => {
+			if (props.opponentSecretNum != "") {
+				const arrayNum = props.opponentSecretNum
+					.split("")
+					.map((num) => parseInt(num, 10));
+
+				setOpponentNums(arrayNum);
+			}
+		})();
+	}, [props.opponentSecretNum, secretNumber]);
 
 	// Add secret num
 	useEffect(() => {
@@ -38,11 +54,25 @@ export default function Player(props: PlayerType) {
 
 	return (
 		<>
-			<Grid my={10}>
-				{nums.map((_, i) => {
-					return <Card key={i} num={nums[i]} />;
-				})}
-			</Grid>
+			{!props.isOpponent ? (
+				<Grid my={10}>
+					{nums.map((_, i) => {
+						return <Card key={i} num={nums[i]} isOpponent={props.isOpponent} />;
+					})}
+				</Grid>
+			) : (
+				<Grid my={10}>
+					{opponentNums.map((_, i) => {
+						return (
+							<Card
+								key={i}
+								num={opponentNums[i]}
+								isOpponent={props.isOpponent}
+							/>
+						);
+					})}
+				</Grid>
+			)}
 		</>
 	);
 }

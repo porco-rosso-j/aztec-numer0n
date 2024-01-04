@@ -2,24 +2,16 @@ import { Grid, Card as MantineCard } from "@mantine/core";
 
 type CardType = {
 	num: number;
+	isOpponent: boolean;
 };
-export default function Card(
-	props: CardType
-	// onSetNum,
-	// isInit
-) {
-	// function isValidNum(newNum: NumberFormatValues) {
-	//   return  Number(newNum.value) >= 0 && Number(newNum.value) <= 9
-	// }
-
+export default function Card(props: CardType) {
+	const CardStyle = props.isOpponent
+		? { fontSize: "25px", textAlign: "center", color: "#dd227f" }
+		: { fontSize: "25px", textAlign: "center", color: "#4169e1" };
 	return (
-		<Grid.Col
-			// style={{outline: "1px solid red"}}
-			span={4}
-		>
-			{/* <AspectRatio ratio={1080 / 720} maw={300} mx="auto"> */}
+		<Grid.Col span={4}>
 			<MantineCard
-				style={{ fontSize: "25px", textAlign: "center" }}
+				style={CardStyle}
 				shadow="sm"
 				padding="lg"
 				radius="lg"
@@ -27,16 +19,6 @@ export default function Card(
 			>
 				{props.num == null ? "?" : props.num}
 			</MantineCard>
-			{/* </AspectRatio> */}
 		</Grid.Col>
-
-		// <NumberInput
-		//   min={0}
-		//   max={9}
-		//   // disabled={isInit}
-		//   value={num}
-		//   onChange={onSetNum}
-		//   isAllowed={isValidNum}
-		// />
 	);
 }

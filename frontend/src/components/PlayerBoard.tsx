@@ -4,7 +4,11 @@ import { useState, useEffect } from "react";
 import { useGameContext } from "../contexts/useGameContext";
 import { shortenAddress } from "../scripts/utils";
 
-type PlayerBoardType = { playerId: number; isOpponent: boolean };
+type PlayerBoardType = {
+	playerId: number;
+	isOpponent: boolean;
+	opponentSecretNum: string;
+};
 
 export default function PlayerBoard(props: PlayerBoardType) {
 	const { player1Address, player2Address } = useGameContext();
@@ -24,9 +28,10 @@ export default function PlayerBoard(props: PlayerBoardType) {
 				px={10}
 				py={10}
 				style={{
-					borderColor: "gray",
+					borderColor: "#c4c3d0",
 					borderWidth: "1px",
 					borderStyle: "solid",
+					borderRadius: "3px",
 				}}
 			>
 				{!props.isOpponent ? (
@@ -37,7 +42,10 @@ export default function PlayerBoard(props: PlayerBoardType) {
 						Opponent : {shortenAddress(playerAddr)}{" "}
 					</Text>
 				)}
-				<Player isOpponent={props.isOpponent} />
+				<Player
+					isOpponent={props.isOpponent}
+					opponentSecretNum={props.opponentSecretNum}
+				/>
 			</Stack>
 		</>
 	);
