@@ -12,3 +12,9 @@ Numer0n is a number-guessing game in which two persons are against each other. I
     # with docker
     DOCKER=true make gen-artifacts
 ```
+
+#### deploy
+
+```shell
+ aztec-cli deploy ./artifacts/Registry.json
+```

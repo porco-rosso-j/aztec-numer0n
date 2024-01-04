@@ -31,6 +31,7 @@ export default function Onboard() {
 		savePlayer1Address,
 		savePlayer2Address,
 		savePlayerId,
+		saveSecretNumber,
 	} = useGameContext();
 
 	// gameID = game count + game password
@@ -53,17 +54,6 @@ export default function Onboard() {
 		console.log("gameCreated: ", gameCreated);
 		const gameID = gamePassword.concat(gameCreated.gameCount.toString());
 		console.log("gameID: ", gameID);
-
-		console.log(
-			" gameCreated.contractAddress.toString(): ",
-			gameCreated.contractAddress.toString()
-		);
-
-		console.log(
-			"player1.getAddress().toString(): ",
-			player1.getAddress().toString()
-		);
-
 		savePlayer1Address(player1.getAddress().toString());
 		saveContractAddress(gameCreated.contractAddress.toString());
 		setGameID(gameID);
@@ -71,6 +61,67 @@ export default function Onboard() {
 		setIsGameCreated(true);
 		setLoading(false);
 	}
+
+	// Restore data from browser storage
+	useEffect(() => {
+		const restoreData = async () => {
+			const storedData1 = localStorage.getItem(`player1_address`);
+			const player1_address = storedData1 ? JSON.parse(storedData1) : undefined;
+			console.log("player1_address: ", player1_address);
+
+			const storedData2 = localStorage.getItem(`player2_address`);
+			const player2_address = storedData2 ? JSON.parse(storedData2) : undefined;
+			console.log("player2_address: ", player2_address);
+
+			const storedData3 = localStorage.getItem(`contract_address`);
+			const contract_address = storedData3
+				? JSON.parse(storedData3)
+				: undefined;
+			console.log("contract_address: ", contract_address);
+
+			const storedData4 = localStorage.getItem(`player_id`);
+			const player_id = storedData4 ? JSON.parse(storedData4) : undefined;
+			console.log("player_id: ", player_id);
+
+			const storedData5 = localStorage.getItem(`secret_num`);
+			const secret_num = storedData5 ? JSON.parse(storedData5) : undefined;
+			console.log("secret_num: ", secret_num);
+
+			if (
+				player1_address &&
+				player2_address &&
+				contract_address &&
+				player_id &&
+				secret_num
+			) {
+				savePlayer1Address(player1_address),
+					savePlayer2Address(player2_address),
+					saveContractAddress(contract_address),
+					savePlayerId(player_id),
+					saveSecretNumber(secret_num),
+					savePlayersReady(true);
+			}
+		};
+
+		// Call the function immediately if needed or just set the interval
+		if (!playersReady) {
+			restoreData();
+			const intervalId = setInterval(restoreData, 5000);
+			return () => {
+				clearInterval(intervalId);
+			};
+		}
+	}, [
+		contractAddress,
+		isGameCreated,
+		playersReady,
+		savePlayer2Address,
+		savePlayersReady,
+		savePlayerId,
+		savePlayer1Address,
+		saveContractAddress,
+		saveSecretNumber,
+	]);
 
 	// Player 1 starts the game
 	useEffect(() => {

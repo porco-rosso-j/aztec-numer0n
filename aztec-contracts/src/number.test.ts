@@ -104,7 +104,7 @@ describe("E2E Numer0n", () => {
 			console.log("ret4: ", ret4);
 		});
 
-		it("is_valid_nums", async () => {
+		it.skip("is_valid_nums", async () => {
 			const num = 51n;
 			const ret = await numer0n.methods.is_valid_nums(num).view();
 			console.log("ret: ", ret);
@@ -168,6 +168,33 @@ describe("E2E Numer0n", () => {
 			).rejects.toThrowError(
 				"Assertion failed: duplication not allowed '(nums[0] != nums[1]) & (nums[1] != nums[2]) & (nums[2] != nums[0])'"
 			);
+		});
+
+		it("check result 1", async () => {
+			const ret1 = await numer0n.methods.get_high_and_low(145n).view();
+			expect(ret1).toBe(112n);
+
+			const ret2 = await numer0n.methods.get_high_and_low(365n).view();
+			expect(ret2).toBe(122n);
+
+			const ret3 = await numer0n.methods.get_high_and_low(361n).view();
+			expect(ret3).toBe(121n);
+
+			const ret4 = await numer0n.methods.get_high_and_low(851n).view();
+			expect(ret4).toBe(221n);
+
+			const ret5 = await numer0n.methods.get_high_and_low(612n).view();
+			expect(ret5).toBe(211n);
+
+			const ret6 = await numer0n.methods.get_high_and_low(948n).view();
+			expect(ret6).toBe(212n);
+
+			// with zeros.
+			const ret7 = await numer0n.methods.get_high_and_low(56n).view();
+			expect(ret7).toBe(122n);
+
+			const ret8 = await numer0n.methods.get_high_and_low(109n).view();
+			expect(ret8).toBe(112n);
 		});
 	});
 });

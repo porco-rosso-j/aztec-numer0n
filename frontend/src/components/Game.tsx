@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Container, Group, SimpleGrid, Text } from "@mantine/core";
 import PlayerBoard from "./PlayerBoard";
 import Call from "./Call";
+import Item from "./Item";
 import AddNumMoodal from "./Modals/AddNumModal";
 import { useGameContext } from "../contexts/useGameContext";
 import CallHistory from "./CallHistory";
@@ -18,6 +19,7 @@ export default function Game(props: GameType) {
 	const [round, setRount] = useState(0);
 	const [isFinished, setIsFinished] = useState(false);
 	const [winnerId, setWinnerId] = useState(0);
+	const [itemUsed, setIsItemUsed] = useState(false);
 
 	// set turn
 	useEffect(() => {
@@ -59,6 +61,14 @@ export default function Game(props: GameType) {
 		setOpenAddNumModal(false);
 	};
 
+	const usedItem = () => {
+		setIsItemUsed(true);
+	};
+
+	const histryUpdated = () => {
+		setIsItemUsed(false);
+	};
+
 	const getWhosTurn = () => {
 		if (playerId == 1 && isFirst) {
 			return "You!";
@@ -84,7 +94,7 @@ export default function Game(props: GameType) {
 						Who's turn: {getWhosTurn()}{" "}
 					</Text>
 					<Text style={{ flex: 1, textAlign: "center" }}>Round: {round}</Text>
-					{winnerId != 0 ? (
+					{winnerId != 0 && isFinished ? (
 						<Text>
 							Result: {winnerId == playerId ? "You won!" : "You lost"}
 						</Text>
@@ -95,10 +105,24 @@ export default function Game(props: GameType) {
 					<PlayerBoard playerId={playerId == 1 ? 2 : 1} isOpponent={true} />
 				</SimpleGrid>
 				<SimpleGrid cols={2}>
-					<CallHistory isOpponent={false} isFirst={isFirst} />
-					<CallHistory isOpponent={true} isFirst={isFirst} />
+					<CallHistory
+						isOpponent={false}
+						isFirst={isFirst}
+						itemUsed={itemUsed}
+						histryUpdated={histryUpdated}
+					/>
+					<CallHistory
+						isOpponent={true}
+						isFirst={isFirst}
+						itemUsed={itemUsed}
+						histryUpdated={histryUpdated}
+					/>
 				</SimpleGrid>
-				<Call playerId={playerId} />
+				<Group grow mx={130} mt={100}>
+					<Item playerId={playerId} usedItem={usedItem} />
+					<Call playerId={playerId} />
+				</Group>
+
 				<AddNumMoodal isOpen={IsAddNumModalOpen} onClose={closeModal} />
 			</Container>
 		</>

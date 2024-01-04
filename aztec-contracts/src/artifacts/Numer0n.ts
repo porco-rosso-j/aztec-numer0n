@@ -85,14 +85,14 @@ export class Numer0nContract extends ContractBase {
     /** _add_player(_player: field, _player_id: field) */
     _add_player: ((_player: FieldLike, _player_id: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
-    /** _assert_invalid_caller(_caller: field) */
-    _assert_invalid_caller: ((_caller: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
-
     /** _assert_is_player(_player: field) */
     _assert_is_player: ((_player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
-    /** _record_result(caller: field, call_num: field, eat: field, bite: field) */
-    _record_result: ((caller: FieldLike, call_num: FieldLike, eat: FieldLike, bite: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** _record_item_result(_caller: field, _item_type: field, _item_result: field) */
+    _record_item_result: ((_caller: FieldLike, _item_type: FieldLike, _item_result: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
+    /** _record_result(_caller: field, _call_num: field, _eat: field, _bite: field) */
+    _record_result: ((_caller: FieldLike, _call_num: FieldLike, _eat: FieldLike, _bite: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** add_num(player: field, secret_num: field) */
     add_num: ((player: FieldLike, secret_num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
@@ -108,6 +108,9 @@ export class Numer0nContract extends ContractBase {
 
     /** get_game() */
     get_game: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
+    /** get_high_and_low(num: field) */
+    get_high_and_low: ((num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** get_is_finished() */
     get_is_finished: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
@@ -138,5 +141,8 @@ export class Numer0nContract extends ContractBase {
 
     /** join_game(game_id: field, player: field) */
     join_game: ((game_id: FieldLike, player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
+    /** use_item(target: struct, item_type: field) */
+    use_item: ((target: AztecAddressLike, item_type: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
   };
 }

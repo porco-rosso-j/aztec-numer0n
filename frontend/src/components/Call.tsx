@@ -66,12 +66,13 @@ export default function Call(props: CallType) {
 			console.log("result: ", result);
 
 			// props.incrementCallCount();
+			// call modal
 		}
 	}
 
 	return (
 		<>
-			<Center mt={50}>
+			<Center>
 				<Stack>
 					<PinInput
 						type={/^[0-9]*$/}

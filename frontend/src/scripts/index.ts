@@ -156,6 +156,32 @@ export async function callNumber(
 	}
 }
 
+export async function useItem(
+	player: AccountWalletWithPrivateKey,
+	opponent: AccountWalletWithPrivateKey,
+	item_type: bigint,
+	contractAddress: string
+) {
+	try {
+		const numer0n = await Numer0nContract.at(
+			AztecAddress.fromString(contractAddress),
+			player
+		);
+
+		const action = numer0n.methods.use_item(opponent.getAddress(), item_type);
+		const messageHash = computeAuthWitMessageHash(
+			player.getAddress(),
+			action.request()
+		);
+		const witness = await opponent.createAuthWitness(messageHash);
+		await player.addAuthWitness(witness);
+
+		await action.send().wait();
+	} catch (e) {
+		console.log("e: ", e);
+	}
+}
+
 // getters
 
 export async function getIsFirst(contractAddress: string): Promise<boolean> {
@@ -189,7 +215,13 @@ export async function getResult(
 		.get_result(AztecAddress.fromString(player), round)
 		.view();
 
-	return [res.call_num, res.eat, res.bite];
+	return [
+		Number(res.call_num),
+		Number(res.eat),
+		Number(res.bite),
+		Number(res.item),
+		Number(res.item_result),
+	];
 }
 
 export async function getPlayer(

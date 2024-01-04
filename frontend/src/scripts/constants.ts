@@ -1,5 +1,5 @@
 export const registryAddress =
-	"0x0ad814490d0b251bedb6b8faaddd27875ab54309827a830f5c728f92e2a7918c";
+	"0x02e02f596672d67d0b4d927e80e5970f3f469ffbb4be236f65f85fba84c3f31d";
 
 export const SANDBOX_URL = "http://localhost:8080";
 
@@ -11,3 +11,36 @@ export const SANDBOX_ADDRESS_3 =
 	"0x1d30d4de97657983408587c7a91ba6587774b30f0e70224a0658f0357092f495";
 
 export const numLen = 3;
+
+export const item = (num: number) => {
+	return num == 1 ? "H&L" : null;
+};
+
+export const HighLow = (num: number) => {
+	if (num == LOW_lOW_LOW) {
+		return "↓↓↓";
+	} else if (num == LOW_HIGH_lOW) {
+		return "↓↑↓";
+	} else if (num == LOW_lOW_HIGH) {
+		return "↓↓↑";
+	} else if (num == LOW_HIGH_HIGH) {
+		return "↓↑↑";
+	} else if (num == HIGH_HIGH_HIGH) {
+		return "↑↑↑";
+	} else if (num == HIGH_lOW_HIGH) {
+		return "↑↓↑";
+	} else if (num == HIGH_HIGH_LOW) {
+		return "↑↑↓";
+	} else if (num == HIGH_LOW_LOW) {
+		return "↑↓↓";
+	}
+};
+
+const LOW_lOW_LOW = 111;
+const LOW_lOW_HIGH = 112;
+const LOW_HIGH_HIGH = 122;
+const LOW_HIGH_lOW = 121;
+const HIGH_HIGH_HIGH = 222;
+const HIGH_HIGH_LOW = 221;
+const HIGH_LOW_LOW = 211;
+const HIGH_lOW_HIGH = 212;
