@@ -7,7 +7,6 @@ import { useState, useEffect } from "react";
 type CallHistoryType = {
 	isOpponent: boolean;
 	isFirst: boolean;
-	// callCount: number;
 };
 
 type ResultRow = {

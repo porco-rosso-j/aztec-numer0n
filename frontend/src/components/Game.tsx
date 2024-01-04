@@ -6,7 +6,6 @@ import AddNumMoodal from "./Modals/AddNumModal";
 import { useGameContext } from "../contexts/useGameContext";
 import CallHistory from "./CallHistory";
 import { getIsFirst, getRound, getIsFinished, getWinner } from "../scripts";
-import { shortenAddress } from "../scripts/utils";
 
 type GameType = {
 	gameId: string;
@@ -96,16 +95,8 @@ export default function Game(props: GameType) {
 					<PlayerBoard playerId={playerId == 1 ? 2 : 1} isOpponent={true} />
 				</SimpleGrid>
 				<SimpleGrid cols={2}>
-					<CallHistory
-						isOpponent={false}
-						isFirst={isFirst}
-						// callCount={playerCallCount}
-					/>
-					<CallHistory
-						isOpponent={true}
-						isFirst={isFirst}
-						// callCount={opponentCallCount}
-					/>
+					<CallHistory isOpponent={false} isFirst={isFirst} />
+					<CallHistory isOpponent={true} isFirst={isFirst} />
 				</SimpleGrid>
 				<Call playerId={playerId} />
 				<AddNumMoodal isOpen={IsAddNumModalOpen} onClose={closeModal} />
