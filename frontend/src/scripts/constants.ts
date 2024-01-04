@@ -1,5 +1,5 @@
 export const registryAddress =
-	"0x2b3f7a8269398089b0c067a81510943b911fecd05daaa01f1c1a45be6fdb4386";
+	"0x0df637bbc200960f12c0f88c64aa30938b9094d89abb06361f654d889c6776d4";
 // export const registryAddress =
 // 	"0x2d953cdc01e899881d6af7e1ffc92c561ba90b0e71ed2bc7811440735e6dbd90";
 
