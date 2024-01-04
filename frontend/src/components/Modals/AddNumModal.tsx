@@ -29,6 +29,7 @@ function AddNumMoodal(props: AddNumModalType) {
 	const [callDisabled, setCallDisabled] = useState<boolean>(true);
 	const [nums, setNums] = useState<number[]>();
 	const numLen = 3;
+	const [loading, setLoading] = useState<boolean>(false);
 
 	function handleInput(input: string) {
 		console.log("handleInput input: ", input);
@@ -49,17 +50,21 @@ function AddNumMoodal(props: AddNumModalType) {
 	}
 
 	async function handleConfirm() {
-		if (nums) {
+		if (!nums) return
+		try {
+			setLoading(true)
 			const num = Number(nums.join(""));
 			console.log(num);
-
+	
 			console.log("playerId :", playerId);
 			const playerAddr = playerId == 1 ? player1Address : player2Address;
 			const player = await getAccountByAddress(playerAddr);
 			await addNumber(player, BigInt(num), contractAddress);
 			saveSecretNumber(num);
-
+	
 			props.onClose();
+		} finally {
+			setLoading(false)
 		}
 	}
 
@@ -99,6 +104,7 @@ function AddNumMoodal(props: AddNumModalType) {
 							variant="filled"
 							onClick={handleConfirm}
 							disabled={callDisabled}
+							loading={loading}
 						>
 							Confirm
 						</Button>

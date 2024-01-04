@@ -18,6 +18,7 @@ export default function Call(props: CallType) {
 	const { player1Address, player2Address, contractAddress } = useGameContext();
 	const [input, setInput] = useState<string>();
 	const [callDisabled, setCallDisabled] = useState<boolean>(true);
+	const [calling, setCalling] = useState<boolean>(false);
 	const [nums, setNums] = useState<number[]>();
 	// const [input,setInput] = useState<string>()
 	// console.log(input)
@@ -43,31 +44,34 @@ export default function Call(props: CallType) {
 	}
 
 	async function handleCall() {
-		if (nums) {
-			const num = Number(nums.join(""));
-			console.log(num);
+    if (!nums) return
+    try {
+      setCalling(true)
+      
+      const num = Number(nums.join(""));
+      console.log(num);
+  
+      const round = await getRound(contractAddress);
+  
+      console.log("playerId :", props.playerId);
+      const playerAddr = props.playerId == 1 ? player1Address : player2Address;
+      const opponentAddr =
+        props.playerId == 1 ? player2Address : player1Address;
+      console.log("playerAddr: ", playerAddr);
+      console.log("opponentAddr: ", opponentAddr);
+      const player = await getAccountByAddress(playerAddr);
+      const opponent = await getAccountByAddress(opponentAddr);
+      console.log("player: ", player.getAddress().toString());
+      console.log("opponent: ", opponent.getAddress().toString());
+      console.log("contractAddress: ", contractAddress);
+      await callNumber(player, opponent, BigInt(num), contractAddress);
+  
+      const result = await getResult(playerAddr, round, contractAddress);
+      console.log("result: ", result);
 
-			const round = await getRound(contractAddress);
-
-			console.log("playerId :", props.playerId);
-			const playerAddr = props.playerId == 1 ? player1Address : player2Address;
-			const opponentAddr =
-				props.playerId == 1 ? player2Address : player1Address;
-			console.log("playerAddr: ", playerAddr);
-			console.log("opponentAddr: ", opponentAddr);
-			const player = await getAccountByAddress(playerAddr);
-			const opponent = await getAccountByAddress(opponentAddr);
-			console.log("player: ", player.getAddress().toString());
-			console.log("opponent: ", opponent.getAddress().toString());
-			console.log("contractAddress: ", contractAddress);
-			await callNumber(player, opponent, BigInt(num), contractAddress);
-
-			const result = await getResult(playerAddr, round, contractAddress);
-			console.log("result: ", result);
-
-			// props.incrementCallCount();
-			// call modal
-		}
+    } finally {
+      setCalling(false)
+    }
 	}
 
 	return (
@@ -89,7 +93,7 @@ export default function Call(props: CallType) {
 
 						// disabled={isInit}
 					/>
-					<Button variant="filled" onClick={handleCall} disabled={callDisabled}>
+					<Button variant="filled" loading={calling} onClick={handleCall} disabled={callDisabled}>
 						Call
 					</Button>
 				</Stack>
