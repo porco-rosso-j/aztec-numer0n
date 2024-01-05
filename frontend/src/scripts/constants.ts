@@ -1,5 +1,5 @@
 export const registryAddress =
-	"0x07c4d762a6b32af7cc9e9cc8e1256830a25aed1d5a1bc51ec77a893106260dae";
+	"0x152f2df534ec83f3569af8651b1540afac9ef691a2578b67a87e5b2618113f1f";
 
 export const SANDBOX_URL = "http://212.227.240.189:8080";
 // export const SANDBOX_URL = "http://localhost:8080";
