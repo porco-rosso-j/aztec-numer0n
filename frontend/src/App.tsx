@@ -10,7 +10,7 @@ export default function App() {
 		<MantineProvider theme={theme}>
 			<GameContextProviderComponent>
 				<AppShell
-          bg={"linear-gradient(rgba(255,0,50,0.2),rgba(180,0,255,1))"}
+          bg={"linear-gradient(rgba(255,0,255,0.01),rgba(180,0,255,0.5))"}
           withBorder
         >
 					<AppShell.Main>
