@@ -8,10 +8,10 @@ import {
 	getResult,
 	getRound,
 } from "../scripts";
+import CallNumModal from "./Modals/CallNumModal";
 
 type CallType = {
 	playerId: number;
-	// incrementCallCount: () => void;
 };
 
 export default function Call(props: CallType) {
@@ -20,12 +20,8 @@ export default function Call(props: CallType) {
 	const [callDisabled, setCallDisabled] = useState<boolean>(true);
 	const [calling, setCalling] = useState<boolean>(false);
 	const [nums, setNums] = useState<number[]>();
-	// const [input,setInput] = useState<string>()
-	// console.log(input)
-
-	// function isValidNum(newNum: NumberFormatValues) {
-	//   return  Number(newNum.value) >= 0 && Number(newNum.value) <= 9
-	// }
+	const [IsCallnumOpen, setOpenCallNumModal] = useState(false);
+	const [result, setResult] = useState<number[]>([]);
 
 	function handleInput(input: string) {
 		if (input.length != numLen) setCallDisabled(true);
@@ -44,35 +40,49 @@ export default function Call(props: CallType) {
 	}
 
 	async function handleCall() {
-    if (!nums) return
-    try {
-      setCalling(true)
-      
-      const num = Number(nums.join(""));
-      console.log(num);
-  
-      const round = await getRound(contractAddress);
-  
-      console.log("playerId :", props.playerId);
-      const playerAddr = props.playerId == 1 ? player1Address : player2Address;
-      const opponentAddr =
-        props.playerId == 1 ? player2Address : player1Address;
-      console.log("playerAddr: ", playerAddr);
-      console.log("opponentAddr: ", opponentAddr);
-      const player = await getAccountByAddress(playerAddr);
-      const opponent = await getAccountByAddress(opponentAddr);
-      console.log("player: ", player.getAddress().toString());
-      console.log("opponent: ", opponent.getAddress().toString());
-      console.log("contractAddress: ", contractAddress);
-      await callNumber(player, opponent, BigInt(num), contractAddress);
-  
-      const result = await getResult(playerAddr, round, contractAddress);
-      console.log("result: ", result);
+		if (!nums) return;
+		try {
+			setCalling(true);
 
-    } finally {
-      setCalling(false)
-    }
+			const num = Number(nums.join(""));
+			console.log(num);
+
+			const round = await getRound(contractAddress);
+
+			console.log("playerId :", props.playerId);
+			const playerAddr = props.playerId == 1 ? player1Address : player2Address;
+			const opponentAddr =
+				props.playerId == 1 ? player2Address : player1Address;
+			console.log("playerAddr: ", playerAddr);
+			console.log("opponentAddr: ", opponentAddr);
+			const player = await getAccountByAddress(playerAddr);
+			const opponent = await getAccountByAddress(opponentAddr);
+			console.log("player: ", player.getAddress().toString());
+			console.log("opponent: ", opponent.getAddress().toString());
+			console.log("contractAddress: ", contractAddress);
+			await callNumber(player, opponent, BigInt(num), contractAddress);
+
+			console.log("round: ", round);
+			const result = await getResult(playerAddr, round, contractAddress);
+			console.log("call result: ", result);
+			// await delay(3);
+			if (result[0] != 0) {
+				setResult(result);
+				openModal();
+			}
+		} finally {
+			setCalling(false);
+		}
 	}
+
+	const openModal = () => {
+		setOpenCallNumModal(true);
+	};
+
+	// Function to close the modal from the parent
+	const closeModal = () => {
+		setOpenCallNumModal(false);
+	};
 
 	return (
 		<>
@@ -93,11 +103,21 @@ export default function Call(props: CallType) {
 
 						// disabled={isInit}
 					/>
-					<Button variant="filled" loading={calling} onClick={handleCall} disabled={callDisabled}>
+					<Button
+						variant="filled"
+						loading={calling}
+						onClick={handleCall}
+						disabled={callDisabled}
+					>
 						Call
 					</Button>
 				</Stack>
 			</Center>
+			<CallNumModal
+				isOpen={IsCallnumOpen}
+				onClose={closeModal}
+				result={result}
+			/>
 		</>
 	);
 }

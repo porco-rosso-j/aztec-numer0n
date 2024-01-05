@@ -10,12 +10,14 @@ interface GameContextState {
 	player2Address: string;
 	playerId: number;
 	secretNumber: number;
+	gameId: string;
 	playersReady: boolean;
 	saveContractAddress: (address: string) => void;
 	savePlayer1Address: (address: string) => void;
 	savePlayer2Address: (address: string) => void;
 	savePlayerId: (id: number) => void;
 	saveSecretNumber: (num: number) => void;
+	saveGameId: (id: string) => void;
 	savePlayersReady: (hasJoined: boolean) => void;
 	logout: () => void;
 }
@@ -40,6 +42,7 @@ export const GameContextProviderComponent: React.FC<GameContextProps> = ({
 	const [player2Address, setPlayer2Address] = useState<string>("");
 	const [playerId, setPlayerId] = useState<number>(0);
 	const [secretNumber, setSecretNumber] = useState<number>(0);
+	const [gameId, setGameId] = useState<string>("");
 	const [playersReady, setPlayersReady] = useState<boolean>(false);
 
 	const savePlayer1Address = (_player1_address: string) => {
@@ -84,6 +87,15 @@ export const GameContextProviderComponent: React.FC<GameContextProps> = ({
 		localStorage.removeItem(`secret_num`);
 	};
 
+	const saveGameId = (_id: string) => {
+		setGameId(_id);
+		localStorage.setItem(`game_id`, JSON.stringify(_id));
+	};
+
+	const removeGameId = () => {
+		localStorage.removeItem(`game_id`);
+	};
+
 	const savePlayersReady = (_hasJoined: boolean) => {
 		setPlayersReady(_hasJoined);
 	};
@@ -95,6 +107,8 @@ export const GameContextProviderComponent: React.FC<GameContextProps> = ({
 		setPlayerId(0);
 		removePlayerId();
 		setSecretNumber(0);
+		saveGameId("");
+		removeGameId();
 		removeSecretNumber();
 	};
 
@@ -104,12 +118,14 @@ export const GameContextProviderComponent: React.FC<GameContextProps> = ({
 		player2Address,
 		playerId,
 		secretNumber,
+		gameId,
 		playersReady,
 		savePlayer1Address,
 		savePlayer2Address,
 		saveContractAddress,
 		savePlayerId,
 		saveSecretNumber,
+		saveGameId,
 		savePlayersReady,
 		logout,
 	};

@@ -12,18 +12,6 @@ export default function Player(props: PlayerType) {
 	const [opponentNums, setOpponentNums] = useState<number[]>(
 		Array(numLen).fill(null)
 	);
-	// const [isInit, setIsInit] = useState(false);
-	// console.log(nums)
-
-	// function handleSetNum(i: number) {
-	// 	return (num: number | string) => {
-	// 		if (nums.includes(Number(num))) return;
-
-	// 		const nextNums = nums.slice();
-	// 		nextNums[i] = Number(num);
-	// 		setNums(nextNums);
-	// 	};
-	// }
 
 	// Add opponent secret num
 	useEffect(() => {
@@ -55,13 +43,13 @@ export default function Player(props: PlayerType) {
 	return (
 		<>
 			{!props.isOpponent ? (
-				<Grid my={10}>
+				<Grid my={5}>
 					{nums.map((_, i) => {
 						return <Card key={i} num={nums[i]} isOpponent={props.isOpponent} />;
 					})}
 				</Grid>
 			) : (
-				<Grid my={10}>
+				<Grid my={5}>
 					{opponentNums.map((_, i) => {
 						return (
 							<Card
