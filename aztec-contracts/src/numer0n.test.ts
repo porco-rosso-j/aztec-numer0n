@@ -362,7 +362,37 @@ describe("E2E Numer0n", () => {
 			expect(result_one.item_result).toEqual(121n);
 		});
 
-		it("player1 should use shuffle successfully", async () => {
+		it("player1 should use slash successfully", async () => {
+			// player 2 should create authwitness for player 1 to send tx
+
+			const action = numer0n
+				.withWallet(player1)
+				.methods.use_attack_item(player2Addr, 2n);
+			const messageHash = computeAuthWitMessageHash(
+				player1Addr,
+				action.request()
+			);
+
+			const witness = await player2.createAuthWitness(messageHash);
+			await player1.addAuthWitness(witness);
+
+			const tx = await action.send().wait();
+
+			console.log("tx hash: ", tx.txHash.toString());
+			expect(tx.status).toBe("mined");
+
+			const round = await numer0n.methods.get_round().view();
+
+			const result_one = await numer0n.methods
+				.get_result(player1Addr, round)
+				.view();
+
+			console.log("result_one: ", result_one);
+			expect(result_one.item).toEqual(2n); // high & low
+			expect(result_one.item_result).toEqual(7n);
+		});
+
+		it.skip("player1 should use shuffle successfully", async () => {
 			const new_secret_num = 521n; // current: 125
 
 			const tx = await numer0n

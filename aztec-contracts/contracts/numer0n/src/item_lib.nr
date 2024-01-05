@@ -79,6 +79,30 @@ fn is_valid_new_shuffled_num(_current_secret_num:Field, _new_secret_num:Field) -
         result
 }
 
+pub fn get_slash(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> Field {
+    let note = _note.get_note(true);
+    let nums: [u16;3] = num_lib::arrarify_num(note.secret_num);
+
+    let mut min = nums[0];
+    let mut max = nums[0];
+    
+    if (nums[1] > max) {
+        max = nums[1];
+    } else if (nums[1] < min) { 
+        min = nums[1];
+    }
+
+    if (nums[2] > max) {
+        max = nums[2];
+    } else if (nums[2] < min) { 
+        min = nums[2];
+    }
+
+    // let mut result: Field
+    let result = max - min;
+    result as Field
+}
+
     // for testing purpose
     pub fn _get_high_and_low(_num:Field) -> Field {
 
@@ -135,6 +159,29 @@ pub fn _is_valid_new_shuffled_num(_current_secret_num:Field, _new_secret_num:Fie
         }
 
         result
+}
+
+pub fn _get_slash(_nums:Field) -> Field {
+    let nums: [u16;3] = num_lib::arrarify_num(_nums);
+
+    let mut min = nums[0];
+    let mut max = nums[0];
+    
+    if (nums[1] > max) {
+        max = nums[1];
+    } else if (nums[1] < min) { 
+        min = nums[1];
+    }
+
+    if (nums[2] > max) {
+        max = nums[2];
+    } else if (nums[2] < min) { 
+        min = nums[2];
+    }
+
+    // let mut result: Field
+    let result = max - min;
+    result as Field
 }
    
    

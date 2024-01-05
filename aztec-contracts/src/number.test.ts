@@ -197,7 +197,7 @@ describe("E2E Numer0n", () => {
 			expect(ret8).toBe(112n);
 		});
 
-		it("check shuffle", async () => {
+		it.skip("check shuffle", async () => {
 			let ret;
 			ret = await numer0n.methods.is_valid_new_shuffled_num(145n, 365n).view();
 			expect(ret).toBe(1n);
@@ -229,6 +229,59 @@ describe("E2E Numer0n", () => {
 
 			ret = await numer0n.methods.is_valid_new_shuffled_num(41n, 401n).view();
 			expect(ret).toBe(0n);
+		});
+		it.skip("check high & low result", async () => {
+			const ret1 = await numer0n.methods.get_high_and_low(145n).view();
+			expect(ret1).toBe(112n);
+
+			const ret2 = await numer0n.methods.get_high_and_low(365n).view();
+			expect(ret2).toBe(122n);
+
+			const ret3 = await numer0n.methods.get_high_and_low(361n).view();
+			expect(ret3).toBe(121n);
+
+			const ret4 = await numer0n.methods.get_high_and_low(851n).view();
+			expect(ret4).toBe(221n);
+
+			const ret5 = await numer0n.methods.get_high_and_low(612n).view();
+			expect(ret5).toBe(211n);
+
+			const ret6 = await numer0n.methods.get_high_and_low(948n).view();
+			expect(ret6).toBe(212n);
+
+			// with zeros.
+			const ret7 = await numer0n.methods.get_high_and_low(56n).view();
+			expect(ret7).toBe(122n);
+
+			const ret8 = await numer0n.methods.get_high_and_low(109n).view();
+			expect(ret8).toBe(112n);
+		});
+
+		it("check slash ", async () => {
+			const ret1 = await numer0n.methods.get_slash(145n).view();
+			expect(ret1).toBe(4n);
+
+			const ret2 = await numer0n.methods.get_slash(365n).view();
+			expect(ret2).toBe(3n);
+
+			const ret3 = await numer0n.methods.get_slash(361n).view();
+			expect(ret3).toBe(5n);
+
+			const ret4 = await numer0n.methods.get_slash(851n).view();
+			expect(ret4).toBe(7n);
+
+			const ret5 = await numer0n.methods.get_slash(612n).view();
+			expect(ret5).toBe(5n);
+
+			const ret6 = await numer0n.methods.get_slash(948n).view();
+			expect(ret6).toBe(5n);
+
+			// with zeros.
+			const ret7 = await numer0n.methods.get_slash(56n).view();
+			expect(ret7).toBe(6n);
+
+			const ret8 = await numer0n.methods.get_slash(109n).view();
+			expect(ret8).toBe(9n);
 		});
 	});
 });

@@ -16,14 +16,14 @@ gen-artifacts:
 			-o ../../../artifacts \
 			./aztec-contracts/contracts/numer0n
 
-	$(AZTEC_CLI) \
-	compile --typescript ../../src/artifacts \
-			-o ../../../artifacts \
-			./aztec-contracts/contracts/registry
-
 	cp -r ./aztec-contracts/src/artifacts/* ./frontend/src/artifacts/
 
 deploy-registry:
+	$(AZTEC_CLI) \
+	deploy $(DEPLOY_FLAG) \
+	./artifacts/Registry.json
+
+deploy:
 	$(AZTEC_CLI) \
 	deploy $(DEPLOY_FLAG) \
 	./artifacts/Registry.json
