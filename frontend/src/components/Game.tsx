@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Center, Container, Group, SimpleGrid, Text } from "@mantine/core";
+import { Box, Center, Container, Group, SimpleGrid, Text } from "@mantine/core";
 import PlayerBoard from "./PlayerBoard";
 import Call from "./Call";
 import Item from "./Item";
@@ -92,66 +92,84 @@ export default function Game(props: GameType) {
 
 	return (
 		<>
-			<Container mt={15}>
-				<Group grow ml={10}>
-					<Text style={{ flex: 1, textAlign: "center" }}>
-						Game ID: {props.gameId != "" ? props.gameId : gameId}
-					</Text>
-					<Text style={{ flex: 1, textAlign: "center" }}>
-						Who's turn: {round != 0 ? getWhosTurn() : null}{" "}
-					</Text>
-					<Text style={{ flex: 1, textAlign: "center" }}>Round: {round}</Text>
-					{winnerId != 0 && isFinished ? (
-						<Center>
-							<Text style={{ textAlign: "center", fontSize: "16px" }}>
-								Result:{" "}
-								{winnerId == playerId ? (
-									<Text style={{ color: "#dd227f", fontSize: "16px" }}>
-										You won!
-									</Text>
-								) : (
-									<Text style={{ color: "#4169e1", fontSize: "16px" }}>
-										You lost
-									</Text>
-								)}
-							</Text>
-						</Center>
-					) : null}
-				</Group>
-				<SimpleGrid cols={2}>
-					<PlayerBoard
-						playerId={playerId}
-						isOpponent={false}
-						opponentSecretNum={opponentSecretNum}
-					/>
-					<PlayerBoard
-						playerId={playerId == 1 ? 2 : 1}
-						isOpponent={true}
-						opponentSecretNum={opponentSecretNum}
-					/>
-				</SimpleGrid>
-				<SimpleGrid cols={2}>
-					<CallHistory
-						isOpponent={false}
-						isFirst={isFirst}
-						itemUsed={itemUsed}
-						historyUpdated={historyUpdated}
-						isFinished={isFinished}
-						getOpponentSecretNum={getOpponentSecretNum}
-					/>
-					<CallHistory
-						isOpponent={true}
-						isFirst={isFirst}
-						itemUsed={itemUsed}
-						historyUpdated={historyUpdated}
-						isFinished={isFinished}
-						getOpponentSecretNum={getOpponentSecretNum}
-					/>
-				</SimpleGrid>
-				<Group grow mx={130} mt={50} pb={100}>
-					<Item playerId={playerId} usedItem={usedItem} />
-					<Call playerId={playerId} />
-				</Group>
+			<Container>
+				<Box
+					mt={20}
+					style={{
+						padding: "20px",
+						backgroundColor: "white",
+						borderRadius: "20px",
+					}}
+				>
+					<Group
+						grow
+						ml={10}
+						pb={10}
+						style={{
+							borderBottomStyle: "solid",
+							borderBottomColor: "#c4c3d0",
+							borderWidth: "1px",
+						}}
+					>
+						<Text style={{ flex: 1, textAlign: "center" }}>
+							Game ID: {props.gameId != "" ? props.gameId : gameId}
+						</Text>
+						<Text style={{ flex: 1, textAlign: "center" }}>
+							Who's turn: {round != 0 ? getWhosTurn() : null}{" "}
+						</Text>
+						<Text style={{ flex: 1, textAlign: "center" }}>Round: {round}</Text>
+						{winnerId != 0 && isFinished ? (
+							<Center>
+								<Text style={{ textAlign: "center", fontSize: "16px" }}>
+									Result:{" "}
+									{winnerId == playerId ? (
+										<Text style={{ color: "#dd227f", fontSize: "16px" }}>
+											You won!
+										</Text>
+									) : (
+										<Text style={{ color: "#4169e1", fontSize: "16px" }}>
+											You lost
+										</Text>
+									)}
+								</Text>
+							</Center>
+						) : null}
+					</Group>
+					<SimpleGrid cols={2}>
+						<PlayerBoard
+							playerId={playerId}
+							isOpponent={false}
+							opponentSecretNum={opponentSecretNum}
+						/>
+						<PlayerBoard
+							playerId={playerId == 1 ? 2 : 1}
+							isOpponent={true}
+							opponentSecretNum={opponentSecretNum}
+						/>
+					</SimpleGrid>
+					<SimpleGrid cols={2}>
+						<CallHistory
+							isOpponent={false}
+							isFirst={isFirst}
+							itemUsed={itemUsed}
+							historyUpdated={historyUpdated}
+							isFinished={isFinished}
+							getOpponentSecretNum={getOpponentSecretNum}
+						/>
+						<CallHistory
+							isOpponent={true}
+							isFirst={isFirst}
+							itemUsed={itemUsed}
+							historyUpdated={historyUpdated}
+							isFinished={isFinished}
+							getOpponentSecretNum={getOpponentSecretNum}
+						/>
+					</SimpleGrid>
+					<SimpleGrid cols={2} mx={30} mt={50} pb={100}>
+						<Item playerId={playerId} usedItem={usedItem} />
+						<Call playerId={playerId} />
+					</SimpleGrid>
+				</Box>
 
 				<AddNumMoodal isOpen={IsAddNumModalOpen} onClose={closeModal} />
 			</Container>

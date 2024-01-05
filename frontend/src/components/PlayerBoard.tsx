@@ -23,18 +23,7 @@ export default function PlayerBoard(props: PlayerBoardType) {
 	}, [player1Address, player2Address, props.playerId, setPlayerAddr]);
 	return (
 		<>
-			<Stack
-				mt={15}
-				mb={15}
-				px={10}
-				py={10}
-				style={{
-					borderColor: "#c4c3d0",
-					borderWidth: "1px",
-					borderStyle: "solid",
-					borderRadius: "3px",
-				}}
-			>
+			<Stack mb={10} px={10} py={10}>
 				{!props.isOpponent ? (
 					<Text mt={5} ml={10}>
 						{" "}
@@ -47,7 +36,7 @@ export default function PlayerBoard(props: PlayerBoardType) {
 						style={{ display: "flex", justifyContent: "flex-end" }}
 					>
 						{" "}
-						Opponent : {shortenAddress(playerAddr)}{" "}
+						Opp : {shortenAddress(playerAddr)}{" "}
 					</Text>
 				)}
 				<Player

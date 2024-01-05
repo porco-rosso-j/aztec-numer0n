@@ -43,13 +43,13 @@ export default function Player(props: PlayerType) {
 	return (
 		<>
 			{!props.isOpponent ? (
-				<Grid my={5}>
+				<Grid mb={5}>
 					{nums.map((_, i) => {
 						return <Card key={i} num={nums[i]} isOpponent={props.isOpponent} />;
 					})}
 				</Grid>
 			) : (
-				<Grid my={5}>
+				<Grid mb={5}>
 					{opponentNums.map((_, i) => {
 						return (
 							<Card

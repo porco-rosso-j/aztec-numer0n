@@ -142,10 +142,9 @@ export default function CallHistory(props: CallHistoryType) {
 	const tableRows = resultRows.map((row, index) => (
 		<tr key={index}>
 			<td style={cellStyle}>{row.guess}</td>
-			<td style={cellStyle}>{row.eat}</td>
-			<td style={cellStyle}>{row.bite}</td>
+			<td style={cellStyle}>{row.eat + " - " + row.bite}</td>
 			<td style={cellStyle}>
-				{item(row.item)}: {row.item == 1 ? HighLow(row.item_result) : null}
+				{item(row.item)} : {row.item == 1 ? HighLow(row.item_result) : null}
 			</td>
 		</tr>
 	));
@@ -162,10 +161,13 @@ export default function CallHistory(props: CallHistoryType) {
 								color: "white",
 							}}
 						>
-							<th style={{ padding: "10px" }}>Your guess</th>
-							<th style={{ padding: "10px" }}>Eat</th>
-							<th style={{ padding: "10px" }}>Bite</th>
-							<th style={{ padding: "10px" }}>Item</th>
+							<th style={{ padding: "10px", borderTopLeftRadius: "5px" }}>
+								Your guess
+							</th>
+							<th style={{ padding: "10px" }}>Eat - Bite</th>
+							<th style={{ padding: "10px", borderTopRightRadius: "5px" }}>
+								Item
+							</th>
 						</tr>
 					</thead>
 					<tbody style={{ textAlign: "center" }}>{tableRows}</tbody>
@@ -180,13 +182,27 @@ export default function CallHistory(props: CallHistoryType) {
 								color: "white",
 							}}
 						>
-							<th style={{ padding: "10px" }}>Opp's guess</th>
-							<th style={{ padding: "10px" }}>Eat</th>
-							<th style={{ padding: "10px" }}>Bite</th>
-							<th style={{ padding: "10px" }}>Item</th>
+							<th
+								style={{
+									padding: "10px",
+									borderTopLeftRadius: "5px",
+								}}
+							>
+								Opp's guess
+							</th>
+							<th style={{ padding: "10px" }}>Eat - Bite</th>
+							<th style={{ padding: "10px", borderTopRightRadius: "5px" }}>
+								Item
+							</th>
 						</tr>
 					</thead>
-					<tbody style={{ textAlign: "center" }}>{tableRows}</tbody>
+					<tbody
+						style={{
+							textAlign: "center",
+						}}
+					>
+						{tableRows}
+					</tbody>
 				</Table>
 			)}
 		</>
