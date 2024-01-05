@@ -43,6 +43,7 @@ export default function CallHistory(props: CallHistoryType) {
 	const [_isFinished, _setIsFinished] = useState<boolean>(false);
 
 	const updateHistry = async () => {
+		console.log("not here?: ");
 		const round = await getRound(contractAddress);
 		console.log("round: ", round);
 
@@ -113,7 +114,7 @@ export default function CallHistory(props: CallHistoryType) {
 				setResultRows(resultRow);
 			}
 
-			if (resultRows[currentRoundRow].eat == 3) {
+			if (resultRows[currentRoundRow]?.eat == 3) {
 				props.getOpponentSecretNum(resultRows[currentRoundRow].guess);
 			}
 

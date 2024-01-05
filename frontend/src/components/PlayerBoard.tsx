@@ -24,7 +24,8 @@ export default function PlayerBoard(props: PlayerBoardType) {
 	return (
 		<>
 			<Stack
-				my={20}
+				mt={15}
+				mb={15}
 				px={10}
 				py={10}
 				style={{
@@ -35,9 +36,16 @@ export default function PlayerBoard(props: PlayerBoardType) {
 				}}
 			>
 				{!props.isOpponent ? (
-					<Text> You : {shortenAddress(playerAddr)} </Text>
+					<Text mt={5} ml={10}>
+						{" "}
+						You : {shortenAddress(playerAddr)}{" "}
+					</Text>
 				) : (
-					<Text style={{ display: "flex", justifyContent: "flex-end" }}>
+					<Text
+						mt={5}
+						mr={10}
+						style={{ display: "flex", justifyContent: "flex-end" }}
+					>
 						{" "}
 						Opponent : {shortenAddress(playerAddr)}{" "}
 					</Text>

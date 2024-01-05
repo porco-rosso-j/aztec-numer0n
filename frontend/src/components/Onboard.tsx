@@ -32,6 +32,7 @@ export default function Onboard() {
 		savePlayer2Address,
 		savePlayerId,
 		saveSecretNumber,
+		saveGameId,
 	} = useGameContext();
 
 	// gameID = game count + game password
@@ -57,6 +58,7 @@ export default function Onboard() {
 		savePlayer1Address(player1.getAddress().toString());
 		saveContractAddress(gameCreated.contractAddress.toString());
 		setGameID(gameID);
+		saveGameId(gameID);
 
 		setIsGameCreated(true);
 		setLoading(false);
@@ -87,18 +89,24 @@ export default function Onboard() {
 			const secret_num = storedData5 ? JSON.parse(storedData5) : undefined;
 			console.log("secret_num: ", secret_num);
 
+			const storedData6 = localStorage.getItem(`game_id`);
+			const game_id = storedData6 ? JSON.parse(storedData6) : undefined;
+			console.log("game_id: ", game_id);
+
 			if (
 				player1_address &&
 				player2_address &&
 				contract_address &&
 				player_id &&
-				secret_num
+				secret_num &&
+				game_id
 			) {
 				savePlayer1Address(player1_address),
 					savePlayer2Address(player2_address),
 					saveContractAddress(contract_address),
 					savePlayerId(player_id),
 					saveSecretNumber(secret_num),
+					saveGameId(game_id),
 					savePlayersReady(true);
 			}
 		};
@@ -121,6 +129,7 @@ export default function Onboard() {
 		savePlayer1Address,
 		saveContractAddress,
 		saveSecretNumber,
+		saveGameId,
 	]);
 
 	// Player 1 starts the game
@@ -184,6 +193,7 @@ export default function Onboard() {
 					savePlayer2Address(player2.getAddress().toString());
 					savePlayersReady(true);
 					savePlayerId(2);
+					saveGameId(gameID);
 
 					setIsGameJoined(true);
 				}
@@ -199,6 +209,7 @@ export default function Onboard() {
 		savePlayer1Address,
 		savePlayer2Address,
 		savePlayersReady,
+		saveGameId,
 		setIsGameJoined,
 		savePlayerId,
 	]);
@@ -230,8 +241,8 @@ export default function Onboard() {
 					</Text>
 					{isGameCreated ? (
 						<Text style={{ textAlign: "center" }}>
-							New Game successfully Created! <br /> Share your game id: {gameID}{" "}
-							with your friend!
+							A new game was successfully created! <br /> Share your game id:{" "}
+							{gameID} with your friend!
 						</Text>
 					) : (
 						<Center style={{ height: "30vh", flexDirection: "column" }}>

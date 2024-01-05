@@ -13,7 +13,7 @@ type GameType = {
 };
 
 export default function Game(props: GameType) {
-	const { secretNumber, playerId, contractAddress } = useGameContext();
+	const { secretNumber, playerId, contractAddress, gameId } = useGameContext();
 	const [IsAddNumModalOpen, setOpenAddNumModal] = useState(false);
 	const [isFirst, setIsFirst] = useState(true);
 	const [round, setRount] = useState(0);
@@ -92,13 +92,13 @@ export default function Game(props: GameType) {
 
 	return (
 		<>
-			<Container mt={20}>
+			<Container mt={15}>
 				<Group grow ml={10}>
 					<Text style={{ flex: 1, textAlign: "center" }}>
-						Game ID: {props.gameId}
+						Game ID: {props.gameId != "" ? props.gameId : gameId}
 					</Text>
 					<Text style={{ flex: 1, textAlign: "center" }}>
-						Who's turn: {getWhosTurn()}{" "}
+						Who's turn: {round != 0 ? getWhosTurn() : null}{" "}
 					</Text>
 					<Text style={{ flex: 1, textAlign: "center" }}>Round: {round}</Text>
 					{winnerId != 0 && isFinished ? (
@@ -148,7 +148,7 @@ export default function Game(props: GameType) {
 						getOpponentSecretNum={getOpponentSecretNum}
 					/>
 				</SimpleGrid>
-				<Group grow mx={130} mt={100}>
+				<Group grow mx={130} mt={50} pb={100}>
 					<Item playerId={playerId} usedItem={usedItem} />
 					<Call playerId={playerId} />
 				</Group>

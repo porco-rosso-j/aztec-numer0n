@@ -50,26 +50,32 @@ function AddNumMoodal(props: AddNumModalType) {
 	}
 
 	async function handleConfirm() {
-		if (!nums) return
+		if (!nums) return;
 		try {
-			setLoading(true)
+			setLoading(true);
 			const num = Number(nums.join(""));
 			console.log(num);
-	
+
 			console.log("playerId :", playerId);
 			const playerAddr = playerId == 1 ? player1Address : player2Address;
 			const player = await getAccountByAddress(playerAddr);
 			await addNumber(player, BigInt(num), contractAddress);
 			saveSecretNumber(num);
-	
+
 			props.onClose();
 		} finally {
-			setLoading(false)
+			setLoading(false);
 		}
 	}
 
 	return (
-		<Modal size="xs" opened={props.isOpen} onClose={props.onClose} centered>
+		<Modal
+			size="xs"
+			opened={props.isOpen}
+			onClose={props.onClose}
+			withCloseButton={false}
+			centered
+		>
 			<Box
 				style={{
 					backgroundColor: "#white",
@@ -77,7 +83,7 @@ function AddNumMoodal(props: AddNumModalType) {
 					textAlign: "center",
 				}}
 			>
-				<Text size="lg" mb={20}>
+				<Text size="lg" mt={10} mb={20}>
 					Set Your Secret Number
 				</Text>
 				<Center>

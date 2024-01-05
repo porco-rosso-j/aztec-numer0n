@@ -1,5 +1,5 @@
 export const registryAddress =
-	"0x1f897476a07d8fbf4ccc5ba335488d28e30d1267293d167bc8d99ed62c5a18f0";
+	"0x288e893b9a02944231c3a91be7b86caf69df9b159d1b35f7419ed2c1371cb353";
 
 export const SANDBOX_URL = "http://212.227.240.189:8080";
 // export const SANDBOX_URL = "http://localhost:8080";
@@ -14,7 +14,7 @@ export const SANDBOX_ADDRESS_3 =
 export const numLen = 3;
 
 export const item = (num: number) => {
-	return num == 1 ? "H&L" : null;
+	return num == 1 ? "H&L" : "";
 };
 
 export const HighLow = (num: number) => {
@@ -34,6 +34,8 @@ export const HighLow = (num: number) => {
 		return "↑↑↓";
 	} else if (num == HIGH_LOW_LOW) {
 		return "↑↓↓";
+	} else {
+		return "";
 	}
 };
 
