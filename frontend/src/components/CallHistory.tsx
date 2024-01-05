@@ -84,13 +84,10 @@ export default function CallHistory(props: CallHistoryType) {
 				result = await getResult(playerAddr, BigInt(i + 1), contractAddress);
 				console.log("result: ", result);
 
-				if (result[0] != 0 || result[4] != 0) {
+				if (result[0] != 0 || result[3] != 0) {
 					console.log("result[3]: ", result[3]);
 					const newResult: ResultRow = {
 						guess: result[0].toString(),
-						// !props.itemUsed && !refreshed && result[0] < 100
-						// 	? result[0].toString()
-						// 	: result[0].toString(),
 						eat: result[1],
 						bite: result[2],
 						item: result[3],
@@ -144,7 +141,8 @@ export default function CallHistory(props: CallHistoryType) {
 			<td style={cellStyle}>{row.guess}</td>
 			<td style={cellStyle}>{row.eat + " - " + row.bite}</td>
 			<td style={cellStyle}>
-				{item(row.item)} : {row.item == 1 ? HighLow(row.item_result) : null}
+				{item(row.item)}{" "}
+				{row.item == 1 ? " : " + HighLow(row.item_result) : null}
 			</td>
 		</tr>
 	));

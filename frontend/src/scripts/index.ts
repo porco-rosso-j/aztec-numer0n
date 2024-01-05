@@ -156,7 +156,7 @@ export async function callNumber(
 	}
 }
 
-export async function useItem(
+export async function useAttackItem(
 	player: AccountWalletWithPrivateKey,
 	opponent: AccountWalletWithPrivateKey,
 	item_type: bigint,
@@ -168,7 +168,10 @@ export async function useItem(
 			player
 		);
 
-		const action = numer0n.methods.use_item(opponent.getAddress(), item_type);
+		const action = numer0n.methods.use_attack_item(
+			opponent.getAddress(),
+			item_type
+		);
 		const messageHash = computeAuthWitMessageHash(
 			player.getAddress(),
 			action.request()
@@ -177,6 +180,27 @@ export async function useItem(
 		await player.addAuthWitness(witness);
 
 		await action.send().wait();
+	} catch (e) {
+		console.log("e: ", e);
+	}
+}
+
+export async function useDefenseItem(
+	player: AccountWalletWithPrivateKey,
+	item_type: bigint,
+	new_secret_num: bigint,
+	contractAddress: string
+) {
+	try {
+		const numer0n = await Numer0nContract.at(
+			AztecAddress.fromString(contractAddress),
+			player
+		);
+
+		await numer0n.methods
+			.use_defense_item(player.getAddress(), item_type, new_secret_num)
+			.send()
+			.wait();
 	} catch (e) {
 		console.log("e: ", e);
 	}
@@ -262,6 +286,22 @@ export async function isValidNum(
 		new SignerlessWallet(pxe())
 	);
 	return await numer0n.methods.is_valid_nums(num).view();
+}
+
+export async function getIsValidShuffle(
+	current_num: bigint,
+	new_num: bigint,
+	contractAddress: string
+): Promise<boolean> {
+	const numer0n = await Numer0nContract.at(
+		AztecAddress.fromString(contractAddress),
+		new SignerlessWallet(pxe())
+	);
+
+	const ret = await numer0n.methods
+		.is_valid_new_shuffled_num(current_num, new_num)
+		.view();
+	return ret == 0n ? true : false;
 }
 
 export async function getIfPlayersAdded(

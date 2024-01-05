@@ -20,7 +20,7 @@ import {
   PublicKey,
   Wallet,
 } from '@aztec/aztec.js';
-import Numer0nContractArtifactJson from '../../contracts/numer0n/target/Numer0n.json' assert { type: 'json' };
+import Numer0nContractArtifactJson from '../../../artifacts/Numer0n.json' assert { type: 'json' };
 export const Numer0nContractArtifact = Numer0nContractArtifactJson as ContractArtifact;
 
 /**
