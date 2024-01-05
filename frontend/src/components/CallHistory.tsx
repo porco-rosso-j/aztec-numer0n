@@ -152,7 +152,7 @@ export default function CallHistory(props: CallHistoryType) {
 	return (
 		<>
 			{!props.isOpponent ? (
-				<Table striped highlightOnHover>
+				<Table bg={"white"} striped highlightOnHover>
 					<thead>
 						<tr
 							style={{
@@ -170,7 +170,7 @@ export default function CallHistory(props: CallHistoryType) {
 					<tbody style={{ textAlign: "center" }}>{tableRows}</tbody>
 				</Table>
 			) : (
-				<Table striped highlightOnHover>
+				<Table bg={"white"} striped highlightOnHover>
 					<thead>
 						<tr
 							style={{
