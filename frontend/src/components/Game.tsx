@@ -7,6 +7,7 @@ import AddNumMoodal from "./Modals/AddNumModal";
 import { useGameContext } from "../contexts/useGameContext";
 import CallHistory from "./CallHistory";
 import { getIsFirst, getRound, getIsFinished, getWinner } from "../scripts";
+import TurnNotificationModal from "./Modals/TurnNotificationModal";
 
 type GameType = {
 	gameId: string;
@@ -15,12 +16,16 @@ type GameType = {
 export default function Game(props: GameType) {
 	const { secretNumber, playerId, contractAddress, gameId } = useGameContext();
 	const [IsAddNumModalOpen, setOpenAddNumModal] = useState(false);
+	const [IsTurnNotificationModalOpen, setOpenTurnNotificationModal] =
+		useState(false);
 	const [isFirst, setIsFirst] = useState(true);
 	const [round, setRount] = useState(0);
 	const [isFinished, setIsFinished] = useState(false);
 	const [winnerId, setWinnerId] = useState(0);
 	const [itemUsed, setIsItemUsed] = useState(false);
 	const [opponentSecretNum, setOpponentSecretNum] = useState<string>("");
+	const [myTurn, setMyTurn] = useState(false);
+	const [currentTurn, setCurrentTurn] = useState(1);
 
 	// set turn
 	useEffect(() => {
@@ -53,6 +58,35 @@ export default function Game(props: GameType) {
 		})();
 	}, [secretNumber]);
 
+	useEffect(() => {
+		(async () => {
+			let turn = 0;
+			if (playerId == 1 && isFirst) {
+				turn = 1;
+			} else if (playerId == 1 && !isFirst) {
+				turn = 2;
+			} else if (playerId == 2 && isFirst) {
+				turn = 2;
+			} else if (playerId == 2 && !isFirst) {
+				turn = 1;
+			}
+
+			if (turn == 1) {
+				// setOpenTurnNotificationModal(true);
+				setMyTurn(true);
+				// return "You";
+				if (turn != currentTurn) {
+					setOpenTurnNotificationModal(true);
+				}
+			} else if (turn == 2) {
+				setMyTurn(false);
+				// return "Opponent";
+			}
+
+			setCurrentTurn(turn);
+		})();
+	}, [currentTurn, isFirst, myTurn, playerId, setMyTurn]);
+
 	const openModal = () => {
 		setOpenAddNumModal(true);
 	};
@@ -76,18 +110,8 @@ export default function Game(props: GameType) {
 		}
 	};
 
-	const getWhosTurn = () => {
-		if (playerId == 1 && isFirst) {
-			return "You!";
-		} else if (playerId == 1 && !isFirst) {
-			return "Opponent";
-		} else if (playerId == 2 && isFirst) {
-			return "Opponent";
-		} else if (playerId == 2 && !isFirst) {
-			return "You";
-		} else {
-			return "?";
-		}
+	const closeTurnNotificationModal = () => {
+		setOpenTurnNotificationModal(false);
 	};
 
 	return (
@@ -115,7 +139,7 @@ export default function Game(props: GameType) {
 							Game ID: {props.gameId != "" ? props.gameId : gameId}
 						</Text>
 						<Text style={{ flex: 1, textAlign: "center" }}>
-							Who's turn: {round != 0 ? getWhosTurn() : null}{" "}
+							Who's turn: {round != 0 && myTurn ? "You!" : "Opponent"}{" "}
 						</Text>
 						<Text style={{ flex: 1, textAlign: "center" }}>Round: {round}</Text>
 						{winnerId != 0 && isFinished ? (
@@ -173,6 +197,10 @@ export default function Game(props: GameType) {
 				</Box>
 
 				<AddNumMoodal isOpen={IsAddNumModalOpen} onClose={closeModal} />
+				<TurnNotificationModal
+					isOpen={IsTurnNotificationModalOpen}
+					onClose={closeTurnNotificationModal}
+				/>
 			</Container>
 		</>
 	);

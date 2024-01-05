@@ -225,8 +225,8 @@ export default function Onboard() {
 							mx={40}
 							mb={50}
 						>
-							Numer0n is a "Hit & Blow"-like number-guessing game. <br /> Built
-							on Aztec Sandbox.
+							Numer0n is a number-guessing game like a "Hit & Blow". <br />{" "}
+							Built on Aztec Sandbox.
 						</Text>
 					</Box>
 					{isGameCreated ? (
