@@ -164,3 +164,25 @@
         ret
         
     }
+
+       fn arrarify_num(_num: Field) -> [u16;3] {
+
+        let mut num = _num as u16;
+
+        let mut modulus: u16 = 100;
+        let mut nums: [u16;3] = [0;3];
+
+        for i in 0..3 {
+            if ((i == 0) & (num < 100)) {
+               nums[i] = 0 as u16;
+            } else {
+               let subtractor = num - (num % modulus);
+               nums[i] = subtractor / modulus;
+               num = num - subtractor;
+            }
+
+            modulus = modulus / 10;
+        }
+
+        nums
+    }

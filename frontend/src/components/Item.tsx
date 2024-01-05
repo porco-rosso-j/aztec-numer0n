@@ -65,7 +65,7 @@ export default function Item(props: ItemType) {
 			<Center>
 				<Stack>
 					<Select
-						mt={25}
+						mt={20}
 						placeholder="Select an item"
 						value={selectedNum.toString()}
 						onChange={(value) => handleSelectedNum(value)}
@@ -78,6 +78,7 @@ export default function Item(props: ItemType) {
 						]}
 					/>
 					<Button
+						mt={10}
 						variant="filled"
 						loading={calling}
 						onClick={handleCall}

@@ -165,6 +165,7 @@ export default function Game(props: GameType) {
 							getOpponentSecretNum={getOpponentSecretNum}
 						/>
 					</SimpleGrid>
+
 					<SimpleGrid cols={2} mx={30} mt={50} pb={100}>
 						<Item playerId={playerId} usedItem={usedItem} />
 						<Call playerId={playerId} />

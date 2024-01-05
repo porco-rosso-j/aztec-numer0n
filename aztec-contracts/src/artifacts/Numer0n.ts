@@ -20,7 +20,7 @@ import {
   PublicKey,
   Wallet,
 } from '@aztec/aztec.js';
-import Numer0nContractArtifactJson from '../../../artifacts/Numer0n.json' assert { type: 'json' };
+import Numer0nContractArtifactJson from '../../contracts/numer0n/target/Numer0n.json' assert { type: 'json' };
 export const Numer0nContractArtifact = Numer0nContractArtifactJson as ContractArtifact;
 
 /**
@@ -136,13 +136,19 @@ export class Numer0nContract extends ContractBase {
     /** get_winner() */
     get_winner: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
+    /** is_valid_new_shuffled_num(num: field, new_num: field) */
+    is_valid_new_shuffled_num: ((num: FieldLike, new_num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
     /** is_valid_nums(_num: field) */
     is_valid_nums: ((_num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** join_game(game_id: field, player: field) */
     join_game: ((game_id: FieldLike, player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
-    /** use_item(target: struct, item_type: field) */
-    use_item: ((target: AztecAddressLike, item_type: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** use_attack_item(target: struct, item_type: field) */
+    use_attack_item: ((target: AztecAddressLike, item_type: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
+    /** use_defense_item(player: field, item_type: field, new_secret_num: field) */
+    use_defense_item: ((player: FieldLike, item_type: FieldLike, new_secret_num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
   };
 }

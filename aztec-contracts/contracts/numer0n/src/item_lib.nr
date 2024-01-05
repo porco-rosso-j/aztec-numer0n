@@ -8,6 +8,8 @@ use crate::types::{
     secret_num_note::{SecretNumberNote, SECRET_NUM_NOTE_LEN},
 };
 
+use crate::num_lib;
+
 global ITEM_HIGH_LOW: Field = 1; // see buttom in this file
 global ITEM_SLASH: Field = 2; // 2 ~ 9
 global ITEM_TARGET: Field = 3; // 0 or 1, 2, 3
@@ -51,6 +53,31 @@ fn get_high_and_low(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> 
     result
 }
 
+fn is_valid_new_shuffled_num(_current_secret_num:Field, _new_secret_num:Field) -> Field {
+
+       let current_nums: [u16;3] = num_lib::arrarify_num(_current_secret_num);
+       let new_nums: [u16;3] = num_lib::arrarify_num(_new_secret_num);
+
+        let mut result: Field = 0;
+
+        for i in 0..3 {
+            let mut found: bool = false;
+
+            for j in 0..3 {
+
+                if (current_nums[i] == new_nums[j]) {
+                    found = true;
+                }
+
+            }
+            
+            if (!found) {
+               result = 1;
+            }
+        }
+
+        result
+}
 
     // for testing purpose
     pub fn _get_high_and_low(_num:Field) -> Field {
@@ -84,6 +111,33 @@ fn get_high_and_low(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> 
     result
     }
 
+pub fn _is_valid_new_shuffled_num(_current_secret_num:Field, _new_secret_num:Field) -> Field {
+
+       let current_nums: [u16;3] = num_lib::arrarify_num(_current_secret_num);
+       let new_nums: [u16;3] = num_lib::arrarify_num(_new_secret_num);
+
+        let mut result: Field = 0;
+
+        for i in 0..3 {
+            let mut found: bool = false;
+
+            for j in 0..3 {
+
+                if (current_nums[i] == new_nums[j]) {
+                    found = true;
+                }
+
+            }
+            
+            if (!found) {
+               result = 1;
+            }
+        }
+
+        result
+}
+   
+   
 // global LOW_lOW_HIGH: Field = 112; 
 // global LOW_HIGH_HIGH: Field = 122; 
 // global LOW_HIGH_lOW: Field = 121; 

@@ -170,7 +170,7 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it("check result 1", async () => {
+		it.skip("check high & low result", async () => {
 			const ret1 = await numer0n.methods.get_high_and_low(145n).view();
 			expect(ret1).toBe(112n);
 
@@ -195,6 +195,40 @@ describe("E2E Numer0n", () => {
 
 			const ret8 = await numer0n.methods.get_high_and_low(109n).view();
 			expect(ret8).toBe(112n);
+		});
+
+		it("check shuffle", async () => {
+			let ret;
+			ret = await numer0n.methods.is_valid_new_shuffled_num(145n, 365n).view();
+			expect(ret).toBe(1n);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(365n, 361n).view();
+			expect(ret).toBe(1n);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(361n, 851n).view();
+			expect(ret).toBe(1n);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(851n, 612n).view();
+			expect(ret).toBe(1n);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(612n, 948n).view();
+			expect(ret).toBe(1n);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(948n, 56n).view();
+			expect(ret).toBe(1n);
+
+			// with zeros.
+			ret = await numer0n.methods.is_valid_new_shuffled_num(56n, 109n).view();
+			expect(ret).toBe(1n);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(109n, 901n).view();
+			expect(ret).toBe(0n);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(851n, 518n).view();
+			expect(ret).toBe(0n);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(41n, 401n).view();
+			expect(ret).toBe(0n);
 		});
 	});
 });

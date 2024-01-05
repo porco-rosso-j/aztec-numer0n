@@ -181,12 +181,6 @@ contract Numer0n {
         assert(target_address != context.msg_sender(), "caller shouldn't be target");
         assert_current_call_valid_authwit(&mut context, target);
 
-        // context.call_public_function(
-        //     context.this_address(), 
-        //     compute_selector("_assert_invalid_caller(Field)"),
-        //     [context.msg_sender()]
-        // ); 
-
         let secret_num_note: SecretNumberNote = storage.secret_num.at(target_address).get_note(true);
         let secret_num: Field = secret_num_note.secret_num;
 
@@ -202,25 +196,17 @@ contract Numer0n {
     }
 
    #[aztec(private)]
-    fn use_item(target: AztecAddress, item_type: Field) {
+    fn use_attack_item(target: AztecAddress, item_type: Field) {
         
         let target_address: Field = target.address;
         assert(target_address != context.msg_sender(), "caller shouldn't be target");
         assert_current_call_valid_authwit(&mut context, target);
-
-        // context.call_public_function(
-        //     context.this_address(), 
-        //     compute_selector("_assert_invalid_caller(Field)"),
-        //     [context.msg_sender()]
-        // ); 
 
         let mut result: Field = 0;
         if (item_type == item_lib::ITEM_HIGH_LOW) {
             result = item_lib::get_high_and_low(storage.secret_num.at(target_address));
         // } else if (item_type == item_lib::ITEM_SLASH) {
         // } else if (item_type == item_lib::ITEM_TARGET) {
-        // } else if (item_type == item_lib::ITEM_CHANGE) {
-        // } else if (item_type == item_lib::ITEM_SHUFFLE) {
         } else {
             assert(false, "inavlid item type");
         }
@@ -233,9 +219,49 @@ contract Numer0n {
         ); 
     }
 
+    #[aztec(private)]
+    fn use_defense_item(player: Field, item_type: Field, new_secret_num: Field) {
+         assert(context.msg_sender() == player, "invalid player");
+
+        context.call_public_function(
+            context.this_address(), 
+            compute_selector("_assert_is_player(Field)"),
+            [player]
+        );
+
+        num_lib::is_valid_nums(new_secret_num);
+        
+        let secret_num_note = storage.secret_num.at(player).get_note(true);
+        let secret_num = secret_num_note.secret_num;
+
+        let result:Field = 0;
+        if (item_type == item_lib::ITEM_SHUFFLE) {
+            let ret = item_lib::is_valid_new_shuffled_num(secret_num, new_secret_num);
+            assert(ret == 0, "invalid num for shuffule");
+        // } else if (item_type == item_lib::ITEM_CHANGE) {
+        } else {
+            assert(false, "inavlid item type");
+        }
+
+        let mut new_secret_num_note = SecretNumberNote::new(new_secret_num, player);
+        storage.secret_num.at(player).replace(
+            &mut new_secret_num_note, 
+            true
+        );
+
+        // records results
+        context.call_public_function(
+            context.this_address(), 
+            compute_selector("_record_item_result(Field,Field,Field)"), 
+            [context.msg_sender(), item_type, result]
+        ); 
+    }
+
     #[aztec(public)]
     internal fn _record_item_result(_caller: Field, _item_type:Field, _item_result:Field) {
-         assert(!storage.game.read().finished, "game has already been finished");
+          assert(storage.game.read().started, "game hasn't been started yet");
+          assert(!storage.game.read().finished, "game has already been finished");
+        
          let player_id = storage.players.at(_caller).read().player_id;
          let mut game = storage.game.read(); 
          let current_round = game.round;
@@ -262,10 +288,10 @@ contract Numer0n {
          }
     }
 
-    // public state read count: 18
     #[aztec(public)]
     internal fn _record_result(_caller: Field, _call_num:Field, _eat:Field, _bite:Field) {
-      assert(!storage.game.read().finished, "game has already been finished");
+       assert(storage.game.read().started, "game hasn't been started yet");
+       assert(!storage.game.read().finished, "game has already been finished");
       let player_id = storage.players.at(_caller).read().player_id; // 2 or 1
       let mut result = Result::new(_call_num, _eat, _bite, 0, 0);
 
@@ -305,23 +331,6 @@ contract Numer0n {
         assert(false, "invalid player");
       }
     }
-
-    // // public state read count: 4
-    // #[aztec(public)]
-    // internal fn _assert_invalid_caller(_caller: Field) {
-    //     assert(storage.game.read().started, "game hasn't been started yet");
-
-    //     let player = storage.players.at(_caller).read();
-    //     let is_first = storage.game.read().is_first;
-        
-    //     if ((player.is_player) & (player.player_id == 1)) {
-    //         assert(is_first, "invalid turn for player 1");
-    //     } else if ((player.is_player) & (player.player_id == 2)) {
-    //         assert(!is_first, "invalid turn for player 2");
-    //     } else {
-    //         assert(false, "invalid player");
-    //     }
-    // }
 
     #[aztec(public)]
     internal fn _assert_is_player(_player: Field) {
@@ -431,6 +440,12 @@ contract Numer0n {
     // for testing purpose
     unconstrained fn get_high_and_low(num:Field) -> Field {
         item_lib::_get_high_and_low(num)
+    }
+
+
+    // for testing purpose
+    unconstrained fn is_valid_new_shuffled_num(num: Field, new_num: Field) -> Field {
+        item_lib::_is_valid_new_shuffled_num(num, new_num)
     }
 
     unconstrained fn get_game() -> Game {

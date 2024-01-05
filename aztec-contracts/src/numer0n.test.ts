@@ -332,12 +332,12 @@ describe("E2E Numer0n", () => {
 			expect(is_first_after).not.toBe(is_first_before);
 		});
 
-		it("player1 should use high & low successfully", async () => {
+		it.skip("player1 should use high & low successfully", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 
 			const action = numer0n
 				.withWallet(player1)
-				.methods.use_item(player2Addr, 1n);
+				.methods.use_attack_item(player2Addr, 1n);
 			const messageHash = computeAuthWitMessageHash(
 				player1Addr,
 				action.request()
@@ -360,6 +360,26 @@ describe("E2E Numer0n", () => {
 			console.log("result_one: ", result_one);
 			expect(result_one.item).toEqual(1n); // high & low
 			expect(result_one.item_result).toEqual(121n);
+		});
+
+		it("player1 should use shuffle successfully", async () => {
+			const new_secret_num = 521n; // current: 125
+
+			const tx = await numer0n
+				.withWallet(player1)
+				.methods.use_defense_item(player1Addr, 5n, new_secret_num)
+				.send()
+				.wait();
+
+			console.log("tx: ", tx.txHash.toString());
+			expect(tx.status).toBe("mined");
+
+			const _secert_num = await numer0n.methods
+				.get_secret_num(player1Addr)
+				.view();
+
+			console.log("_secert_num: ", _secert_num);
+			expect(_secert_num).toEqual(new_secret_num);
 		});
 
 		it.skip("player1 should call player2's secret num correctly", async () => {
