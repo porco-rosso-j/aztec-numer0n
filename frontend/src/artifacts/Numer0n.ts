@@ -133,6 +133,9 @@ export class Numer0nContract extends ContractBase {
     /** get_secret_num(player: field) */
     get_secret_num: ((player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
+    /** get_slash(num: field) */
+    get_slash: ((num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
     /** get_winner() */
     get_winner: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 

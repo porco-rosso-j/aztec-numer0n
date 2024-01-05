@@ -205,7 +205,8 @@ contract Numer0n {
         let mut result: Field = 0;
         if (item_type == item_lib::ITEM_HIGH_LOW) {
             result = item_lib::get_high_and_low(storage.secret_num.at(target_address));
-        // } else if (item_type == item_lib::ITEM_SLASH) {
+        } else if (item_type == item_lib::ITEM_SLASH) {
+            result = item_lib::get_slash(storage.secret_num.at(target_address));
         // } else if (item_type == item_lib::ITEM_TARGET) {
         } else {
             assert(false, "inavlid item type");
@@ -446,6 +447,11 @@ contract Numer0n {
     // for testing purpose
     unconstrained fn is_valid_new_shuffled_num(num: Field, new_num: Field) -> Field {
         item_lib::_is_valid_new_shuffled_num(num, new_num)
+    }
+
+        // for testing purpose
+    unconstrained fn get_slash(num: Field) -> Field {
+        item_lib::_get_slash(num)
     }
 
     unconstrained fn get_game() -> Game {
