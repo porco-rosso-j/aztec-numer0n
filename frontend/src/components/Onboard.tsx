@@ -8,7 +8,8 @@ import {
 	Group,
 	Stack,
 	Box,
-	Loader,
+	CopyButton,
+	Anchor,
 } from "@mantine/core";
 import { useGameContext } from "../contexts/useGameContext";
 import Game from "./Game";
@@ -39,30 +40,8 @@ export default function Onboard() {
 	const [gameID, setGameID] = useState<string>("");
 	const [isGameCreated, setIsGameCreated] = useState<boolean>(false);
 	const [isGameJoined, setIsGameJoined] = useState<boolean>(false);
-	const [loading, setLoading] = useState(false);
-
-	async function handleCreateNewGame() {
-		setLoading(true);
-
-		const player1 = (await getSandboxAccountsWallets(pxe()))[0];
-
-		// generate game password
-		const gamePassword = Fr.random().toShortString().slice(0, 5);
-		console.log("gamePassword: ", gamePassword);
-
-		// deploy
-		const gameCreated = await createGame(player1, BigInt(gamePassword));
-		console.log("gameCreated: ", gameCreated);
-		const gameID = gamePassword.concat(gameCreated.gameCount.toString());
-		console.log("gameID: ", gameID);
-		savePlayer1Address(player1.getAddress().toString());
-		saveContractAddress(gameCreated.contractAddress.toString());
-		setGameID(gameID);
-		saveGameId(gameID);
-
-		setIsGameCreated(true);
-		setLoading(false);
-	}
+	const [loadingCreate, setLoadingCreate] = useState(false);
+	const [loadingJoin, setLoadingJoin] = useState(false);
 
 	// Restore data from browser storage
 	useEffect(() => {
@@ -132,12 +111,11 @@ export default function Onboard() {
 		saveGameId,
 	]);
 
-	// Player 1 starts the game
+	// Player 1 starts the game as player 2 joins
 	useEffect(() => {
 		const startGame = async () => {
 			if (isGameCreated && contractAddress != "") {
 				const is_ready = await getIfPlayersAdded(contractAddress);
-				// console.log("is_ready: ", is_ready);
 				if (is_ready) {
 					const player2 = await getPlayerAddr(2, contractAddress);
 					savePlayer2Address(player2);
@@ -164,99 +142,118 @@ export default function Onboard() {
 		savePlayerId,
 	]);
 
-	// Player 2 joins the game
-	useEffect(() => {
-		(async () => {
-			if (!isGameJoined && !isGameCreated && gameID != "") {
-				setLoading(true);
-				const _gameContractId = gameID.slice(5);
-				const _gamePassword = gameID.slice(0, 5);
-				const gameContractAddress = await getGameContractByGameId(
-					BigInt(_gameContractId)
-				);
+	async function handleCreateNewGame() {
+		setLoadingCreate(true);
 
-				console.log("gameContractAddress: ", gameContractAddress);
+		const player1 = (await getSandboxAccountsWallets(pxe()))[0];
 
-				const player2 = (await getSandboxAccountsWallets(pxe()))[1];
+		// generate game password
+		const gamePassword = Fr.random().toShortString().slice(0, 5);
+		console.log("gamePassword: ", gamePassword);
 
-				const _is_ready = await getIfPlayersAdded(gameContractAddress);
-				if (!_is_ready) {
-					await joinGame(player2, gameContractAddress, BigInt(_gamePassword));
-				}
+		// deploy
+		const gameCreated = await createGame(player1, BigInt(gamePassword));
+		console.log("gameCreated: ", gameCreated);
+		const gameID = gamePassword.concat(gameCreated.gameCount.toString());
+		console.log("gameID: ", gameID);
+		savePlayer1Address(player1.getAddress().toString());
+		saveContractAddress(gameCreated.contractAddress.toString());
+		setGameID(gameID);
+		saveGameId(gameID);
 
-				const is_ready = await getIfPlayersAdded(gameContractAddress);
-				const player1 = await getPlayerAddr(1, gameContractAddress);
+		setIsGameCreated(true);
+		setLoadingCreate(false);
+	}
 
-				if (is_ready) {
-					saveContractAddress(gameContractAddress);
-					savePlayer1Address(player1);
-					savePlayer2Address(player2.getAddress().toString());
-					savePlayersReady(true);
-					savePlayerId(2);
-					saveGameId(gameID);
+	// Player 2 joins game
+	const handleJoinGame = async () => {
+		if (!isGameJoined && !isGameCreated && gameID != "") {
+			setLoadingJoin(true);
+			const _gameContractId = gameID.slice(5);
+			const _gamePassword = gameID.slice(0, 5);
+			const gameContractAddress = await getGameContractByGameId(
+				BigInt(_gameContractId)
+			);
 
-					setIsGameJoined(true);
-				}
+			console.log("gameContractAddress: ", gameContractAddress);
 
-				setLoading(false);
+			const player2 = (await getSandboxAccountsWallets(pxe()))[1];
+
+			const _is_ready = await getIfPlayersAdded(gameContractAddress);
+			if (!_is_ready) {
+				await joinGame(player2, gameContractAddress, BigInt(_gamePassword));
 			}
-		})();
-	}, [
-		gameID,
-		isGameCreated,
-		isGameJoined,
-		saveContractAddress,
-		savePlayer1Address,
-		savePlayer2Address,
-		savePlayersReady,
-		saveGameId,
-		setIsGameJoined,
-		savePlayerId,
-	]);
+
+			const is_ready = await getIfPlayersAdded(gameContractAddress);
+			const player1 = await getPlayerAddr(1, gameContractAddress);
+
+			if (is_ready) {
+				saveContractAddress(gameContractAddress);
+				savePlayer1Address(player1);
+				savePlayer2Address(player2.getAddress().toString());
+				savePlayersReady(true);
+				savePlayerId(2);
+				saveGameId(gameID);
+
+				setIsGameJoined(true);
+			}
+
+			setLoadingJoin(false);
+		}
+	};
 
 	return (
 		<>
 			{!playersReady ? (
-				<Container my={150}>
-					<Text
-						style={{
-							marginTop: 100,
-							fontSize: "35px",
-							textAlign: "center",
-						}}
-					>
-						Welcome To Numer0n!
-					</Text>
-					<Text
-						style={{
-							marginTop: 20,
-							fontSize: "20px",
-							textAlign: "center",
-						}}
-						mx={40}
-						mb={50}
-					>
-						Numer0n is a number-guessing game in which two persons are against
-						each other. <br /> Built on Aztec Sandbox.
-					</Text>
+				<Container mt={100}>
+					<Box mb={100}>
+						<Text
+							style={{
+								marginTop: 50,
+								fontSize: "35px",
+								textAlign: "center",
+							}}
+						>
+							Welcome To Numer0n!
+						</Text>
+						<Text
+							style={{
+								marginTop: 20,
+								fontSize: "20px",
+								textAlign: "center",
+							}}
+							mx={40}
+							mb={50}
+						>
+							Numer0n is a "Hit & Blow"-like number-guessing game. <br /> Built
+							on Aztec Sandbox.
+						</Text>
+					</Box>
 					{isGameCreated ? (
 						<Text style={{ textAlign: "center" }}>
-							A new game was successfully created! <br /> Share your game id:{" "}
-							{gameID} with your friend!
+							A new game was successfully created! <br />
+							Please share your game id:{" "}
+							<CopyButton value={gameID}>
+								{({ copied, copy }) => (
+									<Anchor onClick={copy} style={{ cursor: "pointer" }}>
+										{copied ? "copied! " : gameID}
+									</Anchor>
+								)}
+							</CopyButton>{" "}
+							with your friend and wait for them joining...
 						</Text>
 					) : (
-						<Center style={{ height: "30vh", flexDirection: "column" }}>
-							<Button
-								style={{ textAlign: "center" }}
-								onClick={handleCreateNewGame}
-							>
-								Create a new game
-							</Button>
-							{loading ? (
-								<Center style={{ marginTop: "20px", marginBottom: "10px" }}>
-									<Loader color="gray" size="sm" />{" "}
-								</Center>
-							) : (
+						<Center style={{ flexDirection: "column" }}>
+							{!loadingJoin && (
+								<Button
+									style={{ textAlign: "center" }}
+									onClick={handleCreateNewGame}
+									loading={loadingCreate}
+								>
+									Create a new game
+								</Button>
+							)}
+							{!loadingCreate && (
 								<Box>
 									<Text
 										style={{
@@ -264,7 +261,7 @@ export default function Onboard() {
 											textAlign: "center",
 										}}
 										mt={45}
-										mb={15}
+										mb={25}
 									>
 										Or join a game ↓
 									</Text>
@@ -280,6 +277,17 @@ export default function Onboard() {
 												style={{ flex: "none", width: "150px" }}
 											/>
 										</Group>
+										<Button
+											mt={10}
+											mx={35}
+											variant="filled"
+											color="cyan"
+											style={{ textAlign: "center" }}
+											onClick={handleJoinGame}
+											loading={loadingJoin}
+										>
+											Join game
+										</Button>
 									</Stack>
 								</Box>
 							)}

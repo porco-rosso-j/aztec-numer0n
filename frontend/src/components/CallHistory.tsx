@@ -38,24 +38,12 @@ export default function CallHistory(props: CallHistoryType) {
 		useGameContext();
 	const [resultRows, setResultRows] = useState<ResultRow[]>(initialRows);
 	const [currentTurn, setCurrentTurn] = useState<boolean>(true);
-	const [currentRound, setCurrentRound] = useState<bigint>(1n);
 	const [refreshed, setRefreshed] = useState<boolean>(true);
 	const [_isFinished, _setIsFinished] = useState<boolean>(false);
 
 	const updateHistry = async () => {
-		console.log("not here?: ");
 		const round = await getRound(contractAddress);
-		console.log("round: ", round);
-
-		console.log("props.isFirst: ", props.isFirst);
-		console.log("currentTurn: ", currentTurn);
 		const isTurnChanged = props.isFirst != currentTurn && round > 0n;
-		console.log("isTurnChanged: ", isTurnChanged);
-		console.log("refreshed: ", refreshed);
-		console.log("props.isFinished: ", props.isFinished);
-		console.log("isFinished: ", _isFinished);
-		console.log("props.itemUsed: ", props.itemUsed);
-
 		const isFinished = !_isFinished ? _setIsFinished(props.isFinished) : false;
 
 		if (
@@ -66,7 +54,6 @@ export default function CallHistory(props: CallHistoryType) {
 		) {
 			setRefreshed(false);
 			setCurrentTurn(!currentTurn);
-			setCurrentRound(round);
 			_setIsFinished(false);
 			props.historyUpdated();
 			console.log("props.isFirst: ", props.isFirst);
@@ -76,7 +63,6 @@ export default function CallHistory(props: CallHistoryType) {
 
 			const _playerAddr = playerId == 1 ? player1Address : player2Address;
 			const _opponentAddr = playerId == 1 ? player2Address : player1Address;
-
 			const playerAddr = props.isOpponent ? _opponentAddr : _playerAddr;
 			console.log("playerAddr: ", playerAddr);
 
@@ -123,7 +109,6 @@ export default function CallHistory(props: CallHistoryType) {
 		console.log("11");
 		updateHistry();
 		const intervalId = setInterval(updateHistry, 10000);
-		console.log("intervalId");
 		return () => {
 			clearInterval(intervalId);
 		};

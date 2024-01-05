@@ -92,7 +92,7 @@ export default function Item(props: ItemType) {
 
 	return (
 		<>
-			<Center>
+			<Center mb={6}>
 				<Stack>
 					<Select
 						mt={20}
