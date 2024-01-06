@@ -6,6 +6,7 @@ import { useGameContext } from "../contexts/useGameContext";
 import { getResult, getRound } from "../scripts";
 import { useState, useEffect } from "react";
 import { item, HighLow } from "../scripts/constants";
+import { stringfyAndPaddZero } from "../scripts/utils";
 
 type CallHistoryType = {
 	isOpponent: boolean;
@@ -72,8 +73,9 @@ export default function CallHistory(props: CallHistoryType) {
 
 				if (result[0] != 0 || result[3] != 0) {
 					console.log("result[3]: ", result[3]);
+
 					const newResult: ResultRow = {
-						guess: result[0].toString(),
+						guess: stringfyAndPaddZero(result[0]),
 						eat: result[1],
 						bite: result[2],
 						item: result[3],
@@ -86,27 +88,23 @@ export default function CallHistory(props: CallHistoryType) {
 			}
 			console.log("resultRow: ", resultRow);
 
-			if (resultRow.length <= 5) {
-				const complacement = 5 - resultRow.length;
-				const fillingRows: ResultRow[] = Array(complacement).fill(emptyRow);
-				resultRow = resultRow.concat(fillingRows);
-			}
+			if (resultRow.length <= 5)
+				resultRow = resultRow.concat(
+					Array(5 - resultRow.length).fill(emptyRow)
+				);
 
 			const currentRoundRow = Number(round) - 1;
-			if (currentRoundRow >= 0) {
-				setResultRows(resultRow);
-			}
 
-			if (resultRows[currentRoundRow]?.eat == 3) {
+			if (currentRoundRow >= 0) setResultRows(resultRow);
+			if (resultRows[currentRoundRow]?.eat == 3)
 				props.getOpponentSecretNum(resultRows[currentRoundRow].guess);
-			}
 
 			console.log("resultRows: ", resultRows);
 		}
 	};
 
 	useEffect(() => {
-		console.log("11");
+		console.log("updateHistry");
 		updateHistry();
 		const intervalId = setInterval(updateHistry, 10000);
 		return () => {
@@ -127,7 +125,11 @@ export default function CallHistory(props: CallHistoryType) {
 			<td style={cellStyle}>{row.eat + " - " + row.bite}</td>
 			<td style={cellStyle}>
 				{item(row.item)}{" "}
-				{row.item == 1 ? " : " + HighLow(row.item_result) : row.item == 2 ? " : " +  row.item_result.toString() : null}
+				{row.item == 1
+					? " : " + HighLow(row.item_result)
+					: row.item == 2
+					? " : " + row.item_result.toString()
+					: null}
 			</td>
 		</tr>
 	));

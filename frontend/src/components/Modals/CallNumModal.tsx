@@ -10,6 +10,7 @@ import {
 	Stack,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
+import { stringfyAndPaddZero } from "../../scripts/utils";
 
 type CallNumModalType = {
 	isOpen: boolean;
@@ -17,41 +18,35 @@ type CallNumModalType = {
 	result: number[];
 };
 
-type ResultRow = {
+type CallResult = {
 	guess: string;
 	eat: number;
 	bite: number;
-	item: number;
-	item_result: number;
 };
 
-const emptyRow: ResultRow = {
+const emptyResult: CallResult = {
 	guess: "0",
 	eat: 0,
 	bite: 0,
-	item: 0,
-	item_result: 0,
 };
 
 function CallNumModal(props: CallNumModalType) {
-	const [resultRow, setResultRow] = useState<ResultRow>(emptyRow);
+	const [callResult, setCallResult] = useState<CallResult>(emptyResult);
 
 	const handleResult = () => {
-		const newResult: ResultRow = {
-			guess: props.result[0].toString(),
+		const newResult: CallResult = {
+			guess: stringfyAndPaddZero(props.result[0]),
 			eat: props.result[1],
 			bite: props.result[2],
-			item: props.result[3],
-			item_result: props.result[4],
 		};
 
 		console.log("moda; newResult] ", newResult);
-		setResultRow(newResult);
+		setCallResult(newResult);
 	};
 
 	useEffect(() => {
-		console.log("resultRow?.guess: ", resultRow.guess);
-		if (props.isOpen && resultRow.guess == "0") {
+		console.log("callResult?.guess: ", callResult.guess);
+		if (props.isOpen && callResult.guess == "0") {
 			handleResult();
 			const intervalId = setInterval(handleResult, 10000);
 			return () => {
@@ -61,7 +56,7 @@ function CallNumModal(props: CallNumModalType) {
 	}, [handleResult]);
 
 	const handleClose = () => {
-		setResultRow(emptyRow);
+		setCallResult(emptyResult);
 		props.onClose();
 	};
 
@@ -106,9 +101,9 @@ function CallNumModal(props: CallNumModalType) {
 							<Text>- Bite:</Text>
 						</Stack>
 						<Stack gap="5px" style={{ fontSize: 16, textAlign: "center" }}>
-							<Text>{resultRow?.guess}</Text>
-							<Text>{resultRow?.eat}</Text>
-							<Text>{resultRow?.bite}</Text>
+							<Text>{callResult?.guess}</Text>
+							<Text>{callResult?.eat}</Text>
+							<Text>{callResult?.bite}</Text>
 						</Stack>
 					</Group>
 				</Box>

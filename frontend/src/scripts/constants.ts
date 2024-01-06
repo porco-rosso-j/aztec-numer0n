@@ -1,8 +1,10 @@
-export const registryAddress =
-	"0x152f2df534ec83f3569af8651b1540afac9ef691a2578b67a87e5b2618113f1f";
+export const registryAddress = import.meta.env.VITE_LOCAL
+	? "0x0bb62f3406a62182192f45644ed90301dbe9a6298464926a4aa62ac7f4c5a1e9" // local
+	: "0x10e03bf804f3e817e7bdf1bbb8bd9e0245ea56731dc9a91ff474cda5411bf134";
 
-export const SANDBOX_URL = "http://212.227.240.189:8080";
-// export const SANDBOX_URL = "http://localhost:8080";
+export const SANDBOX_URL = import.meta.env.VITE_LOCAL
+	? "http://localhost:8080"
+	: "http://212.227.240.189:8080";
 
 export const SANDBOX_ADDRESS_1 =
 	"0x06357cc85cb8fc561adbf741f63cd75efa26ffba1c80d431ec77d036d8edf022";

@@ -1,5 +1,5 @@
 ifeq ($(DOCKER),true)
-    AZTEC_CLI = docker run --rm --network host -v $(shell pwd):/work -w /work aztecprotocol/cli
+    AZTEC_CLI = docker run --rm --network host -v $(shell pwd):/work -w /work aztecprotocol/cli:0.16.7
 else
     AZTEC_CLI = aztec-cli
 endif
@@ -19,11 +19,6 @@ gen-artifacts:
 	cp -r ./aztec-contracts/src/artifacts/* ./frontend/src/artifacts/
 
 deploy-registry:
-	$(AZTEC_CLI) \
-	deploy $(DEPLOY_FLAG) \
-	./artifacts/Registry.json
-
-deploy:
 	$(AZTEC_CLI) \
 	deploy $(DEPLOY_FLAG) \
 	./artifacts/Registry.json

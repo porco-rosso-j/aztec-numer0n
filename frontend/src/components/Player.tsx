@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Card from "./Card";
 import { useGameContext } from "../contexts/useGameContext";
 import { numLen } from "../scripts/constants";
+import { paddHeadZero } from "../scripts/utils";
 
 type PlayerType = { isOpponent: boolean; opponentSecretNum: string };
 
@@ -22,7 +23,7 @@ export default function Player(props: PlayerType) {
 					.map((num) => parseInt(num, 10));
 
 				if (Number(props.opponentSecretNum) < 100) {
-					arrayNum.unshift(0);
+					paddHeadZero(arrayNum);
 				}
 
 				setOpponentNums(arrayNum);
@@ -40,7 +41,7 @@ export default function Player(props: PlayerType) {
 					.map((num) => parseInt(num, 10));
 
 				if (secretNumber < 100) {
-					arrayNum.unshift(0);
+					paddHeadZero(arrayNum);
 				}
 				setNums(arrayNum);
 			}
