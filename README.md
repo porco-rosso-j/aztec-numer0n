@@ -7,13 +7,13 @@ Numer0n is a number-guessing game like a "Hit & Blow". It's built on Aztec, as b
 #### compile
 
 ```bash
-    make gen-artifacts
+make gen-artifacts
 ```
 
 #### deploy
 
 ```bash
-    make deploy-registry
+ make deploy-registry
 ```
 
 copy&paste the first output address into `registryAddress` in `frontend/src/scripts/constants.ts`
@@ -25,6 +25,8 @@ create .env
 ```shell
 cp ./frontend/.env.example ./frontend/.env
 ```
+
+start frontend
 
 ```shell
 cd frontend
