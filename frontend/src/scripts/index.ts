@@ -25,7 +25,7 @@ type GameCreated = {
 };
 
 export const pxe = (): PXE => {
-	return createPXEClient(SANDBOX_URL);
+	return createPXEClient(SANDBOX_URL());
 };
 
 export const getAccountByAddress = async (
@@ -71,7 +71,7 @@ export async function createGame(
 		);
 
 		const registry = await RegistryContract.at(
-			AztecAddress.fromString(registryAddress),
+			AztecAddress.fromString(registryAddress()),
 			player
 		);
 		await registry.methods
@@ -356,7 +356,7 @@ export async function getGameContractByGameId(
 	game_id: bigint
 ): Promise<string> {
 	const numer0n = await RegistryContract.at(
-		AztecAddress.fromString(registryAddress),
+		AztecAddress.fromString(registryAddress()),
 		new SignerlessWallet(pxe())
 	);
 
