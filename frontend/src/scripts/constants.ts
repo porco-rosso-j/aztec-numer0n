@@ -17,6 +17,8 @@ export const item = (num: number) => {
 	console.log("num num:  ");
 	if (num == 1) {
 		return "H&L";
+	} else if (num == 2) {
+		return "Slash";
 	} else if (num == 5) {
 		return "Shuffle";
 	} else {
