@@ -45,7 +45,6 @@ export default function Onboard() {
 
 	// Restore data from browser storage
 	useEffect(() => {
-		console.log("import.meta.env.VITE_ENV: ", import.meta.env.VITE_ENV);
 		const restoreData = async () => {
 			const storedData1 = localStorage.getItem(`player1_address`);
 			const player1_address = storedData1 ? JSON.parse(storedData1) : undefined;
