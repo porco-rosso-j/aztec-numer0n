@@ -127,7 +127,7 @@ export default function CallHistory(props: CallHistoryType) {
 			<td style={cellStyle}>{row.eat + " - " + row.bite}</td>
 			<td style={cellStyle}>
 				{item(row.item)}{" "}
-				{row.item == 1 ? " : " + HighLow(row.item_result) : null}
+				{row.item == 1 ? " : " + HighLow(row.item_result) : row.item == 2 ? " : " +  row.item_result.toString() : null}
 			</td>
 		</tr>
 	));

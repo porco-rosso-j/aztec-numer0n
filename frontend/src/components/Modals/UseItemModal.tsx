@@ -34,8 +34,15 @@ function UseItemModal(props: UseItemModalType) {
 	const handleResult = () => {
 		const newResult: ItemResult = {
 			item: item(props.itemRsult[3]),
-			item_result: HighLow(props.itemRsult[4]),
+			item_result: ""
 		};
+
+		if (props.itemRsult[3] == 1) {
+			newResult.item_result =  HighLow(props.itemRsult[4])
+		} else  {
+			newResult.item_result = props.itemRsult[4].toString()
+		}
+
 		console.log("moda; newResult] ", newResult);
 		setItemResult(newResult);
 	};
