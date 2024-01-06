@@ -1,22 +1,22 @@
 export const registryAddress = () => {
-	const isLocal = import.meta.env.VITE_LOCAL;
-	console.log("isLocal registryAddress: ", isLocal);
-	if (isLocal) {
+	const VITE_ENV = import.meta.env.VITE_ENV;
+	console.log("VITE_ENV registryAddress: ", VITE_ENV);
+	if (VITE_ENV == "LOCAL") {
 		console.log("local registry");
 		return "0x0bb62f3406a62182192f45644ed90301dbe9a6298464926a4aa62ac7f4c5a1e9";
-	} else {
+	} else if (VITE_ENV == "REMOTE") {
 		console.log("remote registry");
 		return "0x10e03bf804f3e817e7bdf1bbb8bd9e0245ea56731dc9a91ff474cda5411bf134";
 	}
 };
 
 export const SANDBOX_URL = () => {
-	const isLocal = import.meta.env.VITE_LOCAL;
-	console.log("isLocal SANDBOX_URL: ", isLocal);
-	if (isLocal) {
+	const VITE_ENV = import.meta.env.VITE_ENV;
+	console.log("VITE_ENV SANDBOX_URL: ", VITE_ENV);
+	if (VITE_ENV == "LOCAL") {
 		console.log("local");
 		return "http://localhost:8080";
-	} else {
+	} else if (VITE_ENV == "REMOTE") {
 		console.log("remote");
 		return "http://212.227.240.189:8080";
 	}
