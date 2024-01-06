@@ -75,7 +75,7 @@ export default function Game(props: GameType) {
 				// setOpenTurnNotificationModal(true);
 				setMyTurn(true);
 				// return "You";
-				if (turn != currentTurn) {
+				if (turn != currentTurn && round > 0) {
 					setOpenTurnNotificationModal(true);
 				}
 			} else if (turn == 2) {
@@ -85,7 +85,7 @@ export default function Game(props: GameType) {
 
 			setCurrentTurn(turn);
 		})();
-	}, [currentTurn, isFirst, myTurn, playerId, setMyTurn]);
+	}, [currentTurn, isFirst, myTurn, playerId, round, setMyTurn]);
 
 	const openModal = () => {
 		setOpenAddNumModal(true);

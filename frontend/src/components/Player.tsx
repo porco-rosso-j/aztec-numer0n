@@ -21,6 +21,10 @@ export default function Player(props: PlayerType) {
 					.split("")
 					.map((num) => parseInt(num, 10));
 
+				if (Number(props.opponentSecretNum) < 100) {
+					arrayNum.unshift(0);
+				}
+
 				setOpponentNums(arrayNum);
 			}
 		})();
@@ -35,6 +39,9 @@ export default function Player(props: PlayerType) {
 					.split("")
 					.map((num) => parseInt(num, 10));
 
+				if (secretNumber < 100) {
+					arrayNum.unshift(0);
+				}
 				setNums(arrayNum);
 			}
 		})();
