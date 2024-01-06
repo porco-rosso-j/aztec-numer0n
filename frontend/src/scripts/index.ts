@@ -75,7 +75,7 @@ export async function createGame(
 			player
 		);
 		await registry.methods
-			.add_game(receipt.contractAddress?.toField())
+			.add_game(receipt.contractAddress as AztecAddress)
 			.send()
 			.wait();
 
