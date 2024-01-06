@@ -1,5 +1,7 @@
 export const registryAddress = () => {
-	if (import.meta.env.VITE_LOCAL) {
+	const isLocal = import.meta.env.VITE_LOCAL;
+	console.log("isLocal registryAddress: ", isLocal);
+	if (isLocal) {
 		console.log("local registry");
 		return "0x0bb62f3406a62182192f45644ed90301dbe9a6298464926a4aa62ac7f4c5a1e9";
 	} else {
@@ -9,7 +11,9 @@ export const registryAddress = () => {
 };
 
 export const SANDBOX_URL = () => {
-	if (import.meta.env.VITE_LOCAL) {
+	const isLocal = import.meta.env.VITE_LOCAL;
+	console.log("isLocal SANDBOX_URL: ", isLocal);
+	if (isLocal) {
 		console.log("local");
 		return "http://localhost:8080";
 	} else {
