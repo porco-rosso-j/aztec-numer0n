@@ -2,15 +2,15 @@ export const REGISTRY_ADDRESS =
 	import.meta.env.VITE_ENV == "LOCAL"
 		? "0x0bb62f3406a62182192f45644ed90301dbe9a6298464926a4aa62ac7f4c5a1e9"
 		: import.meta.env.VITE_ENV == "REMOTE"
-		? "0x24a9716368f51c1436cac2c7d8cfe1f72eafd0de8de7513061b6c2d0462e4623"
-		: "";
+			? "0x0f55c0f4445348e798782eaa2df0fb0b7b0421a1ed94bd39fa9c4a1d0ca266e3"
+			: "";
 
 export const SANDBOX_URL =
 	import.meta.env.VITE_ENV == "LOCAL"
 		? "http://localhost:8080"
 		: import.meta.env.VITE_ENV == "REMOTE"
-		? "https://aztec.hmlab.xyz/"
-		: "";
+			? "https://aztec.hmlab.xyz/"
+			: "";
 
 // ? "http://212.227.240.189:8080"
 export const SANDBOX_ADDRESS_1 =
