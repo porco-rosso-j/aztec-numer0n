@@ -10,6 +10,8 @@ use crate::types::{
 
 use crate::num_lib;
 
+use dep::aztec::oracle::debug_log::{ debug_log, debug_log_field };
+
 global ITEM_HIGH_LOW: Field = 1; // see buttom in this file
 global ITEM_SLASH: Field = 2; // 2 ~ 9
 global ITEM_TARGET: Field = 3; // 0 or 1, 2, 3
@@ -79,7 +81,7 @@ fn is_valid_new_shuffled_num(_current_secret_num:Field, _new_secret_num:Field) -
         result
 }
 
-pub fn get_slash(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> Field {
+fn get_slash(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> Field {
     let note = _note.get_note(true);
     let nums: [u16;3] = num_lib::arrarify_num(note.secret_num);
 
@@ -103,8 +105,13 @@ pub fn get_slash(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> Fie
     result as Field
 }
 
+fn get_target(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>, targetNum: Field) -> Field {
+    let note = _note.get_note(true);
+    _get_target(note.secret_num, targetNum)
+}
+
     // for testing purpose
-    pub fn _get_high_and_low(_num:Field) -> Field {
+pub fn _get_high_and_low(_num:Field) -> Field {
 
     let mut num = _num as u16;
     let mut modulus: u16 = 100;
@@ -133,7 +140,7 @@ pub fn get_slash(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> Fie
     }
 
     result
-    }
+}
 
 pub fn _is_valid_new_shuffled_num(_current_secret_num:Field, _new_secret_num:Field) -> Field {
 
@@ -183,8 +190,19 @@ pub fn _get_slash(_nums:Field) -> Field {
     let result = max - min;
     result as Field
 }
-   
-   
+
+pub fn _get_target(_nums: Field, targetNum: Field) -> Field {
+    let nums: [u16;3] = num_lib::arrarify_num(_nums);
+    let mut digit: u16 = 0;
+    for i in 0..3 {
+        if (nums[i] == targetNum as u16) {
+            digit = 3-i;
+        }
+    }
+
+    digit as Field
+}
+
 // global LOW_lOW_HIGH: Field = 112; 
 // global LOW_HIGH_HIGH: Field = 122; 
 // global LOW_HIGH_lOW: Field = 121; 

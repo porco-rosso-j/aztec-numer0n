@@ -196,7 +196,7 @@ contract Numer0n {
     }
 
    #[aztec(private)]
-    fn use_attack_item(target: AztecAddress, item_type: Field) {
+    fn use_attack_item(target: AztecAddress, item_type: Field, arg: Field) {
         
         let target_address: Field = target.address;
         assert(target_address != context.msg_sender(), "caller shouldn't be target");
@@ -207,9 +207,10 @@ contract Numer0n {
             result = item_lib::get_high_and_low(storage.secret_num.at(target_address));
         } else if (item_type == item_lib::ITEM_SLASH) {
             result = item_lib::get_slash(storage.secret_num.at(target_address));
-        // } else if (item_type == item_lib::ITEM_TARGET) {
+        } else if (item_type == item_lib::ITEM_TARGET) {
+            result = item_lib::get_target(storage.secret_num.at(target_address), arg);
         } else {
-            assert(false, "inavlid item type");
+            assert(false, "invalid item type");
         }
 
         // records results
@@ -443,6 +444,9 @@ contract Numer0n {
         item_lib::_get_high_and_low(num)
     }
 
+    unconstrained fn get_target(nums:Field, targetNum:Field) -> Field {
+        item_lib::_get_target(nums,targetNum)
+    }
 
     // for testing purpose
     unconstrained fn is_valid_new_shuffled_num(num: Field, new_num: Field) -> Field {
