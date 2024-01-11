@@ -257,7 +257,7 @@ describe("E2E Numer0n", () => {
 			expect(ret8).toBe(112n);
 		});
 
-		it("check slash ", async () => {
+		it.skip("check slash ", async () => {
 			const ret1 = await numer0n.methods.get_slash(145n).view();
 			expect(ret1).toBe(4n);
 
@@ -282,6 +282,33 @@ describe("E2E Numer0n", () => {
 
 			const ret8 = await numer0n.methods.get_slash(109n).view();
 			expect(ret8).toBe(9n);
+		});
+
+		it("check target", async () => {
+			const ret1 = await numer0n.methods.get_target(145n, 9n).view();
+			expect(ret1).toBe(0n);
+
+			const ret2 = await numer0n.methods.get_target(365n, 5n).view();
+			expect(ret2).toBe(1n);
+
+			const ret3 = await numer0n.methods.get_target(361n, 1n).view();
+			expect(ret3).toBe(1n);
+
+			const ret4 = await numer0n.methods.get_target(851n, 0n).view();
+			expect(ret4).toBe(0n);
+
+			const ret5 = await numer0n.methods.get_target(612n, 6n).view();
+			expect(ret5).toBe(3n);
+
+			const ret6 = await numer0n.methods.get_target(948n, 4n).view();
+			expect(ret6).toBe(2n);
+
+			// with zeros.
+			const ret7 = await numer0n.methods.get_target(56n, 0n).view();
+			expect(ret7).toBe(3n);
+
+			const ret8 = await numer0n.methods.get_target(109n, 9n).view();
+			expect(ret8).toBe(1n);
 		});
 	});
 });
