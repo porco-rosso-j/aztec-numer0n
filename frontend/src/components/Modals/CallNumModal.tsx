@@ -11,11 +11,12 @@ import {
 } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { stringfyAndPaddZero } from "../../scripts/utils";
+import { Result } from "../CallHistory";
 
 type CallNumModalType = {
 	isOpen: boolean;
 	onClose: () => void;
-	result: number[];
+	result: Result;
 };
 
 type CallResult = {
@@ -35,9 +36,9 @@ function CallNumModal(props: CallNumModalType) {
 
 	const handleResult = () => {
 		const newResult: CallResult = {
-			guess: stringfyAndPaddZero(props.result[0]),
-			eat: props.result[1],
-			bite: props.result[2],
+			guess: stringfyAndPaddZero(props.result.bite),
+			eat: props.result.eat,
+			bite: props.result.bite,
 		};
 
 		console.log("moda; newResult] ", newResult);

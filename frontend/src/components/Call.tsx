@@ -9,6 +9,7 @@ import {
 	getRound,
 } from "../scripts";
 import CallNumModal from "./Modals/CallNumModal";
+import { Result } from "./CallHistory";
 
 type CallType = {
 	playerId: number;
@@ -21,7 +22,7 @@ export default function Call(props: CallType) {
 	const [calling, setCalling] = useState<boolean>(false);
 	const [nums, setNums] = useState<number[]>();
 	const [IsCallnumOpen, setOpenCallNumModal] = useState(false);
-	const [result, setResult] = useState<number[]>([]);
+	const [result, setResult] = useState<Result>();
 
 	function handleInput(input: string) {
 		if (input.length != numLen) setCallDisabled(true);
@@ -66,7 +67,7 @@ export default function Call(props: CallType) {
 			const result = await getResult(playerAddr, round, contractAddress);
 			console.log("call result: ", result);
 			// await delay(3);
-			if (result[0] != 0) {
+			if (!result.bite) {
 				setResult(result);
 				openModal();
 			}
@@ -101,7 +102,7 @@ export default function Call(props: CallType) {
 						// style={{ outline: "1px solid purple" }}
 						onComplete={handleFilledNums}
 
-						// disabled={isInit}
+					// disabled={isInit}
 					/>
 					<Button
 						variant="filled"
@@ -116,7 +117,7 @@ export default function Call(props: CallType) {
 			<CallNumModal
 				isOpen={IsCallnumOpen}
 				onClose={closeModal}
-				result={result}
+				result={result as Result}
 			/>
 		</>
 	);

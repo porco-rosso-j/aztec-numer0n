@@ -9,66 +9,32 @@ import {
 	Center,
 	Stack,
 } from "@mantine/core";
-import { useState, useEffect } from "react";
-import { HighLow, item } from "../../scripts/constants";
+// import { useState, useEffect } from "react";
+import { HighLow, ItemType, itemName } from "../../scripts/constants";
+import { ItemResult } from "../Item";
+import { Result } from "../CallHistory";
 
 type UseItemModalType = {
 	isOpen: boolean;
 	onClose: () => void;
-	itemRsult: number[];
+	result: Result;
 };
 
-type ItemResult = {
-	item: string;
-	item_result: string;
-};
-
-const emptyItemResult: ItemResult = {
-	item: "",
-	item_result: "",
-};
-
-function UseItemModal(props: UseItemModalType) {
-	const [itemResult, setItemResult] = useState<ItemResult>(emptyItemResult);
-
-	const handleResult = () => {
-		const newResult: ItemResult = {
-			item: item(props.itemRsult[3]),
-			item_result: ""
-		};
-
-		if (props.itemRsult[3] == 1) {
-			newResult.item_result =  HighLow(props.itemRsult[4])
-		} else  {
-			newResult.item_result = props.itemRsult[4].toString()
-		}
-
-		console.log("moda; newResult] ", newResult);
-		setItemResult(newResult);
-	};
-
-	useEffect(() => {
-		console.log("itemResult.itemResult: ", itemResult.item);
-		if (props.isOpen && itemResult.item == "") {
-			handleResult();
-			const intervalId = setInterval(handleResult, 10000);
-			return () => {
-				clearInterval(intervalId);
-			};
-		}
-	}, [handleResult]);
-
-	const handleClose = () => {
-		setItemResult(emptyItemResult);
-		props.onClose();
-	};
+function UseItemModal({ isOpen, onClose: handleClose, result }: UseItemModalType) {
+	if (!result) return
+	console.log("i================================= ")
+	let itemResult = result.item_result.toString()
+	switch (result.item) {
+		case ItemType.HIGH_AND_LOW:
+			itemResult = HighLow(result.item_result)
+	}
 
 	return (
 		<Modal
 			size="xs"
-			opened={props.isOpen}
-			onClose={handleClose}
+			opened={isOpen}
 			centered
+			onClose={handleClose}
 			withCloseButton={false}
 		>
 			<Box
@@ -103,8 +69,8 @@ function UseItemModal(props: UseItemModalType) {
 							<Text>- Result:</Text>
 						</Stack>
 						<Stack gap="5px" style={{ fontSize: 16, textAlign: "center" }}>
-							<Text>{itemResult.item}</Text>
-							<Text>{itemResult.item_result}</Text>
+							<Text>{itemName(result.item)}</Text>
+							<Text>{itemResult}</Text>
 						</Stack>
 					</Group>
 				</Box>

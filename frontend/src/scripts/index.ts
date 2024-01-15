@@ -18,6 +18,8 @@ import {
 	SANDBOX_URL,
 } from "./constants.js";
 import { addGameIdNote } from "./add_note.js";
+import { ItemResult } from "../components/Item.js";
+import { Result } from "../components/CallHistory.js";
 
 type GameCreated = {
 	contractAddress: AztecAddress;
@@ -160,7 +162,8 @@ export async function useAttackItem(
 	player: AccountWalletWithPrivateKey,
 	opponent: AccountWalletWithPrivateKey,
 	item_type: bigint,
-	contractAddress: string
+	contractAddress: string,
+	target_num: bigint
 ) {
 	try {
 		const numer0n = await Numer0nContract.at(
@@ -170,7 +173,8 @@ export async function useAttackItem(
 
 		const action = numer0n.methods.use_attack_item(
 			opponent.getAddress(),
-			item_type
+			item_type,
+			target_num
 		);
 		const messageHash = computeAuthWitMessageHash(
 			player.getAddress(),
@@ -229,7 +233,7 @@ export async function getResult(
 	player: string,
 	round: bigint,
 	contractAddress: string
-): Promise<number[]> {
+): Promise<Result> {
 	const numer0n = await Numer0nContract.at(
 		AztecAddress.fromString(contractAddress),
 		new SignerlessWallet(pxe())
@@ -239,13 +243,13 @@ export async function getResult(
 		.get_result(AztecAddress.fromString(player), round)
 		.view();
 
-	return [
-		Number(res.call_num),
-		Number(res.eat),
-		Number(res.bite),
-		Number(res.item),
-		Number(res.item_result),
-	];
+	return {
+		call_num: res.call_num,
+		eat: res.eat,
+		bite: res.bite,
+		item: res.item,
+		item_result: res.item_result,
+	}
 }
 
 export async function getPlayer(

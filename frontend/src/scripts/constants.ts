@@ -1,6 +1,6 @@
 export const REGISTRY_ADDRESS =
 	import.meta.env.VITE_ENV == "LOCAL"
-		? "0x0bb62f3406a62182192f45644ed90301dbe9a6298464926a4aa62ac7f4c5a1e9"
+		? "0x28dae8654df38eb5d797a651abf7e31711fda32527eac0c3beade27116f17b5d"
 		: import.meta.env.VITE_ENV == "REMOTE"
 			? "0x0006a61e1aa2cb82c6da8eb2fa4a2fc31d9d988c1608d9c9f5d10a2c6206994d"
 			: "";
@@ -12,7 +12,7 @@ export const SANDBOX_URL =
 			? "https://aztec.hmlab.xyz/"
 			: "";
 
-// ? "http://212.227.240.189:8080"
+
 export const SANDBOX_ADDRESS_1 =
 	"0x06357cc85cb8fc561adbf741f63cd75efa26ffba1c80d431ec77d036d8edf022";
 export const SANDBOX_ADDRESS_2 =
@@ -22,16 +22,27 @@ export const SANDBOX_ADDRESS_3 =
 
 export const numLen = 3;
 
-export const item = (num: number) => {
-	console.log("num num:  ");
-	if (num == 1) {
-		return "H&L";
-	} else if (num == 2) {
-		return "Slash";
-	} else if (num == 5) {
-		return "Shuffle";
-	} else {
-		return "";
+export enum ItemType {
+	HIGH_AND_LOW = 1,
+	SLASH,
+	TARGET,
+	CHANGE,
+	SHUFFLE,
+}
+
+export const itemName = (type: ItemType): string => {
+	console.log("itemNameeeeeeeeeeeee",)
+	switch (type) {
+		case ItemType.HIGH_AND_LOW:
+			return "H&L"
+		case ItemType.SLASH:
+			return "Slash"
+		case ItemType.TARGET:
+			return "Target"
+		case ItemType.CHANGE:
+			return "Change"
+		case ItemType.SHUFFLE:
+			return "Shuffle"
 	}
 };
 

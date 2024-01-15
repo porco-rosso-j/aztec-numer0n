@@ -10,69 +10,71 @@ import {
 } from "../scripts";
 import UseItemModal from "./Modals/UseItemModal";
 import DefenseItemModal from "./Modals/useDefenseItemModal";
+import { ItemType, itemName } from "../scripts/constants";
+import { useDisclosure } from "@mantine/hooks";
+import { Result } from "./CallHistory";
 
-type ItemType = {
+type ItemProps = {
 	playerId: number;
 	usedItem: () => void;
 };
 
-export default function Item(props: ItemType) {
+export default function Item(props: ItemProps) {
 	const { player1Address, player2Address, contractAddress } = useGameContext();
-	const [selectedNum, setSelectedNum] = useState<number>(0);
+	const [selectedItem, selectItem] = useState<ItemType | 0>(0);
 	const [callDisabled, setCallDisabled] = useState<boolean>(true);
 	const [calling, setCalling] = useState<boolean>(false);
-	const [IsUseItemModalOpen, setOpenUseNumModal] = useState(false);
+	const [openedUseItemModal, { open: openUseItemModal, close: closeUseItemModal }] = useDisclosure(false);
 	const [IsUseDefenseItemModalOpen, setOpenUseDefenseItemModal] =
 		useState(false);
-	const [itemResult, setItemResult] = useState<number[]>([]);
+	const [result, setResult] = useState<Result>();
 
 	async function handleCall() {
-		if (selectedNum != 0 && selectedNum <= 3) {
-			try {
-				setCalling(true);
-				const round = await getRound(contractAddress);
-				const playerAddr =
-					props.playerId == 1 ? player1Address : player2Address;
-				const opponentAddr =
-					props.playerId == 1 ? player2Address : player1Address;
-				const player = await getAccountByAddress(playerAddr);
-				const opponent = await getAccountByAddress(opponentAddr);
+		switch (selectedItem) {
+			case ItemType.HIGH_AND_LOW:
+			case ItemType.SLASH:
+			case ItemType.TARGET:
+				try {
+					setCalling(true);
+					const playerAddr =
+						props.playerId == 1 ? player1Address : player2Address;
+					const opponentAddr =
+						props.playerId == 1 ? player2Address : player1Address;
+					const player = await getAccountByAddress(playerAddr);
+					const opponent = await getAccountByAddress(opponentAddr);
 
-				await useAttackItem(
-					player,
-					opponent,
-					BigInt(selectedNum),
-					contractAddress
-				);
-				const result = await getResult(playerAddr, round, contractAddress);
-				console.log("result: ", result);
-				if (result[3] != 0) {
-					setItemResult(result);
-					openModal();
+					await useAttackItem(
+						player,
+						opponent,
+						BigInt(selectedItem),
+						contractAddress,
+						0n
+					);
+
+					const round = await getRound(contractAddress);
+					const resResult = await getResult(playerAddr, round, contractAddress);
+					console.log("result: ", resResult);
+					if (resResult.item) {
+						setResult(result);
+						openUseItemModal();
+					}
+
+					props.usedItem();
+				} finally {
+					setCalling(false);
 				}
+				break
 
-				props.usedItem();
-			} finally {
-				setCalling(false);
-			}
-		} else if (selectedNum > 3 && selectedNum < 6) {
-			try {
-				setCalling(true);
-				openDefenseItemModal();
-			} finally {
-				setCalling(false);
-			}
+			case ItemType.CHANGE:
+			case ItemType.SHUFFLE:
+				try {
+					setCalling(true);
+					openDefenseItemModal();
+				} finally {
+					setCalling(false);
+				}
 		}
 	}
-
-	const openModal = () => {
-		setOpenUseNumModal(true);
-	};
-
-	// Function to close the modal from the parent
-	const closeModal = () => {
-		setOpenUseNumModal(false);
-	};
 
 	const openDefenseItemModal = () => {
 		setOpenUseDefenseItemModal(true);
@@ -85,7 +87,7 @@ export default function Item(props: ItemType) {
 
 	const handleSelectedNum = (value: string | null) => {
 		if (value) {
-			setSelectedNum(Number(value));
+			selectItem(Number(value));
 			setCallDisabled(false);
 		}
 	};
@@ -97,14 +99,14 @@ export default function Item(props: ItemType) {
 					<Select
 						mt={20}
 						placeholder="Select an item"
-						value={selectedNum.toString()}
-						onChange={(value) => handleSelectedNum(value)}
+						value={selectedItem.toString()}
+						onChange={handleSelectedNum}
 						data={[
-							{ value: "1", label: "1. High & Low" },
-							{ value: "2", label: "2. Slash" },
-							{ value: "3", label: "3. Target" },
-							{ value: "4", label: "4. Change" },
-							{ value: "5", label: "5. Shuffle" },
+							{ value: ItemType.HIGH_AND_LOW.toString(), label: itemName(ItemType.HIGH_AND_LOW) },
+							{ value: ItemType.SLASH.toString(), label: itemName(ItemType.SLASH) },
+							{ value: ItemType.TARGET.toString(), label: itemName(ItemType.TARGET) },
+							{ value: ItemType.CHANGE.toString(), label: itemName(ItemType.CHANGE) },
+							{ value: ItemType.SHUFFLE.toString(), label: itemName(ItemType.SHUFFLE) },
 						]}
 					/>
 					<Button
@@ -119,14 +121,14 @@ export default function Item(props: ItemType) {
 				</Stack>
 			</Center>
 			<UseItemModal
-				isOpen={IsUseItemModalOpen}
-				onClose={closeModal}
-				itemRsult={itemResult}
+				isOpen={openedUseItemModal}
+				onClose={closeUseItemModal}
+				result={result as Result}
 			/>
 			<DefenseItemModal
 				isOpen={IsUseDefenseItemModalOpen}
 				onClose={closeDeffeseItemModal}
-				itemType={selectedNum}
+				itemType={selectedItem}
 				playerId={props.playerId}
 			/>
 		</>

@@ -136,6 +136,9 @@ export class Numer0nContract extends ContractBase {
     /** get_slash(num: field) */
     get_slash: ((num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
+    /** get_target(nums: field, targetNum: field) */
+    get_target: ((nums: FieldLike, targetNum: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+
     /** get_winner() */
     get_winner: (() => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
@@ -148,8 +151,8 @@ export class Numer0nContract extends ContractBase {
     /** join_game(game_id: field, player: field) */
     join_game: ((game_id: FieldLike, player: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
-    /** use_attack_item(target: struct, item_type: field) */
-    use_attack_item: ((target: AztecAddressLike, item_type: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
+    /** use_attack_item(target: struct, item_type: field, arg: field) */
+    use_attack_item: ((target: AztecAddressLike, item_type: FieldLike, arg: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
 
     /** use_defense_item(player: field, item_type: field, new_secret_num: field) */
     use_defense_item: ((player: FieldLike, item_type: FieldLike, new_secret_num: FieldLike) => ContractFunctionInteraction) & Pick<ContractMethod, 'selector'>;
