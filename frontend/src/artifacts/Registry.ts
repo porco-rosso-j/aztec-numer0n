@@ -24,7 +24,7 @@ import {
 	Wallet,
 	WrappedFieldLike,
 } from "@aztec/aztec.js";
-import RegistryContractArtifactJson from "../../../artifacts/registry_contract-Registry.json" assert { type: "json" };
+import RegistryContractArtifactJson from "./registry_contract-Registry.json" assert { type: "json" };
 export const RegistryContractArtifact = loadContractArtifact(
 	RegistryContractArtifactJson as NoirCompiledContract
 );
