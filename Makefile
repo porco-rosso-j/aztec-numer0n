@@ -5,7 +5,7 @@ else
 endif
 
 ifeq ($(PROD),true)
-	DEPLOY_FLAG = -u http://212.227.240.189:8080
+	DEPLOY_FLAG = -u http://167.235.62.116:8080
 endif
 
 .PHONY: gen-artifacts
@@ -21,4 +21,4 @@ gen-artifacts:
 deploy-registry:
 	$(AZTEC_CLI) \
 	deploy $(DEPLOY_FLAG) \
-	./artifacts/Registry.json
+	./artifacts/registry_contract-Registry.json

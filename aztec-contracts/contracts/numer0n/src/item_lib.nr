@@ -1,11 +1,10 @@
-use dep::aztec::types::type_serialization::TypeSerializationInterface;
 use dep::aztec::{
     state_vars::{
             singleton::Singleton,
     },
 };
 use crate::types::{
-    secret_num_note::{SecretNumberNote, SECRET_NUM_NOTE_LEN},
+    secret_num_note::SecretNumberNote,
 };
 
 use crate::num_lib;
@@ -18,14 +17,14 @@ global ITEM_SHUFFLE: Field = 5; // nothing
 
 global LOW: Field = 1;
 global HIGH: Field = 2;
-global CRACK: u16 = 5;
+global CRACK: u32 = 5;
 
-fn get_high_and_low(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> Field {
+fn get_high_and_low(_note: Singleton<SecretNumberNote>) -> Field {
     let note = _note.get_note(true);
     let secret_num: Field = note.secret_num;
 
-    let mut num = secret_num as u16;
-    let mut modulus: u16 = 100;
+    let mut num = secret_num as u32;
+    let mut modulus: u32 = 100;
     let mut result: Field = 0;
 
     for i in 0..3 {
@@ -55,8 +54,8 @@ fn get_high_and_low(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> 
 
 fn is_valid_new_shuffled_num(_current_secret_num:Field, _new_secret_num:Field) -> Field {
 
-       let current_nums: [u16;3] = num_lib::arrarify_num(_current_secret_num);
-       let new_nums: [u16;3] = num_lib::arrarify_num(_new_secret_num);
+       let current_nums: [u32;3] = num_lib::arrarify_num(_current_secret_num);
+       let new_nums: [u32;3] = num_lib::arrarify_num(_new_secret_num);
 
         let mut result: Field = 0;
 
@@ -79,9 +78,9 @@ fn is_valid_new_shuffled_num(_current_secret_num:Field, _new_secret_num:Field) -
         result
 }
 
-pub fn get_slash(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> Field {
+pub fn get_slash(_note: Singleton<SecretNumberNote>) -> Field {
     let note = _note.get_note(true);
-    let nums: [u16;3] = num_lib::arrarify_num(note.secret_num);
+    let nums: [u32;3] = num_lib::arrarify_num(note.secret_num);
 
     let mut min = nums[0];
     let mut max = nums[0];
@@ -103,11 +102,16 @@ pub fn get_slash(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> Fie
     result as Field
 }
 
-    // for testing purpose
-    pub fn _get_high_and_low(_num:Field) -> Field {
+fn get_target(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>, targetNum: Field) -> Field {
+    let note = _note.get_note(true);
+    _get_target(note.secret_num, targetNum)
+}
 
-    let mut num = _num as u16;
-    let mut modulus: u16 = 100;
+// for testing purpose
+pub fn _get_high_and_low(_num:Field) -> Field {
+
+    let mut num = _num as u32;
+    let mut modulus: u32 = 100;
     let mut result: Field = 0;
 
     for i in 0..3 {
@@ -137,8 +141,8 @@ pub fn get_slash(_note: Singleton<SecretNumberNote, SECRET_NUM_NOTE_LEN>) -> Fie
 
 pub fn _is_valid_new_shuffled_num(_current_secret_num:Field, _new_secret_num:Field) -> Field {
 
-       let current_nums: [u16;3] = num_lib::arrarify_num(_current_secret_num);
-       let new_nums: [u16;3] = num_lib::arrarify_num(_new_secret_num);
+       let current_nums: [u32;3] = num_lib::arrarify_num(_current_secret_num);
+       let new_nums: [u32;3] = num_lib::arrarify_num(_new_secret_num);
 
         let mut result: Field = 0;
 
@@ -162,7 +166,7 @@ pub fn _is_valid_new_shuffled_num(_current_secret_num:Field, _new_secret_num:Fie
 }
 
 pub fn _get_slash(_nums:Field) -> Field {
-    let nums: [u16;3] = num_lib::arrarify_num(_nums);
+    let nums: [u32;3] = num_lib::arrarify_num(_nums);
 
     let mut min = nums[0];
     let mut max = nums[0];
@@ -184,6 +188,17 @@ pub fn _get_slash(_nums:Field) -> Field {
     result as Field
 }
    
+pub fn _get_target(_nums: Field, targetNum: Field) -> Field {
+    let nums: [u32;3] = num_lib::arrarify_num(_nums);
+    let mut digit: u32 = 0;
+    for i in 0..3 {
+        if (nums[i] == targetNum as u32) {
+            digit = 3-i;
+        }
+    }
+
+    digit as Field
+}
    
 // global LOW_lOW_HIGH: Field = 112; 
 // global LOW_HIGH_HIGH: Field = 122; 

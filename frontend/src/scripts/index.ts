@@ -6,7 +6,6 @@ import {
 	computeAuthWitMessageHash,
 	createPXEClient,
 	SignerlessWallet,
-	getSandboxAccountsWallets,
 } from "@aztec/aztec.js";
 
 import { Numer0nContract } from "../artifacts/Numer0n.js";
@@ -18,6 +17,7 @@ import {
 	SANDBOX_URL,
 } from "./constants.js";
 import { addGameIdNote } from "./add_note.js";
+import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
 
 type GameCreated = {
 	contractAddress: AztecAddress;
@@ -32,13 +32,11 @@ export const getAccountByAddress = async (
 	player: string
 ): Promise<AccountWalletWithPrivateKey> => {
 	if (player == SANDBOX_ADDRESS_1) {
-		console.log("aaa");
-		return (await getSandboxAccountsWallets(pxe()))[0];
+		return (await getInitialTestAccountsWallets(pxe()))[0];
 	} else if (player == SANDBOX_ADDRESS_2) {
-		console.log("bbb");
-		return (await getSandboxAccountsWallets(pxe()))[1];
+		return (await getInitialTestAccountsWallets(pxe()))[1];
 	} else {
-		return (await getSandboxAccountsWallets(pxe()))[2];
+		return (await getInitialTestAccountsWallets(pxe()))[2];
 	}
 };
 export async function createGame(
@@ -60,7 +58,7 @@ export async function createGame(
 
 		contractAddress = receipt.contractAddress!;
 
-		await pxe().registerRecipient(receipt.contract.completeAddress);
+		//await pxe().registerRecipient(receipt.contract.address);
 
 		await addGameIdNote(
 			pxe(),

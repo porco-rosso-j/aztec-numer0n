@@ -1,18 +1,19 @@
 import {
-	init,
+	initAztecJs,
 	Fr,
 	PXE,
 	createPXEClient,
-	getSandboxAccountsWallets,
-	waitForSandbox,
 	AztecAddress,
 	AccountWalletWithPrivateKey,
 	computeAuthWitMessageHash,
 } from "@aztec/aztec.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
 
 import { Numer0nContract } from "./artifacts/Numer0n.js";
-import { addGameIdNote, addSecretNumNote } from "./utils/add_note.js";
 import { setup } from "./utils/deploy.js";
+import { SANDBOX_URL } from "./utils/constants.js";
 
 const ADDRESS_ZERO = AztecAddress.fromBigInt(0n);
 const ZERO_FIELD = new Fr(0n);
@@ -29,13 +30,10 @@ let player2Addr: AztecAddress;
 
 // Setup: Set the sandbox
 beforeAll(async () => {
-	const { SANDBOX_URL = "http://localhost:8080" } = process.env;
 	pxe = createPXEClient(SANDBOX_URL);
 
-	await init();
-	await waitForSandbox(pxe);
-	const accounts: AccountWalletWithPrivateKey[] =
-		await getSandboxAccountsWallets(pxe);
+	await initAztecJs();
+	const accounts = await getInitialTestAccountsWallets(pxe);
 	player1 = accounts[0];
 	player2 = accounts[1];
 	deployer = accounts[2];
@@ -50,6 +48,30 @@ describe("E2E Numer0n", () => {
 		beforeAll(async () => {
 			numer0n = await setup(pxe, deployer, player1, player2);
 		}, 120_000);
+
+		it("should fail due to call from invalid player", async () => {
+			const secret_num = 125n;
+
+			await expect(
+				numer0n
+					.withWallet(deployer)
+					.methods.add_num(player1Addr, secret_num)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: invalid player 'context.msg_sender().to_field() == player'"
+			);
+
+			await expect(
+				numer0n
+					.withWallet(deployer)
+					.methods.add_num(deployer.getAddress(), secret_num)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: not player 'storage.players.at(_player).read().is_player'"
+			);
+		});
 
 		it("should add nums correctly:player 1", async () => {
 			const secret_num = 125n;
@@ -69,6 +91,20 @@ describe("E2E Numer0n", () => {
 
 			console.log("_secert_num: ", _secert_num);
 			expect(_secert_num).toEqual(secret_num);
+		});
+
+		it("should fail to add different num for the second time: player 1 ", async () => {
+			const secret_num1 = 327n;
+
+			await expect(
+				numer0n
+					.withWallet(player1)
+					.methods.add_num(player1Addr, secret_num1)
+					.send()
+					.wait()
+			).rejects.toThrowError(
+				"Assertion failed: num 1 already has been set '!game.is_number_set[0]'"
+			);
 		});
 
 		it("should add nums correctly:player 2", async () => {
@@ -91,43 +127,7 @@ describe("E2E Numer0n", () => {
 			expect(_secert_num).toEqual(secret_num);
 		});
 
-		it.skip("should fail due to call from invalid player", async () => {
-			const secret_num = 125n;
-
-			await expect(
-				numer0n
-					.withWallet(deployer)
-					.methods.add_num(player1Addr, secret_num)
-					.send()
-					.wait()
-			).rejects.toThrowError(
-				"Assertion failed: invalid player 'context.msg_sender() == player'"
-			);
-
-			await expect(
-				numer0n
-					.withWallet(deployer)
-					.methods.add_num(deployer.getAddress(), secret_num)
-					.send()
-					.wait()
-			).rejects.toThrowError(
-				"Assertion failed: not player 'storage.players.at(_player).read().is_player'"
-			);
-		});
-
-		it.skip("should fail to add different num for the second time", async () => {
-			const secret_num1 = 327n;
-
-			await expect(
-				numer0n
-					.withWallet(player1)
-					.methods.add_num(player1Addr, secret_num1)
-					.send()
-					.wait()
-			).rejects.toThrowError(
-				"Assertion failed: num 1 already has been set '!game.is_number_set[0]'"
-			);
-
+		it.skip("should fail to add different num for the second time: player 2", async () => {
 			const secret_num2 = 954n;
 
 			await expect(
@@ -141,7 +141,7 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it.skip("should fail due to invalid caller", async () => {
+		it("should fail due to invalid caller", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 			const call_num = 293n;
 
@@ -161,7 +161,7 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it.skip("shouldn't be able to call your secret num: caller == target", async () => {
+		it("shouldn't be able to call your secret num: caller == target", async () => {
 			const call_num = 293n;
 
 			const action = numer0n
@@ -169,11 +169,11 @@ describe("E2E Numer0n", () => {
 				.methods.call_num(player1.getAddress(), call_num);
 
 			await expect(action.send().wait()).rejects.toThrowError(
-				"Assertion failed: caller shouldn't be target 'target_address != context.msg_sender()'"
+				"Assertion failed: caller shouldn't be target 'target != context.msg_sender()'"
 			);
 		});
 
-		it.skip("shouldn fail because of unknown auth witness", async () => {
+		it("shouldn fail because of unknown auth witness", async () => {
 			const call_num = 293n;
 
 			const action = numer0n
@@ -185,7 +185,7 @@ describe("E2E Numer0n", () => {
 		});
 
 		// only passes if it's called when only p2 has added num
-		it.skip("shouldn fail as game hasn't started", async () => {
+		it.skip("should fail as game hasn't started", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 			const call_num = 293n;
 
@@ -260,7 +260,7 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it.skip("player1 should call player2's secret num wrongly: 0-3", async () => {
+		it("player1 should call player2's secret num wrongly: 0-3", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 			const call_num = 932n;
 
@@ -292,7 +292,7 @@ describe("E2E Numer0n", () => {
 			expect(result_one.bite).toEqual(3n);
 		});
 
-		it.skip("player2 should call player1's secret num wrongly: 0-0", async () => {
+		it("player2 should call player1's secret num wrongly: 0-0", async () => {
 			// player 1 should create authwitness for player 2 to send tx
 
 			const round_before = await numer0n.methods.get_round().view();
@@ -332,7 +332,7 @@ describe("E2E Numer0n", () => {
 			expect(is_first_after).not.toBe(is_first_before);
 		});
 
-		it.skip("player1 should use high & low successfully", async () => {
+		it("player1 should use high & low successfully", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 
 			const action = numer0n
@@ -362,7 +362,7 @@ describe("E2E Numer0n", () => {
 			expect(result_one.item_result).toEqual(121n);
 		});
 
-		it("player1 should use slash successfully", async () => {
+		it.skip("player1 should use slash successfully", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 
 			const action = numer0n
@@ -392,27 +392,7 @@ describe("E2E Numer0n", () => {
 			expect(result_one.item_result).toEqual(7n);
 		});
 
-		it.skip("player1 should use shuffle successfully", async () => {
-			const new_secret_num = 521n; // current: 125
-
-			const tx = await numer0n
-				.withWallet(player1)
-				.methods.use_defense_item(player1Addr, 5n, new_secret_num)
-				.send()
-				.wait();
-
-			console.log("tx: ", tx.txHash.toString());
-			expect(tx.status).toBe("mined");
-
-			const _secert_num = await numer0n.methods
-				.get_secret_num(player1Addr)
-				.view();
-
-			console.log("_secert_num: ", _secert_num);
-			expect(_secert_num).toEqual(new_secret_num);
-		});
-
-		it.skip("player1 should call player2's secret num correctly", async () => {
+		it("player1 should call player2's secret num correctly", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 			const call_num = 293n;
 
@@ -444,7 +424,27 @@ describe("E2E Numer0n", () => {
 			expect(result_one.bite).toEqual(0n);
 		});
 
-		it.skip("player2 should call player1's secret num correctly", async () => {
+		it("player2 should use shuffle successfully", async () => {
+			const new_secret_num = 329n; // current: 125
+
+			const tx = await numer0n
+				.withWallet(player2)
+				.methods.use_defense_item(player2Addr, 5n, new_secret_num)
+				.send()
+				.wait();
+
+			console.log("tx: ", tx.txHash.toString());
+			expect(tx.status).toBe("mined");
+
+			const _secert_num = await numer0n.methods
+				.get_secret_num(player2Addr)
+				.view();
+
+			console.log("_secert_num: ", _secert_num);
+			expect(_secert_num).toEqual(new_secret_num);
+		});
+
+		it("player2 should call player1's secret num correctly", async () => {
 			// player 1 should create authwitness for player 2 to send tx
 			const call_num = 125n;
 

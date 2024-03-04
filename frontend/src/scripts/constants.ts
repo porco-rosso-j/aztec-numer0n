@@ -1,24 +1,23 @@
 export const REGISTRY_ADDRESS =
 	import.meta.env.VITE_ENV == "LOCAL"
-		? "0x0bb62f3406a62182192f45644ed90301dbe9a6298464926a4aa62ac7f4c5a1e9"
+		? "0x222c5d2c5c3cd8d281677bd3e30f5b9e1552b85f66b38849ab2626f17aae04e0"
 		: import.meta.env.VITE_ENV == "REMOTE"
-		? "0x24a9716368f51c1436cac2c7d8cfe1f72eafd0de8de7513061b6c2d0462e4623"
+		? "0x222c5d2c5c3cd8d281677bd3e30f5b9e1552b85f66b38849ab2626f17aae04e0"
 		: "";
 
 export const SANDBOX_URL =
 	import.meta.env.VITE_ENV == "LOCAL"
-		? "http://localhost:8080"
+		? "http://127.0.0.1:8000"
 		: import.meta.env.VITE_ENV == "REMOTE"
-		? "https://aztec.hmlab.xyz/"
+		? "http://167.235.62.116:8080"
 		: "";
 
-// ? "http://212.227.240.189:8080"
 export const SANDBOX_ADDRESS_1 =
-	"0x06357cc85cb8fc561adbf741f63cd75efa26ffba1c80d431ec77d036d8edf022";
+	"0x2fd4503a9b855a852272945df53d7173297c1469cceda31048b85118364b09a3";
 export const SANDBOX_ADDRESS_2 =
-	"0x1b18a972d54db0283a04abaace5f7b03c3fca5a4b2c0cf113b457de6ea4991e7";
+	"0x054ae9af363c6388cc6242c6eb0ed8a5860c15290744c81ecd5109434f9bb8b1";
 export const SANDBOX_ADDRESS_3 =
-	"0x1d30d4de97657983408587c7a91ba6587774b30f0e70224a0658f0357092f495";
+	"0x0d919c38d75484f8dd410cebaf0e17ccd196901d554d88f81b7e079375a4335d";
 
 export const numLen = 3;
 

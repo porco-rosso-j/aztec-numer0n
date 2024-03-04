@@ -1,6 +1,6 @@
 # Numer0n
 
-Numer0n is a number-guessing game like a "Hit & Blow". It's built on Aztec, as both players' secret numbers should be stored privately.
+Numer0n is a number-guessing game like a "Hit & Blow". It's built on Aztec, as both players' secret numbers should be stored privately on smart contract.
 
 ## Develoyments
 

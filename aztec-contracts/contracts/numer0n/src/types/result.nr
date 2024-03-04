@@ -1,7 +1,6 @@
-use dep::aztec::types::type_serialization::TypeSerializationInterface;
+use dep::aztec::protocol_types::{traits::{Serialize, Deserialize}};
 
 global RESULT_SERIALIZED_LEN: Field = 5;
-
 
 struct Result {
     call_num: Field,
@@ -17,7 +16,8 @@ impl Result {
     } 
 }
 
-fn deserializeResult(fields: [Field; RESULT_SERIALIZED_LEN]) -> Result {
+impl Deserialize<RESULT_SERIALIZED_LEN> for Result {
+    fn deserialize(fields: [Field; RESULT_SERIALIZED_LEN]) -> Self {
     Result { 
         call_num: fields[0], 
         eat: fields[1], 
@@ -25,13 +25,11 @@ fn deserializeResult(fields: [Field; RESULT_SERIALIZED_LEN]) -> Result {
         item: fields[3],
         item_result: fields[4] 
     }
+    }
 }
 
-fn serializeResult(result: Result) -> [Field; RESULT_SERIALIZED_LEN] {
-    [result.call_num, result.eat, result.bite, result.item, result.item_result]
+impl Serialize<RESULT_SERIALIZED_LEN> for Result {
+    fn serialize(self) -> [Field; RESULT_SERIALIZED_LEN] {
+    [self.call_num, self.eat, self.bite, self.item, self.item_result]
+    }
 }
-
-global ResultSerializationMethods = TypeSerializationInterface {
-    deserialize: deserializeResult,
-    serialize: serializeResult,
-};

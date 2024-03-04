@@ -2,10 +2,11 @@ use dep::aztec::{
     note::{
         note_header::NoteHeader,
         note_interface::NoteInterface,
-        utils::compute_note_hash_for_read_or_nullify,
+        utils::compute_note_hash_for_consumption,
     },
+    protocol_types::address::AztecAddress,
     oracle::{
-        get_secret_key::get_secret_key,
+        nullifier_key::get_nullifier_secret_key,
         get_public_key::get_public_key,
     },
     log::emit_encrypted_log,
@@ -13,51 +14,67 @@ use dep::aztec::{
     context::PrivateContext,
 };
 
-// global SECRET_NUM_NOTE_LEN: Field = 4;
 global SECRET_NUM_NOTE_LEN: Field = 2;
 
 struct SecretNumberNote {
     secret_num: Field,
-    owner: Field, // We store the owner address only to get the secret key to compute the nullifier
+    owner: AztecAddress, 
     header: NoteHeader,
 }
 
 impl SecretNumberNote {
-    pub fn new(secret_num: Field, owner: Field) -> Self {
+    pub fn new(secret_num: Field, owner: AztecAddress) -> Self {
         SecretNumberNote {
             secret_num,
             owner,
             header: NoteHeader::empty(),
         }
     }
+}
 
-    pub fn serialize(self) -> [Field; SECRET_NUM_NOTE_LEN] {
-        let res: [Field; SECRET_NUM_NOTE_LEN] = [self.secret_num, self.owner];
+
+impl NoteInterface<SECRET_NUM_NOTE_LEN> for SecretNumberNote {
+    fn serialize_content(self) -> [Field; SECRET_NUM_NOTE_LEN] {
+        let res: [Field; SECRET_NUM_NOTE_LEN] = [self.secret_num, self.owner.to_field()];
         res
     }
 
-    pub fn deserialize(serialized_note: [Field; SECRET_NUM_NOTE_LEN]) -> Self {
-        SecretNumberNote { secret_num: serialized_note[0], owner: serialized_note[1], header: NoteHeader::empty() }
-    }
-    
-    pub fn compute_note_hash(self) -> Field {
-        pedersen_hash(self.serialize(), 0)
+    fn deserialize_content(serialized_note: [Field; SECRET_NUM_NOTE_LEN]) -> Self {
+        SecretNumberNote { secret_num: serialized_note[0], owner:AztecAddress::from_field(serialized_note[1]), header: NoteHeader::empty() }
     }
 
-    pub fn compute_nullifier(self) -> Field {
-        let note_hash_for_nullify = compute_note_hash_for_read_or_nullify(SecretNumberNoteMethods, self);
-        let secret = get_secret_key(self.owner);
-        // TODO(#1205) Should use a non-zero generator index.
+    fn compute_note_content_hash(self) -> Field {
+        pedersen_hash(self.serialize_content(), 0)
+    }
+
+    fn compute_nullifier(self, context: &mut PrivateContext) -> Field {
+        let note_hash_for_nullify = compute_note_hash_for_consumption(self);
+        let secret = context.request_nullifier_secret_key(self.owner);
         pedersen_hash([
             note_hash_for_nullify,
-            secret.low,
             secret.high,
+            secret.low,
         ],0)
     }
 
-    pub fn set_header(&mut self, header: NoteHeader) {
+    fn compute_nullifier_without_context(self) -> Field {
+        let note_hash_for_nullify = compute_note_hash_for_consumption(self);
+        let secret = get_nullifier_secret_key(self.owner);
+        pedersen_hash([
+            note_hash_for_nullify,
+            secret.high,
+            secret.low,
+        ],0)
+    }
+
+    fn set_header(&mut self, header: NoteHeader) {
         self.header = header;
     }
+
+    fn get_header(note: SecretNumberNote) -> NoteHeader {
+        note.header
+    }
+
 
     // Broadcasts the note as an encrypted log on L1.
     pub fn broadcast(self, context: &mut PrivateContext, slot: Field) {
@@ -66,47 +83,13 @@ impl SecretNumberNote {
             context,
             (*context).this_address(),
             slot,
+            Self::get_note_type_id(),
             encryption_pub_key,
-            self.serialize(),
+            self.serialize_content(),
         );
     }
-}
 
-fn serialize(note: SecretNumberNote) -> [Field; SECRET_NUM_NOTE_LEN] {
-    note.serialize()
+    fn get_note_type_id() -> Field {
+        0
+    }
 }
-
-fn deserialize(serialized_note: [Field; SECRET_NUM_NOTE_LEN]) -> SecretNumberNote {
-    SecretNumberNote::deserialize(serialized_note)
-}
-
-fn compute_note_hash(note: SecretNumberNote) -> Field {
-    note.compute_note_hash()
-}
-
-fn compute_nullifier(note: SecretNumberNote) -> Field {
-    note.compute_nullifier()
-}
-
-fn get_header(note: SecretNumberNote) -> NoteHeader {
-    note.header
-}
-
-fn set_header(note: &mut SecretNumberNote, header: NoteHeader) {
-    note.set_header(header);
-}
-
-// Broadcasts the note as an encrypted log on L1.
-fn broadcast(context: &mut PrivateContext, slot: Field, note: SecretNumberNote) {
-    note.broadcast(context, slot);
-}
-
-global SecretNumberNoteMethods = NoteInterface {
-    deserialize,
-    serialize,
-    compute_note_hash,
-    compute_nullifier,
-    get_header,
-    set_header,
-    broadcast,
-};

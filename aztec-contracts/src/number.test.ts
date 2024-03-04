@@ -1,16 +1,18 @@
 import {
-	init,
+	initAztecJs,
 	Fr,
 	PXE,
 	createPXEClient,
-	getSandboxAccountsWallets,
-	waitForSandbox,
 	AztecAddress,
 	AccountWalletWithPrivateKey,
 } from "@aztec/aztec.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
 
 import { Numer0nContract } from "./artifacts/Numer0n.js";
 import { addGameIdNote } from "./utils/add_note.js";
+import { SANDBOX_URL } from "./utils/constants.js";
 
 let pxe: PXE;
 let numer0n: Numer0nContract;
@@ -24,13 +26,10 @@ let player2Addr: AztecAddress;
 
 // Setup: Set the sandbox
 beforeAll(async () => {
-	const { SANDBOX_URL = "http://localhost:8080" } = process.env;
 	pxe = createPXEClient(SANDBOX_URL);
 
-	await init();
-	await waitForSandbox(pxe);
-	const accounts: AccountWalletWithPrivateKey[] =
-		await getSandboxAccountsWallets(pxe);
+	await initAztecJs();
+	const accounts = await getInitialTestAccountsWallets(pxe);
 	player1 = accounts[0];
 	player2 = accounts[1];
 	deployer = accounts[2];
@@ -54,9 +53,6 @@ describe("E2E Numer0n", () => {
 				.wait();
 
 			numer0n = receipt.contract;
-
-			// Add the contract public key to the PXE
-			await pxe.registerRecipient(receipt.contract.completeAddress);
 
 			await addGameIdNote(
 				pxe,
@@ -104,7 +100,7 @@ describe("E2E Numer0n", () => {
 			console.log("ret4: ", ret4);
 		});
 
-		it.skip("is_valid_nums", async () => {
+		it("is_valid_nums", async () => {
 			const num = 51n;
 			const ret = await numer0n.methods.is_valid_nums(num).view();
 			console.log("ret: ", ret);
@@ -118,7 +114,7 @@ describe("E2E Numer0n", () => {
 			console.log("ret3: ", ret3);
 		});
 
-		it.skip("should fail due to invalid nums", async () => {
+		it("should fail due to invalid nums", async () => {
 			await expect(
 				numer0n
 					.withWallet(player1)
@@ -126,7 +122,7 @@ describe("E2E Numer0n", () => {
 					.send()
 					.wait()
 			).rejects.toThrowError(
-				"Assertion failed: number should be bigger than 11 '_num as u16 >= 12'"
+				"Assertion failed: number should be bigger than 11 '_num as u32 >= 12'"
 			);
 
 			await expect(
@@ -136,7 +132,7 @@ describe("E2E Numer0n", () => {
 					.send()
 					.wait()
 			).rejects.toThrowError(
-				"Assertion failed: number should be lower than 988 '_num as u16 <= 987'"
+				"Assertion failed: number should be lower than 988 '_num as u32 <= 987'"
 			);
 
 			await expect(
@@ -170,7 +166,7 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it.skip("check high & low result", async () => {
+		it("check high & low result", async () => {
 			const ret1 = await numer0n.methods.get_high_and_low(145n).view();
 			expect(ret1).toBe(112n);
 
@@ -197,7 +193,7 @@ describe("E2E Numer0n", () => {
 			expect(ret8).toBe(112n);
 		});
 
-		it.skip("check shuffle", async () => {
+		it("check shuffle", async () => {
 			let ret;
 			ret = await numer0n.methods.is_valid_new_shuffled_num(145n, 365n).view();
 			expect(ret).toBe(1n);
@@ -230,7 +226,8 @@ describe("E2E Numer0n", () => {
 			ret = await numer0n.methods.is_valid_new_shuffled_num(41n, 401n).view();
 			expect(ret).toBe(0n);
 		});
-		it.skip("check high & low result", async () => {
+
+		it("check high & low result", async () => {
 			const ret1 = await numer0n.methods.get_high_and_low(145n).view();
 			expect(ret1).toBe(112n);
 

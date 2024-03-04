@@ -23,6 +23,7 @@ export const addSecretNumNote = async (
 			owner,
 			contract,
 			SECRET_NUM_SLOT,
+			new Fr(0),
 			txHash
 		)
 	);
@@ -36,6 +37,13 @@ export const addGameIdNote = async (
 	game_id: Fr
 ) => {
 	await pxe.addNote(
-		new ExtendedNote(new Note([game_id]), owner, contract, GAME_ID_SLOT, txHash)
+		new ExtendedNote(
+			new Note([game_id]),
+			owner,
+			contract,
+			GAME_ID_SLOT,
+			new Fr(1),
+			txHash
+		)
 	);
 };

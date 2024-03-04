@@ -28,7 +28,7 @@ export const setup = async (
 	const numer0n = receipt.contract;
 
 	// Add the contract public key to the PXE
-	await pxe.registerRecipient(receipt.contract.completeAddress);
+	// await pxe.registerRecipient(receipt.contract.completeAddress);
 
 	await addGameIdNote(
 		pxe,

@@ -1,14 +1,14 @@
     fn is_valid_nums(_num: Field) {
-        assert(_num as u16 >= 12, "number should be bigger than 11");
-        assert(_num as u16 <= 987, "number should be lower than 988");
+        assert(_num as u32 >= 12, "number should be bigger than 11");
+        assert(_num as u32 <= 987, "number should be lower than 988");
 
-        let mut num = _num as u16;
-        let mut modulus: u16 = 100;
-        let mut nums: [u16;3] = [0;3];
+        let mut num = _num as u32;
+        let mut modulus: u32 = 100;
+        let mut nums: [u32;3] = [0;3];
 
         for i in 0..3 {
             if ((i == 0) & (num < 100)) {
-                nums[i] = 0 as u16;
+                nums[i] = 0 as u32;
             } else {
                let subtractor = num - (num % modulus);
                nums[i] = subtractor / modulus;
@@ -27,17 +27,17 @@
         _secret_num: Field,
     ) -> [Field;2] {
 
-        let mut call_num = _call_num as u16;
-        let mut secret_num = _secret_num as u16;
+        let mut call_num = _call_num as u32;
+        let mut secret_num = _secret_num as u32;
 
-        let mut modulus: u16 = 100;
-        let mut call_nums: [u16;3] = [0;3];
-        let mut secret_nums: [u16;3] = [0;3];
+        let mut modulus: u32 = 100;
+        let mut call_nums: [u32;3] = [0;3];
+        let mut secret_nums: [u32;3] = [0;3];
 
 
         for i in 0..3 {
             if ((i == 0) & (call_num < 100)) {
-                call_nums[i] = 0 as u16;
+                call_nums[i] = 0 as u32;
             } else {
                let subtractor = call_num - (call_num % modulus);
                call_nums[i] = subtractor / modulus;
@@ -51,7 +51,7 @@
 
         for i in 0..3 {
             if ((i == 0) & (secret_num < 100)) {
-                secret_nums[i] = 0 as u16;
+                secret_nums[i] = 0 as u32;
             } else {
                let subtractor = secret_num - (secret_num % modulus);
                secret_nums[i] = subtractor / modulus;
@@ -80,17 +80,17 @@
         ret
     }
 
-    pub fn _is_valid_nums(_num: Field) -> [u16;3] {
-        assert(_num as u16 >= 12, "number should be bigger than 11");
-        assert(_num as u16 <= 987, "number should be lower than 988");
+    pub fn _is_valid_nums(_num: Field) -> [u32;3] {
+        assert(_num as u32 >= 12, "number should be bigger than 11");
+        assert(_num as u32 <= 987, "number should be lower than 988");
 
-        let mut num = _num as u16;
-        let mut modulus: u16 = 100;
-        let mut nums: [u16;3] = [0;3];
+        let mut num = _num as u32;
+        let mut modulus: u32 = 100;
+        let mut nums: [u32;3] = [0;3];
 
         for i in 0..3 {
             if ((i == 0) & (num < 100)) {
-                nums[i] = 0 as u16;
+                nums[i] = 0 as u32;
             } else {
                let subtractor = num - (num % modulus);
                nums[i] = subtractor / modulus;
@@ -111,17 +111,17 @@
         _secret_num: Field,
     ) -> [Field;2] {
 
-        let mut call_num = _call_num as u16;
-        let mut secret_num = _secret_num as u16;
+        let mut call_num = _call_num as u32;
+        let mut secret_num = _secret_num as u32;
 
-        let mut modulus: u16 = 100;
-        let mut call_nums: [u16;3] = [0;3];
-        let mut secret_nums: [u16;3] = [0;3];
+        let mut modulus: u32 = 100;
+        let mut call_nums: [u32;3] = [0;3];
+        let mut secret_nums: [u32;3] = [0;3];
 
         
         for i in 0..3 {
             if ((i == 0) & (call_num < 100)) {
-                call_nums[i] = 0 as u16;
+                call_nums[i] = 0 as u32;
             } else {
                let subtractor = call_num - (call_num % modulus);
                call_nums[i] = subtractor / modulus;
@@ -135,7 +135,7 @@
 
         for i in 0..3 {
             if ((i == 0) & (secret_num < 100)) {
-                secret_nums[i] = 0 as u16;
+                secret_nums[i] = 0 as u32;
             } else {
                let subtractor = secret_num - (secret_num % modulus);
                secret_nums[i] = subtractor / modulus;
@@ -165,16 +165,16 @@
         
     }
 
-       fn arrarify_num(_num: Field) -> [u16;3] {
+       fn arrarify_num(_num: Field) -> [u32;3] {
 
-        let mut num = _num as u16;
+        let mut num = _num as u32;
 
-        let mut modulus: u16 = 100;
-        let mut nums: [u16;3] = [0;3];
+        let mut modulus: u32 = 100;
+        let mut nums: [u32;3] = [0;3];
 
         for i in 0..3 {
             if ((i == 0) & (num < 100)) {
-               nums[i] = 0 as u16;
+               nums[i] = 0 as u32;
             } else {
                let subtractor = num - (num % modulus);
                nums[i] = subtractor / modulus;

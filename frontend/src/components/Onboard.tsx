@@ -21,7 +21,8 @@ import {
 	joinGame,
 	pxe,
 } from "../scripts";
-import { getSandboxAccountsWallets, Fr } from "@aztec/aztec.js";
+import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
+import { Fr } from "@aztec/aztec.js";
 
 export default function Onboard() {
 	const {
@@ -145,7 +146,7 @@ export default function Onboard() {
 	async function handleCreateNewGame() {
 		setLoadingCreate(true);
 
-		const player1 = (await getSandboxAccountsWallets(pxe()))[0];
+		const player1 = (await getInitialTestAccountsWallets(pxe()))[0];
 
 		// generate game password
 		const gamePassword = Fr.random().toShortString().slice(0, 5);
@@ -177,7 +178,7 @@ export default function Onboard() {
 
 			console.log("gameContractAddress: ", gameContractAddress);
 
-			const player2 = (await getSandboxAccountsWallets(pxe()))[1];
+			const player2 = (await getInitialTestAccountsWallets(pxe()))[1];
 
 			const _is_ready = await getIfPlayersAdded(gameContractAddress);
 			if (!_is_ready) {

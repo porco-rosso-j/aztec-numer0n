@@ -1,15 +1,17 @@
 import {
 	Fr,
 	createPXEClient,
-	init,
-	getSandboxAccountsWallets,
 	AccountWalletWithPrivateKey,
 	AztecAddress,
 	TxHash,
 	ExtendedNote,
 	Note,
 	CheatCodes,
+	initAztecJs,
 } from "@aztec/aztec.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
 
 const SANDBOX_URL = "http://localhost:8080";
 const SECRET_NUM_SLOT = new Fr(2);
@@ -18,9 +20,9 @@ const GAME_ID_SLOT = new Fr(5);
 export async function getSlot() {
 	const pxe = createPXEClient(SANDBOX_URL);
 
-	await init();
+	await initAztecJs();
 	const accounts: AccountWalletWithPrivateKey[] =
-		await getSandboxAccountsWallets(pxe);
+		await getInitialTestAccountsWallets(pxe);
 
 	const cheatCodes = CheatCodes.create(SANDBOX_URL, pxe);
 

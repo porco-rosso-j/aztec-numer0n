@@ -1,17 +1,19 @@
 import {
-	init,
 	Fr,
 	PXE,
 	createPXEClient,
-	getSandboxAccountsWallets,
-	waitForSandbox,
 	AztecAddress,
 	AccountWalletWithPrivateKey,
+	initAztecJs,
 } from "@aztec/aztec.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
 
 import { Numer0nContract } from "./artifacts/Numer0n.js";
 import { addGameIdNote } from "./utils/add_note.js";
 import { setup } from "./utils/deploy.js";
+import { SANDBOX_URL } from "./utils/constants.js";
 
 const ADDRESS_ZERO = AztecAddress.fromBigInt(0n);
 
@@ -27,13 +29,10 @@ let player2Addr: AztecAddress;
 
 // Setup: Set the sandbox
 beforeAll(async () => {
-	const { SANDBOX_URL = "http://localhost:8080" } = process.env;
 	pxe = createPXEClient(SANDBOX_URL);
 
-	await init();
-	await waitForSandbox(pxe);
-	const accounts: AccountWalletWithPrivateKey[] =
-		await getSandboxAccountsWallets(pxe);
+	await initAztecJs();
+	const accounts = await getInitialTestAccountsWallets(pxe);
 	player1 = accounts[0];
 	player2 = accounts[1];
 	deployer = accounts[2];
@@ -88,7 +87,7 @@ describe("E2E Numer0n setup, deploy, join game", () => {
 		});
 	});
 
-	it.skip("should fail due to invalid game id", async () => {
+	it("should fail due to invalid game id", async () => {
 		await expect(
 			Numer0nContract.deploy(deployer, 0n, player1Addr).send().wait()
 		).rejects.toThrowError(
@@ -100,9 +99,6 @@ describe("E2E Numer0n setup, deploy, join game", () => {
 			.wait();
 
 		numer0n = receipt.contract;
-
-		// Add the contract public key to the PXE
-		await pxe.registerRecipient(receipt.contract.completeAddress);
 
 		await addGameIdNote(
 			pxe,
@@ -133,7 +129,7 @@ describe("E2E Numer0n setup, deploy, join game", () => {
 		);
 	});
 
-	it.skip("should fail in invalid player address", async () => {
+	it("should fail in invalid player address", async () => {
 		const game_id = 123n;
 
 		await expect(
@@ -147,9 +143,6 @@ describe("E2E Numer0n setup, deploy, join game", () => {
 			.wait();
 
 		numer0n = receipt.contract;
-
-		// Add the contract public key to the PXE
-		await pxe.registerRecipient(receipt.contract.completeAddress);
 
 		await addGameIdNote(
 			pxe,
@@ -178,9 +171,6 @@ describe("E2E Numer0n setup, deploy, join game", () => {
 			.wait();
 
 		numer0n = receipt.contract;
-
-		// Add the contract public key to the PXE
-		await pxe.registerRecipient(receipt.contract.completeAddress);
 
 		await addGameIdNote(
 			pxe,
