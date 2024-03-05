@@ -5,7 +5,7 @@ else
 endif
 
 ifeq ($(PROD),true)
-	DEPLOY_FLAG = -u http://167.235.62.116:8080
+	DEPLOY_FLAG = -u https://aztec-pxe.abstract-crypto.com
 endif
 
 .PHONY: gen-artifacts

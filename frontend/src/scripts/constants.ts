@@ -1,8 +1,8 @@
 export const REGISTRY_ADDRESS =
 	import.meta.env.VITE_ENV == "LOCAL"
-		? "0x158a0b277b5ecffde0f3e6798a6e01f7cb9941d0fb2281f71ae996a00c5e7ee2"
+		? "0x06067adacaf42c14ae3d455e5c7b537d27c1663681346e37bd022e4ff0924d76"
 		: import.meta.env.VITE_ENV == "REMOTE"
-		? "0x158a0b277b5ecffde0f3e6798a6e01f7cb9941d0fb2281f71ae996a00c5e7ee2"
+		? "0x06067adacaf42c14ae3d455e5c7b537d27c1663681346e37bd022e4ff0924d76"
 		: "";
 
 export const SANDBOX_URL =
