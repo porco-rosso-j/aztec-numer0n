@@ -1,15 +1,15 @@
 export const REGISTRY_ADDRESS =
 	import.meta.env.VITE_ENV == "LOCAL"
-		? "0x222c5d2c5c3cd8d281677bd3e30f5b9e1552b85f66b38849ab2626f17aae04e0"
+		? "0x158a0b277b5ecffde0f3e6798a6e01f7cb9941d0fb2281f71ae996a00c5e7ee2"
 		: import.meta.env.VITE_ENV == "REMOTE"
-		? "0x222c5d2c5c3cd8d281677bd3e30f5b9e1552b85f66b38849ab2626f17aae04e0"
+		? "0x158a0b277b5ecffde0f3e6798a6e01f7cb9941d0fb2281f71ae996a00c5e7ee2"
 		: "";
 
 export const SANDBOX_URL =
 	import.meta.env.VITE_ENV == "LOCAL"
 		? "http://127.0.0.1:8000"
 		: import.meta.env.VITE_ENV == "REMOTE"
-		? "http://167.235.62.116:8080"
+		? "https://aztec-pxe.abstract-crypto.com"
 		: "";
 
 export const SANDBOX_ADDRESS_1 =
