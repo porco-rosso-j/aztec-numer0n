@@ -2,7 +2,7 @@ export const REGISTRY_ADDRESS =
 	import.meta.env.VITE_ENV == "LOCAL"
 		? "0x0ecf8535eb0c5b5b99d877b0456db6b57f7a30d271de1e93fc5648cc28fb02cf"
 		: import.meta.env.VITE_ENV == "REMOTE"
-		? "0x06067adacaf42c14ae3d455e5c7b537d27c1663681346e37bd022e4ff0924d76"
+		? "0x0998803a10077e6863bb8f1bd419d33fcb793a8e30ba42af9a6fd934bbdb2684"
 		: "";
 
 export const SANDBOX_URL =
