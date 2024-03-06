@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Center, Container, Group, SimpleGrid, Text } from "@mantine/core";
+import { Box, Container, Group, SimpleGrid, Text } from "@mantine/core";
 import PlayerBoard from "./PlayerBoard";
 import Call from "./Call";
 import Item from "./Item";
@@ -8,6 +8,7 @@ import { useGameContext } from "../contexts/useGameContext";
 import CallHistory from "./CallHistory";
 import { getIsFirst, getRound, getIsFinished, getWinner } from "../scripts";
 import TurnNotificationModal from "./Modals/TurnNotificationModal";
+import GameResultModal from "./Modals/GameResultModal";
 
 type GameType = {
 	gameId: string;
@@ -18,6 +19,8 @@ export default function Game(props: GameType) {
 	const [IsAddNumModalOpen, setOpenAddNumModal] = useState(false);
 	const [IsTurnNotificationModalOpen, setOpenTurnNotificationModal] =
 		useState(false);
+	const [isGameResultModalOpen, setIsGameResultModalOpen] = useState(false);
+
 	const [isFirst, setIsFirst] = useState(true);
 	const [round, setRount] = useState(0);
 	const [isFinished, setIsFinished] = useState(false);
@@ -57,6 +60,12 @@ export default function Game(props: GameType) {
 			}
 		})();
 	}, [secretNumber]);
+
+	useEffect(() => {
+		if (winnerId != 0 && isFinished) {
+			setIsGameResultModalOpen(true);
+		}
+	}, [winnerId, isFinished]);
 
 	useEffect(() => {
 		(async () => {
@@ -114,6 +123,10 @@ export default function Game(props: GameType) {
 		setOpenTurnNotificationModal(false);
 	};
 
+	const closeGameResultModal = () => {
+		setIsGameResultModalOpen(false);
+	};
+
 	return (
 		<>
 			<Container>
@@ -142,22 +155,6 @@ export default function Game(props: GameType) {
 							Who's turn: {round != 0 && myTurn ? "You!" : "Opponent"}{" "}
 						</Text>
 						<Text style={{ flex: 1, textAlign: "center" }}>Round: {round}</Text>
-						{winnerId != 0 && isFinished ? (
-							<Center>
-								<Text style={{ textAlign: "center", fontSize: "16px" }}>
-									Result:{" "}
-									{winnerId == playerId ? (
-										<Text style={{ color: "#dd227f", fontSize: "16px" }}>
-											You won!
-										</Text>
-									) : (
-										<Text style={{ color: "#4169e1", fontSize: "16px" }}>
-											You lost
-										</Text>
-									)}
-								</Text>
-							</Center>
-						) : null}
 					</Group>
 					<SimpleGrid cols={2}>
 						<PlayerBoard
@@ -200,6 +197,12 @@ export default function Game(props: GameType) {
 				<TurnNotificationModal
 					isOpen={IsTurnNotificationModalOpen}
 					onClose={closeTurnNotificationModal}
+				/>
+				<GameResultModal
+					isOpen={isGameResultModalOpen}
+					onClose={closeGameResultModal}
+					winnerId={winnerId}
+					playerId={playerId}
 				/>
 			</Container>
 		</>
