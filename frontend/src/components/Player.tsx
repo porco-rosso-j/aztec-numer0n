@@ -29,7 +29,7 @@ export default function Player(props: PlayerType) {
 				setOpponentNums(arrayNum);
 			}
 		})();
-	}, [props.opponentSecretNum, secretNumber]);
+	}, [props.opponentSecretNum]);
 
 	// Add secret num
 	useEffect(() => {

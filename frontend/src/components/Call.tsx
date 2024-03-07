@@ -1,4 +1,4 @@
-import { Button, Center, Stack, PinInput } from "@mantine/core";
+import { Button, Center, Stack, PinInput, Text } from "@mantine/core";
 import { useState } from "react";
 import { numLen } from "../scripts/constants";
 import { useGameContext } from "../contexts/useGameContext";
@@ -12,6 +12,9 @@ import CallNumModal from "./Modals/CallNumModal";
 
 type CallType = {
 	playerId: number;
+	isFirst: boolean;
+	isFinished: boolean;
+	updateStates: () => void;
 };
 
 export default function Call(props: CallType) {
@@ -22,6 +25,7 @@ export default function Call(props: CallType) {
 	const [nums, setNums] = useState<number[]>();
 	const [IsCallnumOpen, setOpenCallNumModal] = useState(false);
 	const [result, setResult] = useState<number[]>([]);
+	const [errorMessage, setErrorMessage] = useState("");
 
 	function handleInput(input: string) {
 		if (input.length != numLen) setCallDisabled(true);
@@ -41,6 +45,19 @@ export default function Call(props: CallType) {
 
 	async function handleCall() {
 		if (!nums) return;
+		setErrorMessage("");
+		if (props.isFinished) {
+			setErrorMessage("Game is over");
+			setCalling(false);
+			return;
+		} else if (
+			(props.isFirst && props.playerId == 2) ||
+			(!props.isFirst && props.playerId == 1)
+		) {
+			setErrorMessage("Not your turn");
+			setCalling(false);
+			return;
+		}
 		try {
 			setCalling(true);
 
@@ -69,6 +86,7 @@ export default function Call(props: CallType) {
 			if (result[0] != 0) {
 				setResult(result);
 				openModal();
+				props.updateStates();
 			}
 		} finally {
 			setCalling(false);
@@ -107,6 +125,13 @@ export default function Call(props: CallType) {
 					>
 						Call
 					</Button>
+					{errorMessage ? (
+						<Text c={"red"} style={{ textAlign: "center" }}>
+							{errorMessage}
+						</Text>
+					) : (
+						""
+					)}
 				</Stack>
 			</Center>
 			<CallNumModal

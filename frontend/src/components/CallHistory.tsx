@@ -40,77 +40,109 @@ export default function CallHistory(props: CallHistoryType) {
 	const [resultRows, setResultRows] = useState<ResultRow[]>(initialRows);
 	const [currentTurn, setCurrentTurn] = useState<boolean>(true);
 	const [refreshed, setRefreshed] = useState<boolean>(true);
-	const [_isFinished, _setIsFinished] = useState<boolean>(false);
-
-	const updateHistry = async () => {
-		const round = await getRound(contractAddress);
-		const isTurnChanged = props.isFirst != currentTurn && round > 0n;
-		const isFinished = !_isFinished ? _setIsFinished(props.isFinished) : false;
-
-		if (
-			(refreshed && round > 0) ||
-			isTurnChanged ||
-			props.itemUsed ||
-			isFinished
-		) {
-			setRefreshed(false);
-			setCurrentTurn(!currentTurn);
-			_setIsFinished(false);
-			props.historyUpdated();
-			console.log("props.isFirst: ", props.isFirst);
-			console.log("currentTurn: ", currentTurn);
-			let resultRow: ResultRow[] = [];
-			let result: number[] = [];
-
-			const _playerAddr = playerId == 1 ? player1Address : player2Address;
-			const _opponentAddr = playerId == 1 ? player2Address : player1Address;
-			const playerAddr = props.isOpponent ? _opponentAddr : _playerAddr;
-			console.log("playerAddr: ", playerAddr);
-
-			for (let i = 0; i < round; i++) {
-				result = await getResult(playerAddr, BigInt(i + 1), contractAddress);
-				console.log("result: ", result);
-
-				if (result[0] != 0 || result[3] != 0) {
-					console.log("result[3]: ", result[3]);
-
-					const newResult: ResultRow = {
-						guess: stringfyAndPaddZero(result[0]),
-						eat: result[1],
-						bite: result[2],
-						item: result[3],
-						item_result: result[4],
-					};
-					console.log("newResult: ", newResult);
-
-					resultRow.push(newResult);
-				}
-			}
-			console.log("resultRow: ", resultRow);
-
-			if (resultRow.length <= 5)
-				resultRow = resultRow.concat(
-					Array(5 - resultRow.length).fill(emptyRow)
-				);
-
-			const currentRoundRow = Number(round) - 1;
-
-			if (currentRoundRow >= 0) setResultRows(resultRow);
-			if (resultRows[currentRoundRow]?.eat == 3)
-				props.getOpponentSecretNum(resultRows[currentRoundRow].guess);
-
-			console.log("resultRows: ", resultRows);
-		}
-	};
+	// const [_isFinished, _setIsFinished] = useState<boolean>(false);
+	const [updatedAfterGameFinish, setUpdatedAfterGameFinish] =
+		useState<boolean>(false);
 
 	useEffect(() => {
+		const updateHistry = async () => {
+			const round = await getRound(contractAddress);
+			const isTurnChanged = props.isFirst != currentTurn && round > 0n;
+			// const isFinished = !_isFinished
+			// 	? _setIsFinished(props.isFinished)
+			// 	: false;
+
+			console.log("props.isFinished: ", props.isFinished);
+			console.log("updatedAfterGameFinish: ", updatedAfterGameFinish);
+
+			if (
+				(refreshed && round > 0) ||
+				isTurnChanged ||
+				props.itemUsed ||
+				(props.isFinished && !updatedAfterGameFinish)
+				// isFinished
+				// props.isFinished
+			) {
+				setRefreshed(false);
+				setCurrentTurn(!currentTurn);
+				// _setIsFinished(false);
+				props.historyUpdated();
+				console.log("props.isFirst: ", props.isFirst);
+				console.log("currentTurn: ", currentTurn);
+				let resultRow: ResultRow[] = [];
+				let result: number[] = [];
+
+				const _playerAddr = playerId == 1 ? player1Address : player2Address;
+				const _opponentAddr = playerId == 1 ? player2Address : player1Address;
+				const playerAddr = props.isOpponent ? _opponentAddr : _playerAddr;
+				console.log("playerAddr: ", playerAddr);
+
+				for (let i = 0; i < round; i++) {
+					result = await getResult(playerAddr, BigInt(i + 1), contractAddress);
+					console.log("result: ", result);
+
+					if (result[0] != 0 || result[3] != 0) {
+						console.log("result[3]: ", result[3]);
+
+						const newResult: ResultRow = {
+							guess: stringfyAndPaddZero(result[0]),
+							eat: result[1],
+							bite: result[2],
+							item: result[3],
+							item_result: result[4],
+						};
+						console.log("newResult: ", newResult);
+
+						resultRow.push(newResult);
+					}
+				}
+				console.log("round: ", round);
+				console.log("!props.isFirst: ", !props.isFirst);
+				console.log("playerId == 2: ", playerId);
+				if (round > 5 && resultRow.length != Number(round)) {
+					resultRow.push(emptyRow);
+				}
+				console.log("resultRow: ", resultRow);
+
+				if (resultRow.length <= 5)
+					resultRow = resultRow.concat(
+						Array(5 - resultRow.length).fill(emptyRow)
+					);
+
+				const currentRoundRow = Number(round) - 1;
+
+				if (currentRoundRow >= 0) setResultRows(resultRow);
+				if (!props.isOpponent && resultRows[currentRoundRow]?.eat == 3) {
+					console.log("getOpponentSecretNum");
+					console.log(resultRows[currentRoundRow].guess);
+					props.getOpponentSecretNum(resultRows[currentRoundRow].guess);
+				}
+
+				console.log("resultRows: ", resultRows);
+
+				console.log("setLastUpdated");
+				if (props.isFinished) {
+					setUpdatedAfterGameFinish(true);
+				}
+			}
+		};
+
 		console.log("updateHistry");
 		updateHistry();
-		const intervalId = setInterval(updateHistry, 10000);
-		return () => {
-			clearInterval(intervalId);
-		};
-	}, [updateHistry]);
+	}, [
+		props.isFirst,
+		props.isFinished,
+		props.isOpponent,
+		props.itemUsed,
+		updatedAfterGameFinish,
+		refreshed,
+		currentTurn,
+		resultRows,
+		player1Address,
+		player2Address,
+		playerId,
+		contractAddress,
+	]);
 
 	const cellStyle: React.CSSProperties = {
 		border: "1px solid #ddd",

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Button, Center, Stack, Select } from "@mantine/core";
+import { Button, Center, Stack, Select, Text } from "@mantine/core";
 import { useState } from "react";
 import { useGameContext } from "../contexts/useGameContext";
 import {
@@ -13,6 +13,8 @@ import DefenseItemModal from "./Modals/useDefenseItemModal";
 
 type ItemType = {
 	playerId: number;
+	isFirst: boolean;
+	isFinished: boolean;
 	usedItem: () => void;
 };
 
@@ -26,10 +28,24 @@ export default function Item(props: ItemType) {
 	const [IsUseDefenseItemModalOpen, setOpenUseDefenseItemModal] =
 		useState(false);
 	const [itemResult, setItemResult] = useState<number[]>([]);
+	const [errorMessage, setErrorMessage] = useState("");
 
 	console.log("targetNum", targetNum);
 
 	async function handleCall() {
+		setErrorMessage("");
+		if (props.isFinished) {
+			setErrorMessage("Game is over");
+			setCalling(false);
+			return;
+		} else if (
+			(props.isFirst && props.playerId == 2) ||
+			(!props.isFirst && props.playerId == 1)
+		) {
+			setErrorMessage("Not your turn");
+			setCalling(false);
+			return;
+		}
 		if (selectedNum != 0 && selectedNum <= 3) {
 			try {
 				setCalling(true);
@@ -129,6 +145,13 @@ export default function Item(props: ItemType) {
 					>
 						Use
 					</Button>
+					{errorMessage ? (
+						<Text c={"red"} style={{ textAlign: "center" }}>
+							{errorMessage}
+						</Text>
+					) : (
+						""
+					)}
 				</Stack>
 			</Center>
 			<UseItemModal

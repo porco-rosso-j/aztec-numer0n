@@ -11,11 +11,13 @@ function TurnNotificationModal(props: TurnNotificationModalType) {
 	useEffect(() => {
 		const timerToClose = async () => {
 			console.log("props.isOpen: ", props.isOpen);
+
 			if (props.isOpen) {
 				//await delay(3);
 				props.onClose();
 			}
 		};
+
 		const intervalId = setInterval(timerToClose, 3000);
 		return () => {
 			clearInterval(intervalId);

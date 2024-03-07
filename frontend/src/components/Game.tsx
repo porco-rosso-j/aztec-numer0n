@@ -28,29 +28,32 @@ export default function Game(props: GameType) {
 	const [itemUsed, setIsItemUsed] = useState(false);
 	const [opponentSecretNum, setOpponentSecretNum] = useState<string>("");
 	const [myTurn, setMyTurn] = useState(false);
-	const [currentTurn, setCurrentTurn] = useState(1);
+	const [currentTurn, setCurrentTurn] = useState(0);
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const updateStates = async () => {
+		const _isFirst = await getIsFirst(contractAddress);
+		const _round = await getRound(contractAddress);
+		const _isFinished = await getIsFinished(contractAddress);
+		const _winner = await getWinner(contractAddress);
+		console.log("isFinished: ", _isFinished);
+		setIsFirst(_isFirst);
+		setRount(Number(_round));
+		setIsFinished(_isFinished);
+		if (_winner != 0n) {
+			console.log("_winner: ", _winner);
+			setWinnerId(Number(_winner));
+		}
+	};
 
 	// set turn
 	useEffect(() => {
-		const checkStates = async () => {
-			const _isFirst = await getIsFirst(contractAddress);
-			const _round = await getRound(contractAddress);
-			const _isFinished = await getIsFinished(contractAddress);
-			const _winner = await getWinner(contractAddress);
-			console.log("isFinished: ", _isFinished);
-			setIsFirst(_isFirst);
-			setRount(Number(_round));
-			setIsFinished(_isFinished);
-			if (_winner != 0n) {
-				console.log("_winner: ", _winner);
-				setWinnerId(Number(_winner));
-			}
-		};
-		const intervalId = setInterval(checkStates, 5000);
+		const intervalId = setInterval(updateStates, 5000);
 		return () => {
 			clearInterval(intervalId);
 		};
-	}, [contractAddress, setIsFirst, setIsFinished]);
+		// updateStates();
+	}, [updateStates]);
 
 	// Add secret num
 	useEffect(() => {
@@ -84,7 +87,8 @@ export default function Game(props: GameType) {
 				// setOpenTurnNotificationModal(true);
 				setMyTurn(true);
 				// return "You";
-				if (turn != currentTurn && round > 0) {
+
+				if (turn != currentTurn && round > 0 && !isFinished) {
 					setOpenTurnNotificationModal(true);
 				}
 			} else if (turn == 2) {
@@ -92,9 +96,11 @@ export default function Game(props: GameType) {
 				// return "Opponent";
 			}
 
-			setCurrentTurn(turn);
+			if (round > 0) {
+				setCurrentTurn(turn);
+			}
 		})();
-	}, [currentTurn, isFirst, myTurn, playerId, round, setMyTurn]);
+	}, [currentTurn, isFirst, myTurn, playerId, round, isFinished, setMyTurn]);
 
 	const openModal = () => {
 		setOpenAddNumModal(true);
@@ -151,9 +157,21 @@ export default function Game(props: GameType) {
 						<Text style={{ flex: 1, textAlign: "center" }}>
 							Game ID: {props.gameId != "" ? props.gameId : gameId}
 						</Text>
-						<Text style={{ flex: 1, textAlign: "center" }}>
-							Who's turn: {round != 0 && myTurn ? "You!" : "Opponent"}{" "}
-						</Text>
+						{!isFinished ? (
+							<Text style={{ flex: 1, textAlign: "center" }}>
+								Who's turn: {round != 0 && myTurn ? "You!" : "Opponent"}{" "}
+							</Text>
+						) : (
+							<Text style={{ flex: 1, textAlign: "center" }}>
+								This game is over:{" "}
+								{winnerId == 3
+									? "draw"
+									: winnerId == playerId
+									? "you won"
+									: "you lost"}
+							</Text>
+						)}
+
 						<Text style={{ flex: 1, textAlign: "center" }}>Round: {round}</Text>
 					</Group>
 					<SimpleGrid cols={2}>
@@ -163,7 +181,7 @@ export default function Game(props: GameType) {
 							opponentSecretNum={opponentSecretNum}
 						/>
 						<PlayerBoard
-							playerId={playerId == 1 ? 2 : 1}
+							playerId={playerId === 1 ? 2 : 1}
 							isOpponent={true}
 							opponentSecretNum={opponentSecretNum}
 						/>
@@ -188,8 +206,18 @@ export default function Game(props: GameType) {
 					</SimpleGrid>
 
 					<SimpleGrid cols={2} mx={30} mt={50} pb={100}>
-						<Item playerId={playerId} usedItem={usedItem} />
-						<Call playerId={playerId} />
+						<Item
+							playerId={playerId}
+							isFirst={isFirst}
+							isFinished={isFinished}
+							usedItem={usedItem}
+						/>
+						<Call
+							playerId={playerId}
+							isFirst={isFirst}
+							isFinished={isFinished}
+							updateStates={updateStates}
+						/>
 					</SimpleGrid>
 				</Box>
 
