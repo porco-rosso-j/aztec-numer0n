@@ -2,6 +2,9 @@ mod types;
 mod item_lib;
 mod num_lib;
 
+// aztec-nargo compile
+// aztec-cli codegen ./target/ -o src/artifacts --ts
+
 contract Numer0n {
     use dep::std;
     use dep::aztec::{
@@ -173,7 +176,7 @@ contract Numer0n {
     }
 
     #[aztec(private)]
-    fn use_attack_item(target: AztecAddress, item_type: Field) {
+    fn use_attack_item(target: AztecAddress, item_type: Field, _target_num: Field) {
         assert(target != context.msg_sender(), "caller shouldn't be target");
         assert_current_call_valid_authwit(&mut context, target);
 
@@ -182,7 +185,9 @@ contract Numer0n {
             result = item_lib::get_high_and_low(storage.secret_num.at(target.to_field()));
         } else if (item_type == item_lib::ITEM_SLASH) {
             result = item_lib::get_slash(storage.secret_num.at(target.to_field()));
-            // } else if (item_type == item_lib::ITEM_TARGET) {
+        } else if (item_type == item_lib::ITEM_TARGET) {
+            assert(_target_num as u32 < 10, "invalid target_num");
+            result = item_lib::get_target(storage.secret_num.at(target.to_field()), _target_num);
         } else {
             assert(false, "inavlid item type");
         }
@@ -195,8 +200,50 @@ contract Numer0n {
         );
     }
 
+    // the following functinon `use_defense_item` is commented out and unused atm.
+    // instead, there are two separate funcs for use_defense_item: change and shuffle
+    // this is because if-else chain messes things up, causing 
+
+    // #[aztec(private)]
+    // fn use_defense_item(player: Field, item_type: Field, new_secret_num: Field) {
+    //     assert(context.msg_sender().to_field() == player, "invalid player");
+
+    //     context.call_public_function(
+    //         context.this_address(),
+    //         FunctionSelector::from_signature("_assert_is_player(Field)"),
+    //         [player]
+    //     );
+
+    //     num_lib::is_valid_nums(new_secret_num);
+
+    //     // let secret_num_note = storage.secret_num.at(player).get_note(true);
+    //     let secret_num_note = storage.secret_num.at(player).get_note(false);
+    //     let secret_num = secret_num_note.secret_num;
+
+    //     let mut ret: bool = false;
+    //     if (item_type == item_lib::ITEM_CHANGE) {
+    //        let ret = item_lib::is_valid_changed_num(secret_num, new_secret_num);
+    //        assert(ret, "invalid num for change");
+    //     } else if (item_type == item_lib::ITEM_SHUFFLE) {
+    //        let ret = item_lib::is_valid_new_shuffled_num(secret_num, new_secret_num);
+    //        assert(ret, "invalid num for shuffule");
+    //     } else {
+    //        assert(false, "inavlid item type");
+    //     }
+
+    //     let mut new_secret_num_note = SecretNumberNote::new(new_secret_num, AztecAddress::from_field(player));
+    //     storage.secret_num.at(player).replace(&mut new_secret_num_note, true);
+
+    //     // records results
+    //     context.call_public_function(
+    //         context.this_address(),
+    //         FunctionSelector::from_signature("_record_item_result(Field,Field,Field)"),
+    //         [context.msg_sender().to_field(), item_type, 0]
+    //     );
+    // }
+
     #[aztec(private)]
-    fn use_defense_item(player: Field, item_type: Field, new_secret_num: Field) {
+    fn use_change(player: Field, new_secret_num: Field) {
         assert(context.msg_sender().to_field() == player, "invalid player");
 
         context.call_public_function(
@@ -207,17 +254,10 @@ contract Numer0n {
 
         num_lib::is_valid_nums(new_secret_num);
 
-        let secret_num_note = storage.secret_num.at(player).get_note(true);
+        let secret_num_note = storage.secret_num.at(player).get_note(false);
         let secret_num = secret_num_note.secret_num;
-
-        let result:Field = 0;
-        if (item_type == item_lib::ITEM_SHUFFLE) {
-            let ret = item_lib::is_valid_new_shuffled_num(secret_num, new_secret_num);
-            assert(ret == 0, "invalid num for shuffule");
-            // } else if (item_type == item_lib::ITEM_CHANGE) {
-        } else {
-            assert(false, "inavlid item type");
-        }
+        let ret = item_lib::is_valid_changed_num(secret_num, new_secret_num);
+        assert(ret, "invalid num for change");
 
         let mut new_secret_num_note = SecretNumberNote::new(new_secret_num, AztecAddress::from_field(player));
         storage.secret_num.at(player).replace(&mut new_secret_num_note, true);
@@ -226,7 +266,35 @@ contract Numer0n {
         context.call_public_function(
             context.this_address(),
             FunctionSelector::from_signature("_record_item_result(Field,Field,Field)"),
-            [context.msg_sender().to_field(), item_type, result]
+            [context.msg_sender().to_field(), item_lib::ITEM_CHANGE, 0]
+        );
+    }
+
+    #[aztec(private)]
+    fn use_shuffle(player: Field, new_secret_num: Field) {
+        assert(context.msg_sender().to_field() == player, "invalid player");
+
+        context.call_public_function(
+            context.this_address(),
+            FunctionSelector::from_signature("_assert_is_player(Field)"),
+            [player]
+        );
+
+        num_lib::is_valid_nums(new_secret_num);
+        
+        let secret_num_note = storage.secret_num.at(player).get_note(false);
+        let secret_num = secret_num_note.secret_num;
+        let ret = item_lib::is_valid_new_shuffled_num(secret_num, new_secret_num);
+        assert(ret, "invalid num for shuffle");
+
+        let mut new_secret_num_note = SecretNumberNote::new(new_secret_num, AztecAddress::from_field(player));
+        storage.secret_num.at(player).replace(&mut new_secret_num_note, true);
+
+        // records results
+        context.call_public_function(
+            context.this_address(),
+            FunctionSelector::from_signature("_record_item_result(Field,Field,Field)"),
+            [context.msg_sender().to_field(), item_lib::ITEM_SHUFFLE, 0]
         );
     }
 
@@ -412,15 +480,24 @@ contract Numer0n {
     }
 
     // for testing purpose
-    unconstrained fn is_valid_new_shuffled_num(num: Field, new_num: Field) -> pub Field {
-        item_lib::_is_valid_new_shuffled_num(num, new_num)
-    }
-
-    // for testing purpose
     unconstrained fn get_slash(num: Field) -> pub Field {
         item_lib::_get_slash(num)
     }
 
+    // for testing purpose
+    unconstrained fn get_target(num: Field, target_num:Field) -> pub Field {
+        item_lib::_get_target(num, target_num)
+    }
+    
+    // for testing purpose
+    unconstrained fn is_valid_new_changed_num(num: Field, new_num: Field) -> pub bool {
+        item_lib::_is_valid_changed_num(num, new_num)
+    }
+
+    // for testing purpose
+    unconstrained fn is_valid_new_shuffled_num(num: Field, new_num: Field) -> pub bool {
+        item_lib::_is_valid_new_shuffled_num(num, new_num)
+    }
     unconstrained fn get_game() -> pub Game {
         storage.game.read()
     }
@@ -442,12 +519,12 @@ contract Numer0n {
         preimage: [Field; SECRET_NUM_NOTE_LEN]
     ) -> pub [Field; 4] {
         let note_header = NoteHeader::new(contract_address, nonce, storage_slot);
-        if (note_type_id == 0) {
+        if (note_type_id == SecretNumberNote::get_note_type_id()) {
             // should derive storage slot for mapped values correctly
             // https://github.com/AztecProtocol/aztec-packages/blob/2db2e2a3091e2552f8e8055d1bc07bd5016455ff/yarn-project/aztec-nr/aztec/src/state_vars/map.nr#L32C1-L32C1
             note_utils::compute_note_hash_and_nullifier(SecretNumberNote::deserialize_content, note_header, preimage)
-        } else if (note_type_id == 1) {
-             note_utils::compute_note_hash_and_nullifier(FieldNote::deserialize_content, note_header, preimage)
+        } else {
+            note_utils::compute_note_hash_and_nullifier(FieldNote::deserialize_content, note_header, preimage)
         }
     }
 }

@@ -19,12 +19,15 @@ type ItemType = {
 export default function Item(props: ItemType) {
 	const { player1Address, player2Address, contractAddress } = useGameContext();
 	const [selectedNum, setSelectedNum] = useState<number>(0);
+	const [targetNum, setTargetNum] = useState<number>(0);
 	const [callDisabled, setCallDisabled] = useState<boolean>(true);
 	const [calling, setCalling] = useState<boolean>(false);
 	const [IsUseItemModalOpen, setOpenUseNumModal] = useState(false);
 	const [IsUseDefenseItemModalOpen, setOpenUseDefenseItemModal] =
 		useState(false);
 	const [itemResult, setItemResult] = useState<number[]>([]);
+
+	console.log("targetNum", targetNum);
 
 	async function handleCall() {
 		if (selectedNum != 0 && selectedNum <= 3) {
@@ -42,7 +45,8 @@ export default function Item(props: ItemType) {
 					player,
 					opponent,
 					BigInt(selectedNum),
-					contractAddress
+					contractAddress,
+					BigInt(targetNum)
 				);
 				const result = await getResult(playerAddr, round, contractAddress);
 				console.log("result: ", result);
@@ -107,6 +111,15 @@ export default function Item(props: ItemType) {
 							{ value: "5", label: "5. Shuffle" },
 						]}
 					/>
+					{selectedNum == 3 ? (
+						<Select
+							description={"target number"}
+							placeholder="Select target number"
+							value={targetNum.toString()}
+							onChange={(value) => setTargetNum(Number(value))}
+							data={["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+						/>
+					) : null}
 					<Button
 						mt={10}
 						variant="filled"
@@ -122,6 +135,7 @@ export default function Item(props: ItemType) {
 				isOpen={IsUseItemModalOpen}
 				onClose={closeModal}
 				itemRsult={itemResult}
+				targetNum={targetNum}
 			/>
 			<DefenseItemModal
 				isOpen={IsUseDefenseItemModalOpen}

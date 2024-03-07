@@ -10,7 +10,7 @@ import {
 	ContractBase,
 	ContractFunctionInteraction,
 	ContractInstanceWithAddress,
-	ContractMethod,z
+	ContractMethod,
 	DeployMethod,
 	EthAddress,
 	EthAddressLike,
@@ -90,16 +90,10 @@ export class Numer0nContract extends ContractBase {
 	}
 
 	/** Type-safe wrappers for the public methods exposed by the contract. */
+	// @ts-ignore
 	public methods!: {
-		/** call_num(target: struct, call_num: field) */
-		call_num: ((
-			target: AztecAddressLike,
-			call_num: FieldLike
-		) => ContractFunctionInteraction) &
-			Pick<ContractMethod, "selector">;
-
-		/** get_winner() */
-		get_winner: (() => ContractFunctionInteraction) &
+		/** get_is_first() */
+		get_is_first: (() => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
 		/** check_result(call_num: field, secret_num: field) */
@@ -109,48 +103,17 @@ export class Numer0nContract extends ContractBase {
 		) => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
-		/** is_valid_nums(_num: field) */
-		is_valid_nums: ((_num: FieldLike) => ContractFunctionInteraction) &
+		/** constructor(game_id: field, player: field) */
+		constructor: ((
+			game_id: FieldLike,
+			player: FieldLike
+		) => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
 		/** add_num(player: field, secret_num: field) */
 		add_num: ((
 			player: FieldLike,
 			secret_num: FieldLike
-		) => ContractFunctionInteraction) &
-			Pick<ContractMethod, "selector">;
-
-		/** use_attack_item(target: struct, item_type: field) */
-		use_attack_item: ((
-			target: AztecAddressLike,
-			item_type: FieldLike
-		) => ContractFunctionInteraction) &
-			Pick<ContractMethod, "selector">;
-
-		/** get_round() */
-		get_round: (() => ContractFunctionInteraction) &
-			Pick<ContractMethod, "selector">;
-
-		/** get_is_first() */
-		get_is_first: (() => ContractFunctionInteraction) &
-			Pick<ContractMethod, "selector">;
-
-		/** get_result(player: field, round: field) */
-		get_result: ((
-			player: FieldLike,
-			round: FieldLike
-		) => ContractFunctionInteraction) &
-			Pick<ContractMethod, "selector">;
-
-		/** get_is_finished() */
-		get_is_finished: (() => ContractFunctionInteraction) &
-			Pick<ContractMethod, "selector">;
-
-		/** use_defense_item(player: field, item_type: field, new_secret_num: field) */
-		use_defense_item: ((
-			player: FieldLike,
-			item_type: FieldLike,
-			new_secret_num: FieldLike
 		) => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
@@ -165,18 +128,69 @@ export class Numer0nContract extends ContractBase {
 		get_player: ((player: FieldLike) => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
-		/** get_is_started() */
-		get_is_started: (() => ContractFunctionInteraction) &
+		/** get_round() */
+		get_round: (() => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
-		/** get_slash(num: field) */
-		get_slash: ((num: FieldLike) => ContractFunctionInteraction) &
+		/** use_change(player: field, new_secret_num: field) */
+		use_change: ((
+			player: FieldLike,
+			new_secret_num: FieldLike
+		) => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
-		/** constructor(game_id: field, player: field) */
-		constructor: ((
+		/** use_shuffle(player: field, new_secret_num: field) */
+		use_shuffle: ((
+			player: FieldLike,
+			new_secret_num: FieldLike
+		) => ContractFunctionInteraction) &
+			Pick<ContractMethod, "selector">;
+
+		/** get_result(player: field, round: field) */
+		get_result: ((
+			player: FieldLike,
+			round: FieldLike
+		) => ContractFunctionInteraction) &
+			Pick<ContractMethod, "selector">;
+
+		/** join_game(game_id: field, player: field) */
+		join_game: ((
 			game_id: FieldLike,
 			player: FieldLike
+		) => ContractFunctionInteraction) &
+			Pick<ContractMethod, "selector">;
+
+		/** get_secret_num(player: field) */
+		get_secret_num: ((player: FieldLike) => ContractFunctionInteraction) &
+			Pick<ContractMethod, "selector">;
+
+		/** is_valid_new_changed_num(num: field, new_num: field) */
+		is_valid_new_changed_num: ((
+			num: FieldLike,
+			new_num: FieldLike
+		) => ContractFunctionInteraction) &
+			Pick<ContractMethod, "selector">;
+
+		/** get_winner() */
+		get_winner: (() => ContractFunctionInteraction) &
+			Pick<ContractMethod, "selector">;
+
+		/** get_is_finished() */
+		get_is_finished: (() => ContractFunctionInteraction) &
+			Pick<ContractMethod, "selector">;
+
+		/** get_target(num: field, target_num: field) */
+		get_target: ((
+			num: FieldLike,
+			target_num: FieldLike
+		) => ContractFunctionInteraction) &
+			Pick<ContractMethod, "selector">;
+
+		/** use_attack_item(target: struct, item_type: field, _target_num: field) */
+		use_attack_item: ((
+			target: AztecAddressLike,
+			item_type: FieldLike,
+			_target_num: FieldLike
 		) => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
@@ -184,8 +198,16 @@ export class Numer0nContract extends ContractBase {
 		get_game: (() => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
-		/** get_high_and_low(num: field) */
-		get_high_and_low: ((num: FieldLike) => ContractFunctionInteraction) &
+		/** is_valid_nums(_num: field) */
+		is_valid_nums: ((_num: FieldLike) => ContractFunctionInteraction) &
+			Pick<ContractMethod, "selector">;
+
+		/** get_is_started() */
+		get_is_started: (() => ContractFunctionInteraction) &
+			Pick<ContractMethod, "selector">;
+
+		/** get_slash(num: field) */
+		get_slash: ((num: FieldLike) => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
 		/** compute_note_hash_and_nullifier(contract_address: struct, nonce: field, storage_slot: field, note_type_id: field, preimage: array) */
@@ -198,14 +220,14 @@ export class Numer0nContract extends ContractBase {
 		) => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
-		/** get_secret_num(player: field) */
-		get_secret_num: ((player: FieldLike) => ContractFunctionInteraction) &
+		/** get_high_and_low(num: field) */
+		get_high_and_low: ((num: FieldLike) => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 
-		/** join_game(game_id: field, player: field) */
-		join_game: ((
-			game_id: FieldLike,
-			player: FieldLike
+		/** call_num(target: struct, call_num: field) */
+		call_num: ((
+			target: AztecAddressLike,
+			call_num: FieldLike
 		) => ContractFunctionInteraction) &
 			Pick<ContractMethod, "selector">;
 	};

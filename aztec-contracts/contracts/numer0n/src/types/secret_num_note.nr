@@ -32,11 +32,9 @@ impl SecretNumberNote {
     }
 }
 
-
 impl NoteInterface<SECRET_NUM_NOTE_LEN> for SecretNumberNote {
     fn serialize_content(self) -> [Field; SECRET_NUM_NOTE_LEN] {
-        let res: [Field; SECRET_NUM_NOTE_LEN] = [self.secret_num, self.owner.to_field()];
-        res
+        [self.secret_num, self.owner.to_field()]
     }
 
     fn deserialize_content(serialized_note: [Field; SECRET_NUM_NOTE_LEN]) -> Self {
@@ -77,7 +75,7 @@ impl NoteInterface<SECRET_NUM_NOTE_LEN> for SecretNumberNote {
 
 
     // Broadcasts the note as an encrypted log on L1.
-    pub fn broadcast(self, context: &mut PrivateContext, slot: Field) {
+    fn broadcast(self, context: &mut PrivateContext, slot: Field) {
         let encryption_pub_key = get_public_key(self.owner);
         emit_encrypted_log(
             context,
@@ -90,6 +88,7 @@ impl NoteInterface<SECRET_NUM_NOTE_LEN> for SecretNumberNote {
     }
 
     fn get_note_type_id() -> Field {
-        0
+        // 0
+        8310199114101116781171099810111478111116101
     }
 }

@@ -10,12 +10,13 @@ import {
 	Stack,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
-import { HighLow, item } from "../../scripts/constants";
+import { HighLow, Target, item } from "../../scripts/constants";
 
 type UseItemModalType = {
 	isOpen: boolean;
 	onClose: () => void;
 	itemRsult: number[];
+	targetNum: number;
 };
 
 type ItemResult = {
@@ -34,13 +35,15 @@ function UseItemModal(props: UseItemModalType) {
 	const handleResult = () => {
 		const newResult: ItemResult = {
 			item: item(props.itemRsult[3]),
-			item_result: ""
+			item_result: "",
 		};
 
 		if (props.itemRsult[3] == 1) {
-			newResult.item_result =  HighLow(props.itemRsult[4])
-		} else  {
-			newResult.item_result = props.itemRsult[4].toString()
+			newResult.item_result = HighLow(props.itemRsult[4]);
+		} else if (props.itemRsult[3] == 3) {
+			newResult.item_result = Target(props.itemRsult[4]);
+		} else {
+			newResult.item_result = props.itemRsult[4].toString();
 		}
 
 		console.log("moda; newResult] ", newResult);

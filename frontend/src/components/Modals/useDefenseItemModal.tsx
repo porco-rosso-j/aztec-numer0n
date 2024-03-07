@@ -64,11 +64,24 @@ function DefenseItemModal(props: DefenseItemModalType) {
 			setErrorMessage("");
 			setLoading(true);
 			const num = Number(nums.join(""));
-			const ret = await getIsValidShuffle(
-				BigInt(secretNumber),
-				BigInt(num),
-				contractAddress
-			);
+
+			let ret = false;
+
+			if (props.itemType == 4) {
+				// ret = await getIsValidShuffle(
+				// 	BigInt(secretNumber),
+				// 	BigInt(num),
+				// 	contractAddress
+				// );
+				ret = true;
+			} else if (props.itemType == 5) {
+				ret = await getIsValidShuffle(
+					BigInt(secretNumber),
+					BigInt(num),
+					contractAddress
+				);
+			}
+
 			if (!ret) {
 				setErrorMessage("Invalid Number");
 				throw "invalid number";
@@ -78,13 +91,15 @@ function DefenseItemModal(props: DefenseItemModalType) {
 			console.log("playerId :", playerId);
 			const playerAddr = props.playerId == 1 ? player1Address : player2Address;
 			const player = await getAccountByAddress(playerAddr);
-			await useDefenseItem(
+			const success = await useDefenseItem(
 				player,
 				BigInt(props.itemType),
 				BigInt(num),
 				contractAddress
 			);
-			saveSecretNumber(num);
+			if (success) {
+				saveSecretNumber(num);
+			}
 
 			props.onClose();
 		} finally {

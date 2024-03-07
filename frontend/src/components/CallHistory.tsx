@@ -5,7 +5,7 @@ import { Table } from "@mantine/core";
 import { useGameContext } from "../contexts/useGameContext";
 import { getResult, getRound } from "../scripts";
 import { useState, useEffect } from "react";
-import { item, HighLow } from "../scripts/constants";
+import { item, HighLow, Target } from "../scripts/constants";
 import { stringfyAndPaddZero } from "../scripts/utils";
 
 type CallHistoryType = {
@@ -129,6 +129,8 @@ export default function CallHistory(props: CallHistoryType) {
 					? " : " + HighLow(row.item_result)
 					: row.item == 2
 					? " : " + row.item_result.toString()
+					: row.item == 3
+					? "" + Target(row.item_result)
 					: null}
 			</td>
 		</tr>

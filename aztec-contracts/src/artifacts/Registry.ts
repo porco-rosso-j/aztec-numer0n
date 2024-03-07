@@ -85,6 +85,7 @@ export class RegistryContract extends ContractBase {
 	}
 
 	/** Type-safe wrappers for the public methods exposed by the contract. */
+	// @ts-ignore
 	public methods!: {
 		/** compute_note_hash_and_nullifier(contract_address: struct, nonce: field, storage_slot: field, note_type_id: field, preimage: array) */
 		compute_note_hash_and_nullifier: ((

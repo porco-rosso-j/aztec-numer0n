@@ -9,6 +9,10 @@ import {
 
 const SECRET_NUM_SLOT = new Fr(2);
 const GAME_ID_SLOT = new Fr(5);
+const SECRET_NUM_NOTE_TYPE_ID = new Fr(
+	8310199114101116781171099810111478111116101n
+);
+const FIELD_NOTE_TYPE_ID = new Fr(7010510110810078111116101n);
 
 export const addSecretNumNote = async (
 	pxe: PXE,
@@ -23,7 +27,7 @@ export const addSecretNumNote = async (
 			owner,
 			contract,
 			SECRET_NUM_SLOT,
-			new Fr(0),
+			SECRET_NUM_NOTE_TYPE_ID,
 			txHash
 		)
 	);
@@ -42,7 +46,7 @@ export const addGameIdNote = async (
 			owner,
 			contract,
 			GAME_ID_SLOT,
-			new Fr(1),
+			FIELD_NOTE_TYPE_ID,
 			txHash
 		)
 	);

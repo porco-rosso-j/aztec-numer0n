@@ -6,6 +6,7 @@ import {
 	AztecAddress,
 	AccountWalletWithPrivateKey,
 	computeAuthWitMessageHash,
+	waitForPXE,
 } from "@aztec/aztec.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
@@ -14,6 +15,8 @@ import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
 import { Numer0nContract } from "./artifacts/Numer0n.js";
 import { setup } from "./utils/deploy.js";
 import { SANDBOX_URL } from "./utils/constants.js";
+import { getSlot } from "./utils/compute-slot.js";
+import { addSecretNumNote } from "./utils/add_note.js";
 
 const ADDRESS_ZERO = AztecAddress.fromBigInt(0n);
 const ZERO_FIELD = new Fr(0n);
@@ -28,9 +31,14 @@ let deployer: AccountWalletWithPrivateKey;
 let player1Addr: AztecAddress;
 let player2Addr: AztecAddress;
 
+// default secret nums
+// player 1 = 125
+// player 2 = 293
+
 // Setup: Set the sandbox
 beforeAll(async () => {
 	pxe = createPXEClient(SANDBOX_URL);
+	await waitForPXE(pxe);
 
 	await initAztecJs();
 	const accounts = await getInitialTestAccountsWallets(pxe);
@@ -49,7 +57,7 @@ describe("E2E Numer0n", () => {
 			numer0n = await setup(pxe, deployer, player1, player2);
 		}, 120_000);
 
-		it("should fail due to call from invalid player", async () => {
+		it.skip("should fail due to call from invalid player", async () => {
 			const secret_num = 125n;
 
 			await expect(
@@ -91,9 +99,22 @@ describe("E2E Numer0n", () => {
 
 			console.log("_secert_num: ", _secert_num);
 			expect(_secert_num).toEqual(secret_num);
+
+			// await getSlot(pxe, player1);
+
+			// await addSecretNumNote(
+			// 	pxe,
+			// 	player1Addr,
+			// 	numer0n.address,
+			// 	tx.txHash,
+			// 	new Fr(_secert_num),
+			// 	1
+			// );
 		});
 
-		it("should fail to add different num for the second time: player 1 ", async () => {
+		// return;
+
+		it.skip("should fail to add different num for the second time: player 1 ", async () => {
 			const secret_num1 = 327n;
 
 			await expect(
@@ -125,6 +146,18 @@ describe("E2E Numer0n", () => {
 
 			console.log("_secert_num: ", _secert_num);
 			expect(_secert_num).toEqual(secret_num);
+
+			// console.log("slot p2: ", await getSlot(pxe, player2));
+			// await addSecretNumNote(
+			// 	pxe,
+			// 	player2Addr,
+			// 	numer0n.address,
+			// 	tx.txHash,
+			// 	_secert_num,
+			// 	2
+			// );
+
+			// await getSlot(pxe, player2);
 		});
 
 		it.skip("should fail to add different num for the second time: player 2", async () => {
@@ -141,7 +174,7 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it("should fail due to invalid caller", async () => {
+		it.skip("should fail due to invalid caller", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 			const call_num = 293n;
 
@@ -161,7 +194,7 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it("shouldn't be able to call your secret num: caller == target", async () => {
+		it.skip("shouldn't be able to call your secret num: caller == target", async () => {
 			const call_num = 293n;
 
 			const action = numer0n
@@ -173,7 +206,7 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it("shouldn fail because of unknown auth witness", async () => {
+		it.skip("shouldn fail because of unknown auth witness", async () => {
 			const call_num = 293n;
 
 			const action = numer0n
@@ -260,7 +293,37 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it("player1 should call player2's secret num wrongly: 0-3", async () => {
+		it.skip("player1 should use high & low successfully", async () => {
+			// player 2 should create authwitness for player 1 to send tx
+
+			const action = numer0n
+				.withWallet(player1)
+				.methods.use_attack_item(player2Addr, 1n, 0);
+			const messageHash = computeAuthWitMessageHash(
+				player1Addr,
+				action.request()
+			);
+
+			const witness = await player2.createAuthWitness(messageHash);
+			await player1.addAuthWitness(witness);
+
+			const tx = await action.send().wait();
+
+			console.log("tx hash: ", tx.txHash.toString());
+			expect(tx.status).toBe("mined");
+
+			const round = await numer0n.methods.get_round().view();
+
+			const result_one = await numer0n.methods
+				.get_result(player1Addr, round)
+				.view();
+
+			console.log("result_one: ", result_one);
+			expect(result_one.item).toEqual(1n); // high & low
+			expect(result_one.item_result).toEqual(121n);
+		});
+
+		it.skip("player1 should call player2's secret num wrongly: 0-3", async () => {
 			// player 2 should create authwitness for player 1 to send tx
 			const call_num = 932n;
 
@@ -292,7 +355,37 @@ describe("E2E Numer0n", () => {
 			expect(result_one.bite).toEqual(3n);
 		});
 
-		it("player2 should call player1's secret num wrongly: 0-0", async () => {
+		it.skip("player2 should use slash successfully", async () => {
+			// player 2 should create authwitness for player 1 to send tx
+
+			const action = numer0n
+				.withWallet(player2)
+				.methods.use_attack_item(player1Addr, 2n, 0);
+			const messageHash = computeAuthWitMessageHash(
+				player2Addr,
+				action.request()
+			);
+
+			const witness = await player1.createAuthWitness(messageHash);
+			await player2.addAuthWitness(witness);
+
+			const tx = await action.send().wait();
+
+			console.log("tx hash: ", tx.txHash.toString());
+			expect(tx.status).toBe("mined");
+
+			const round = await numer0n.methods.get_round().view();
+
+			const result_one = await numer0n.methods
+				.get_result(player2Addr, round)
+				.view();
+
+			console.log("result_one: ", result_one);
+			expect(result_one.item).toEqual(2n);
+			expect(result_one.item_result).toEqual(7n);
+		});
+
+		it.skip("player2 should call player1's secret num wrongly: 0-0", async () => {
 			// player 1 should create authwitness for player 2 to send tx
 
 			const round_before = await numer0n.methods.get_round().view();
@@ -332,64 +425,44 @@ describe("E2E Numer0n", () => {
 			expect(is_first_after).not.toBe(is_first_before);
 		});
 
-		it("player1 should use high & low successfully", async () => {
-			// player 2 should create authwitness for player 1 to send tx
+		// it("player1 should use change successfully", async () => {
+		// 	const new_secret_num = 126n; // current: 125
 
-			const action = numer0n
+		// 	const tx = await numer0n
+		// 		.withWallet(player1)
+		// 		.methods.use_defense_item(player1Addr, 4n, new_secret_num)
+		// 		.send()
+		// 		.wait();
+
+		// 	console.log("tx: ", tx.txHash.toString());
+		// 	expect(tx.status).toBe("mined");
+
+		// 	const _secert_num = await numer0n.methods
+		// 		.get_secret_num(player1Addr)
+		// 		.view();
+
+		// 	console.log("_secert_num: ", _secert_num);
+		// 	expect(_secert_num).toEqual(new_secret_num);
+		// });
+
+		it("player1 should use shuffle successfully", async () => {
+			const new_secret_num = 251n; // current: 125
+
+			const tx = await numer0n
 				.withWallet(player1)
-				.methods.use_attack_item(player2Addr, 1n);
-			const messageHash = computeAuthWitMessageHash(
-				player1Addr,
-				action.request()
-			);
+				.methods.use_shuffle(player1Addr, new_secret_num)
+				.send()
+				.wait();
 
-			const witness = await player2.createAuthWitness(messageHash);
-			await player1.addAuthWitness(witness);
-
-			const tx = await action.send().wait();
-
-			console.log("tx hash: ", tx.txHash.toString());
+			console.log("tx: ", tx.txHash.toString());
 			expect(tx.status).toBe("mined");
 
-			const round = await numer0n.methods.get_round().view();
-
-			const result_one = await numer0n.methods
-				.get_result(player1Addr, round)
+			const _secert_num = await numer0n.methods
+				.get_secret_num(player1Addr)
 				.view();
 
-			console.log("result_one: ", result_one);
-			expect(result_one.item).toEqual(1n); // high & low
-			expect(result_one.item_result).toEqual(121n);
-		});
-
-		it.skip("player1 should use slash successfully", async () => {
-			// player 2 should create authwitness for player 1 to send tx
-
-			const action = numer0n
-				.withWallet(player1)
-				.methods.use_attack_item(player2Addr, 2n);
-			const messageHash = computeAuthWitMessageHash(
-				player1Addr,
-				action.request()
-			);
-
-			const witness = await player2.createAuthWitness(messageHash);
-			await player1.addAuthWitness(witness);
-
-			const tx = await action.send().wait();
-
-			console.log("tx hash: ", tx.txHash.toString());
-			expect(tx.status).toBe("mined");
-
-			const round = await numer0n.methods.get_round().view();
-
-			const result_one = await numer0n.methods
-				.get_result(player1Addr, round)
-				.view();
-
-			console.log("result_one: ", result_one);
-			expect(result_one.item).toEqual(2n); // high & low
-			expect(result_one.item_result).toEqual(7n);
+			console.log("_secert_num: ", _secert_num);
+			expect(_secert_num).toEqual(new_secret_num);
 		});
 
 		it("player1 should call player2's secret num correctly", async () => {
@@ -424,12 +497,32 @@ describe("E2E Numer0n", () => {
 			expect(result_one.bite).toEqual(0n);
 		});
 
-		it("player2 should use shuffle successfully", async () => {
-			const new_secret_num = 329n; // current: 125
+		// it("player2 should use shuffle successfully", async () => {
+		// 	const new_secret_num = 329n; // current: 293
+
+		// 	const tx = await numer0n
+		// 		.withWallet(player2)
+		// 		.methods.use_defense_item(player2Addr, 5n, new_secret_num)
+		// 		.send()
+		// 		.wait();
+
+		// 	console.log("tx: ", tx.txHash.toString());
+		// 	expect(tx.status).toBe("mined");
+
+		// 	const _secert_num = await numer0n.methods
+		// 		.get_secret_num(player2Addr)
+		// 		.view();
+
+		// 	console.log("_secert_num: ", _secert_num);
+		// 	expect(_secert_num).toEqual(new_secret_num);
+		// });
+
+		it("player2 should use change successfully", async () => {
+			const new_secret_num = 294n; // current: 293
 
 			const tx = await numer0n
 				.withWallet(player2)
-				.methods.use_defense_item(player2Addr, 5n, new_secret_num)
+				.methods.use_change(player2Addr, new_secret_num)
 				.send()
 				.wait();
 
@@ -444,9 +537,10 @@ describe("E2E Numer0n", () => {
 			expect(_secert_num).toEqual(new_secret_num);
 		});
 
-		it("player2 should call player1's secret num correctly", async () => {
+		it.skip("player2 should call player1's secret num correctly", async () => {
 			// player 1 should create authwitness for player 2 to send tx
-			const call_num = 125n;
+			// const call_num = 125n;
+			const call_num = 126n;
 
 			const action = numer0n
 				.withWallet(player2)

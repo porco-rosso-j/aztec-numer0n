@@ -8,6 +8,7 @@ import {
 } from "@aztec/aztec.js";
 import { Numer0nContract } from "../artifacts/Numer0n.js";
 import { addGameIdNote } from "../utils/add_note.js";
+import { DeployTxReceipt } from "node_modules/@aztec/aztec.js/dest/contract/deploy_sent_tx.js";
 
 export const setup = async (
 	pxe: PXE,
@@ -28,7 +29,7 @@ export const setup = async (
 	const numer0n = receipt.contract;
 
 	// Add the contract public key to the PXE
-	// await pxe.registerRecipient(receipt.contract.completeAddress);
+	//await pxe.registerRecipient(receipt.contract.partialAddress);
 
 	await addGameIdNote(
 		pxe,

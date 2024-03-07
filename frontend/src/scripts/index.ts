@@ -58,7 +58,7 @@ export async function createGame(
 
 		contractAddress = receipt.contractAddress!;
 
-		//await pxe().registerRecipient(receipt.contract.address);
+		// await pxe().registerRecipient(receipt.contract.address);
 
 		await addGameIdNote(
 			pxe(),
@@ -158,7 +158,8 @@ export async function useAttackItem(
 	player: AccountWalletWithPrivateKey,
 	opponent: AccountWalletWithPrivateKey,
 	item_type: bigint,
-	contractAddress: string
+	contractAddress: string,
+	target_num: bigint
 ) {
 	try {
 		const numer0n = await Numer0nContract.at(
@@ -168,7 +169,8 @@ export async function useAttackItem(
 
 		const action = numer0n.methods.use_attack_item(
 			opponent.getAddress(),
-			item_type
+			item_type,
+			target_num
 		);
 		const messageHash = computeAuthWitMessageHash(
 			player.getAddress(),
@@ -188,19 +190,31 @@ export async function useDefenseItem(
 	item_type: bigint,
 	new_secret_num: bigint,
 	contractAddress: string
-) {
+): Promise<boolean> {
 	try {
 		const numer0n = await Numer0nContract.at(
 			AztecAddress.fromString(contractAddress),
 			player
 		);
 
-		await numer0n.methods
-			.use_defense_item(player.getAddress(), item_type, new_secret_num)
-			.send()
-			.wait();
+		if (item_type == 4n) {
+			await numer0n.methods
+				.use_change(player.getAddress(), new_secret_num)
+				.send()
+				.wait();
+		} else if (item_type == 5n) {
+			await numer0n.methods
+				.use_shuffle(player.getAddress(), new_secret_num)
+				.send()
+				.wait();
+		} else {
+			return false;
+		}
+
+		return true;
 	} catch (e) {
 		console.log("e: ", e);
+		return false;
 	}
 }
 
@@ -286,6 +300,21 @@ export async function isValidNum(
 	return await numer0n.methods.is_valid_nums(num).view();
 }
 
+export async function getIsValidChange(
+	current_num: bigint,
+	new_num: bigint,
+	contractAddress: string
+): Promise<boolean> {
+	const numer0n = await Numer0nContract.at(
+		AztecAddress.fromString(contractAddress),
+		new SignerlessWallet(pxe())
+	);
+
+	return await numer0n.methods
+		.is_valid_new_changed_num(current_num, new_num)
+		.view();
+}
+
 export async function getIsValidShuffle(
 	current_num: bigint,
 	new_num: bigint,
@@ -296,10 +325,9 @@ export async function getIsValidShuffle(
 		new SignerlessWallet(pxe())
 	);
 
-	const ret = await numer0n.methods
+	return await numer0n.methods
 		.is_valid_new_shuffled_num(current_num, new_num)
 		.view();
-	return ret == 0n ? true : false;
 }
 
 export async function getIfPlayersAdded(

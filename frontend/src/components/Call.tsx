@@ -96,12 +96,8 @@ export default function Call(props: CallType) {
 						value={input}
 						onChange={handleInput}
 						length={numLen}
-						// radius="md"
 						size="xl"
-						// style={{ outline: "1px solid purple" }}
 						onComplete={handleFilledNums}
-
-						// disabled={isInit}
 					/>
 					<Button
 						variant="filled"

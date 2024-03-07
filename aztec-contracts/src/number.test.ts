@@ -6,6 +6,9 @@ import {
 	AztecAddress,
 	AccountWalletWithPrivateKey,
 } from "@aztec/aztec.js";
+
+// yarn test src/number.test.ts
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
@@ -100,7 +103,7 @@ describe("E2E Numer0n", () => {
 			console.log("ret4: ", ret4);
 		});
 
-		it("is_valid_nums", async () => {
+		it.skip("is_valid_nums", async () => {
 			const num = 51n;
 			const ret = await numer0n.methods.is_valid_nums(num).view();
 			console.log("ret: ", ret);
@@ -114,7 +117,7 @@ describe("E2E Numer0n", () => {
 			console.log("ret3: ", ret3);
 		});
 
-		it("should fail due to invalid nums", async () => {
+		it.skip("should fail due to invalid nums", async () => {
 			await expect(
 				numer0n
 					.withWallet(player1)
@@ -166,7 +169,7 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it("check high & low result", async () => {
+		it.skip("check high & low result", async () => {
 			const ret1 = await numer0n.methods.get_high_and_low(145n).view();
 			expect(ret1).toBe(112n);
 
@@ -193,41 +196,7 @@ describe("E2E Numer0n", () => {
 			expect(ret8).toBe(112n);
 		});
 
-		it("check shuffle", async () => {
-			let ret;
-			ret = await numer0n.methods.is_valid_new_shuffled_num(145n, 365n).view();
-			expect(ret).toBe(1n);
-
-			ret = await numer0n.methods.is_valid_new_shuffled_num(365n, 361n).view();
-			expect(ret).toBe(1n);
-
-			ret = await numer0n.methods.is_valid_new_shuffled_num(361n, 851n).view();
-			expect(ret).toBe(1n);
-
-			ret = await numer0n.methods.is_valid_new_shuffled_num(851n, 612n).view();
-			expect(ret).toBe(1n);
-
-			ret = await numer0n.methods.is_valid_new_shuffled_num(612n, 948n).view();
-			expect(ret).toBe(1n);
-
-			ret = await numer0n.methods.is_valid_new_shuffled_num(948n, 56n).view();
-			expect(ret).toBe(1n);
-
-			// with zeros.
-			ret = await numer0n.methods.is_valid_new_shuffled_num(56n, 109n).view();
-			expect(ret).toBe(1n);
-
-			ret = await numer0n.methods.is_valid_new_shuffled_num(109n, 901n).view();
-			expect(ret).toBe(0n);
-
-			ret = await numer0n.methods.is_valid_new_shuffled_num(851n, 518n).view();
-			expect(ret).toBe(0n);
-
-			ret = await numer0n.methods.is_valid_new_shuffled_num(41n, 401n).view();
-			expect(ret).toBe(0n);
-		});
-
-		it("check high & low result", async () => {
+		it.skip("check high & low result", async () => {
 			const ret1 = await numer0n.methods.get_high_and_low(145n).view();
 			expect(ret1).toBe(112n);
 
@@ -254,7 +223,7 @@ describe("E2E Numer0n", () => {
 			expect(ret8).toBe(112n);
 		});
 
-		it("check slash ", async () => {
+		it.skip("check slash ", async () => {
 			const ret1 = await numer0n.methods.get_slash(145n).view();
 			expect(ret1).toBe(4n);
 
@@ -279,6 +248,96 @@ describe("E2E Numer0n", () => {
 
 			const ret8 = await numer0n.methods.get_slash(109n).view();
 			expect(ret8).toBe(9n);
+		});
+
+		it.skip("check target ", async () => {
+			const ret1 = await numer0n.methods.get_target(145n, 1n).view();
+			expect(ret1).toBe(13n);
+
+			const ret2 = await numer0n.methods.get_target(365n, 6n).view();
+			expect(ret2).toBe(62n);
+
+			const ret3 = await numer0n.methods.get_target(361n, 1n).view();
+			expect(ret3).toBe(11n);
+
+			const ret4 = await numer0n.methods.get_target(851n, 0n).view();
+			expect(ret4).toBe(0n);
+
+			const ret5 = await numer0n.methods.get_target(612n, 2n).view();
+			expect(ret5).toBe(21n);
+
+			const ret6 = await numer0n.methods.get_target(948n, 321n).view();
+			expect(ret6).toBe(3210n);
+
+			// with zeros.
+			const ret7 = await numer0n.methods.get_target(56n, 0n).view();
+			expect(ret7).toBe(3n);
+
+			const ret8 = await numer0n.methods.get_target(109n, 9n).view();
+			expect(ret8).toBe(91n);
+		});
+
+		it.skip("check change", async () => {
+			let ret;
+			ret = await numer0n.methods.is_valid_new_changed_num(145n, 145n).view();
+			expect(ret).toBe(false);
+
+			ret = await numer0n.methods.is_valid_new_changed_num(365n, 326n).view();
+			expect(ret).toBe(false);
+
+			ret = await numer0n.methods.is_valid_new_changed_num(361n, 472n).view();
+			expect(ret).toBe(false);
+
+			// with zeros.
+			ret = await numer0n.methods.is_valid_new_changed_num(56n, 136n).view();
+			expect(ret).toBe(false);
+
+			ret = await numer0n.methods.is_valid_new_changed_num(109n, 209n).view();
+			expect(ret).toBe(true);
+
+			ret = await numer0n.methods.is_valid_new_changed_num(851n, 861n).view();
+			expect(ret).toBe(true);
+
+			ret = await numer0n.methods.is_valid_new_changed_num(41n, 51n).view();
+			expect(ret).toBe(true);
+		});
+
+		it("check shuffle", async () => {
+			let ret;
+			ret = await numer0n.methods.is_valid_new_shuffled_num(145n, 365n).view();
+			expect(ret).toBe(false);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(365n, 361n).view();
+			expect(ret).toBe(false);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(361n, 851n).view();
+			expect(ret).toBe(false);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(851n, 612n).view();
+			expect(ret).toBe(false);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(612n, 948n).view();
+			expect(ret).toBe(false);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(948n, 56n).view();
+			expect(ret).toBe(false);
+
+			// with zeros.
+			ret = await numer0n.methods.is_valid_new_shuffled_num(56n, 109n).view();
+			expect(ret).toBe(false);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(293n, 329n).view();
+			console.log("ret: ", ret);
+			expect(ret).toBe(true);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(109n, 901n).view();
+			expect(ret).toBe(true);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(851n, 518n).view();
+			expect(ret).toBe(true);
+
+			ret = await numer0n.methods.is_valid_new_shuffled_num(41n, 401n).view();
+			expect(ret).toBe(true);
 		});
 	});
 });

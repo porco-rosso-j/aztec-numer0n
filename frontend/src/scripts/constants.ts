@@ -1,8 +1,8 @@
 export const REGISTRY_ADDRESS =
 	import.meta.env.VITE_ENV == "LOCAL"
-		? "0x0ecf8535eb0c5b5b99d877b0456db6b57f7a30d271de1e93fc5648cc28fb02cf"
+		? "0x1dd2b709690892bc10e8abde0cb62ff36cfcfff328de9918891764cff9d131fb"
 		: import.meta.env.VITE_ENV == "REMOTE"
-		? "0x0998803a10077e6863bb8f1bd419d33fcb793a8e30ba42af9a6fd934bbdb2684"
+		? "0x274b86dbb6140af7bd9e0b565fbe209a10d2183887645b686cdcac3036bfd41b"
 		: "";
 
 export const SANDBOX_URL =
@@ -27,8 +27,39 @@ export const item = (num: number) => {
 		return "H&L";
 	} else if (num == 2) {
 		return "Slash";
+	} else if (num == 3) {
+		return "Target";
+	} else if (num == 4) {
+		return "Change";
 	} else if (num == 5) {
 		return "Shuffle";
+	} else {
+		return "";
+	}
+};
+
+export const Target = (result: number) => {
+	let target;
+	let place;
+
+	// target <= 3
+	if (result <= 3) {
+		target = "0";
+		place = result;
+	} else {
+		target = result.toString().slice(0, 1);
+		place = Number(result.toString().slice(1));
+	}
+	console.log("target: ", target);
+
+	if (place == 0) {
+		return target + " : No";
+	} else if (place == 1) {
+		return target + " : 1s";
+	} else if (place == 2) {
+		return target + " : 10s";
+	} else if (place == 3) {
+		return target + " : 100s";
 	} else {
 		return "";
 	}
