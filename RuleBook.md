@@ -2,6 +2,8 @@
 
 Numer0n is a strategic number-guessing game in which two players compete to guess the opponent's 3-digit secret numbers first.
 
+<img width="1425" alt="Screenshot 2024-03-07 at 23 24 11" src="https://github.com/porco-rosso-j/aztec-numer0n/assets/88586592/2189dc05-02e5-45a1-9df4-bc193710d6e3">
+
 ## Basics
 
 - The secret number set by each player consists of 3 digits (0-9) with no duplication, e.g. 013, 591, 854, etc...
